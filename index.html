@@ -8,49 +8,32 @@
 <!-- Source Code Pro -->
 <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-<script>
-tailwind = window.tailwind || {};
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        charcoal: '#0f1214',
-        forest: '#0f4d3f',
-        neon: '#8a2be2'
-      },
-      fontFamily: {
-        mono: ['"Source Code Pro"', 'monospace']
-      }
-    }
-  }
-}
-</script>
 <script src="https://cdn.tailwindcss.com"></script>
-
-<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
 <style>
 html,body,#root{
+  margin:0;
   background:#0f1214;
   color:#e8eef1;
   font-family:"Source Code Pro", monospace;
+  overflow-x:hidden;
 }
 
-.procedural-bg{
+/* HERO BACKGROUND */
+.hero-bg{
   background-image:
-    repeating-linear-gradient(90deg,rgba(255,255,255,0.02) 0 1px,transparent 1px 80px),
-    repeating-linear-gradient(rgba(255,255,255,0.02) 0 1px,transparent 1px 80px);
-  background-size:80px 80px;
+    linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.85)),
+    url("titel_background.png");
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
 }
 
-.glass{
-  background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));
-  border:1px solid rgba(255,255,255,0.05);
-  backdrop-filter:blur(8px);
-}
-
+/* Discord */
 .status-dot{
   width:10px;
   height:10px;
@@ -59,67 +42,176 @@ html,body,#root{
   margin-right:8px;
 }
 
-.online{background:#23a55a;}
+.online{background:#23a55a; box-shadow:0 0 10px #23a55a;}
 .idle{background:#f0b232;}
 .dnd{background:#f23f43;}
 .offline{background:#80848e;}
+
+.glass{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  backdrop-filter:blur(8px);
+}
+
+/* Terrain canvas */
+#terrain{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:-1;
+}
 </style>
 </head>
 
 <body>
+<canvas id="terrain"></canvas>
 <div id="root"></div>
 
 <script type="text/babel">
-const {useState,useEffect} = React;
+const {useState,useEffect,useRef} = React;
 
-/* ===============================
-   🔧 INSERT YOUR DISCORD ID HERE
-   =============================== */
 const DISCORD_ID = "780384263987920937";
 
-/* =============================== */
+/* ---------------- HERO ---------------- */
 
 function Hero(){
-  const roles=["Game Developer","Musician","Procedural Systems"];
+  const roles=["Game Developer","Systems Programmer","Procedural Enthusiast"];
   const [index,setIndex]=useState(0);
 
   useEffect(()=>{
-    const t=setInterval(()=>setIndex(i=>(i+1)%roles.length),2500);
+    const t=setInterval(()=>setIndex(i=>(i+1)%roles.length),3000);
     return()=>clearInterval(t);
   },[]);
 
   return(
-    <section className="max-w-5xl mx-auto px-6 pt-24 pb-16">
+    <section className="hero-bg min-h-screen flex flex-col justify-center items-center text-center px-6">
       <h1 className="text-5xl md:text-6xl font-bold mb-6">
         David Unterberger
       </h1>
 
       <p className="text-lg text-zinc-300 max-w-2xl mb-6">
         Hobby game developer (since 2020), oboe player & DAW composer.
-        Passionate about procedural terrain generation, animation systems,
-        shader programming, physics simulations and machine learning.
+        Focused on procedural terrain, shader systems, simulation and engine-level experimentation.
       </p>
 
-      <div className="text-xl font-semibold text-neon">
+      <div className="text-xl text-violet-400">
         {roles[index]}
       </div>
     </section>
   );
 }
 
-function Lab(){
+/* ---------------- DISCORD ---------------- */
+
+function Discord(){
+  const [data,setData]=useState(null);
+  const socketRef = useRef(null);
+  const [elapsed,setElapsed]=useState("");
+
+  useEffect(()=>{
+    const ws = new WebSocket("wss://api.lanyard.rest/socket");
+    socketRef.current = ws;
+
+    ws.onopen=()=>{
+      ws.send(JSON.stringify({
+        op:2,
+        d:{ subscribe_to_id: DISCORD_ID }
+      }));
+    };
+
+    ws.onmessage=(event)=>{
+      const payload = JSON.parse(event.data);
+
+      if(payload.t==="INIT_STATE" || payload.t==="PRESENCE_UPDATE"){
+        setData(payload.d);
+      }
+    };
+
+    return()=>ws.close();
+  },[]);
+
+  useEffect(()=>{
+    if(!data) return;
+
+    const activity = data.activities?.find(a=>a.type===0);
+    if(!activity?.timestamps?.start) return;
+
+    const interval=setInterval(()=>{
+      const diff = Date.now() - activity.timestamps.start;
+      const mins = Math.floor(diff/60000);
+      const secs = Math.floor((diff%60000)/1000);
+      setElapsed(`${mins}m ${secs}s`);
+    },1000);
+
+    return()=>clearInterval(interval);
+  },[data]);
+
+  if(!data){
+    return <div className="glass p-6 rounded-xl">Connecting to Discord...</div>;
+  }
+
+  const status = data.discord_status;
+  const activity = data.activities?.find(a=>a.type===0);
+
+  let imageURL=null;
+  if(activity?.assets?.large_image){
+    imageURL = activity.assets.large_image.startsWith("mp:")
+      ? `https://media.discordapp.net/${activity.assets.large_image.replace("mp:","")}`
+      : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.png`;
+  }
+
   return(
-    <section className="max-w-5xl mx-auto px-6 py-20">
-      <h2 className="text-2xl font-bold mb-8">The Lab</h2>
+    <div className="glass p-6 rounded-xl max-w-md mx-auto mt-10">
+      <h3 className="text-lg font-semibold mb-4">Discord Activity</h3>
+
+      <div className="flex items-center mb-4">
+        <span className={`status-dot ${status}`}></span>
+        <span className="capitalize">{status}</span>
+      </div>
+
+      {activity ? (
+        <div>
+          {imageURL && (
+            <img src={imageURL}
+                 className="rounded-lg mb-3 w-full object-cover"
+                 alt="Game Icon"/>
+          )}
+
+          <div className="text-zinc-400 text-sm">Playing</div>
+          <div className="font-semibold">{activity.name}</div>
+
+          {elapsed && (
+            <div className="text-sm text-zinc-500 mt-1">
+              {elapsed} elapsed
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="text-zinc-500 text-sm">
+          Not currently playing anything.
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- CURRENT PROJECT ---------------- */
+
+function CurrentProject(){
+  return(
+    <section className="max-w-5xl mx-auto px-6 py-24">
+      <h2 className="text-2xl font-bold mb-8">Current Project</h2>
 
       <div className="glass p-8 rounded-xl">
         <h3 className="text-xl font-semibold mb-3">
-          Current Focus — Procedural Terrain & Shader Systems
+          Procedural Terrain & Shader Systems
         </h3>
 
         <p className="text-zinc-300 mb-6">
-          Developing modular terrain systems with layered noise,
-          runtime deformation, and performance-conscious shader pipelines.
+          Modular terrain generation with layered noise stacks,
+          runtime deformation, optimized shader pipelines and simulation tooling.
         </p>
 
         <div className="flex gap-4">
@@ -140,139 +232,71 @@ function Lab(){
   );
 }
 
-function Skills(){
-  const languages=[
-    "C#",
-    "C",
-    "Python",
-    "C++",
-    "JavaScript",
-    "HTML",
-    "CSS",
-    "SQL"
-  ];
-
-  return(
-    <section className="max-w-5xl mx-auto px-6 py-20">
-      <h2 className="text-2xl font-bold mb-8">Skills</h2>
-
-      <div className="glass p-8 rounded-xl">
-        <h3 className="font-semibold mb-4">Programming Languages (Most → Least Experienced)</h3>
-        <ul className="space-y-2 text-zinc-300">
-          {languages.map((lang,i)=>(
-            <li key={i}>• {lang}</li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-/* ===============================
-   DISCORD STATUS COMPONENT
-   =============================== */
-
-function DiscordStatus(){
-  const [data,setData]=useState(null);
-
-  useEffect(()=>{
-    async function fetchStatus(){
-      try{
-        const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
-        const json = await res.json();
-        if(json.success){
-          setData(json.data);
-        }
-      }catch(e){
-        console.error("Discord fetch error",e);
-      }
-    }
-
-    fetchStatus();
-    const interval=setInterval(fetchStatus,15000);
-    return()=>clearInterval(interval);
-  },[]);
-
-  if(!data){
-    return(
-      <div className="glass p-6 rounded-xl">
-        Loading Discord status...
-      </div>
-    );
-  }
-
-  const status = data.discord_status;
-  const activity = data.activities.find(a=>a.type===0); // playing game
-
-  return(
-    <div className="glass p-6 rounded-xl">
-      <h3 className="text-lg font-semibold mb-4">Discord</h3>
-
-      <div className="flex items-center mb-4">
-        <span className={`status-dot ${status}`}></span>
-        <span className="capitalize">{status}</span>
-      </div>
-
-      {activity && (
-        <div>
-          <div className="text-zinc-400 text-sm mb-1">Currently Playing</div>
-          <div className="font-semibold">{activity.name}</div>
-        </div>
-      )}
-
-      {!activity && (
-        <div className="text-zinc-400 text-sm">
-          Not currently playing anything.
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Contact(){
-  return(
-    <section className="max-w-5xl mx-auto px-6 py-20">
-      <div className="glass p-8 rounded-xl text-center">
-        <h2 className="text-2xl font-bold mb-6">
-          David Unterberger
-        </h2>
-
-        <div className="flex justify-center gap-6 mb-8">
-          <a href="https://github.com/David-Unterberger"
-             target="_blank"
-             className="glass px-4 py-2 rounded-md hover:scale-105 transition">
-            GitHub
-          </a>
-
-          <a href="https://davebbx.itch.io"
-             target="_blank"
-             className="glass px-4 py-2 rounded-md hover:scale-105 transition">
-            itch.io
-          </a>
-        </div>
-
-        <DiscordStatus/>
-      </div>
-
-      <div className="text-center text-sm text-zinc-500 mt-10">
-        David Unterberger
-      </div>
-    </section>
-  );
-}
+/* ---------------- APP ---------------- */
 
 function App(){
   return(
-    <div className="procedural-bg">
+    <>
       <Hero/>
-      <Lab/>
-      <Skills/>
-      <Contact/>
-    </div>
+      <CurrentProject/>
+      <Discord/>
+    </>
   );
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+
+<script>
+/* ---------------- THREE.JS TERRAIN ---------------- */
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({
+  canvas:document.getElementById("terrain"),
+  alpha:true
+});
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+camera.position.z = 30;
+
+const geometry = new THREE.PlaneGeometry(100, 100, 100, 100);
+const material = new THREE.MeshBasicMaterial({
+  color:0x0f4d3f,
+  wireframe:true,
+  transparent:true,
+  opacity:0.15
+});
+
+const plane = new THREE.Mesh(geometry, material);
+plane.rotation.x = -Math.PI/2.8;
+scene.add(plane);
+
+function animate(){
+  requestAnimationFrame(animate);
+
+  const time = Date.now()*0.0005;
+  const pos = plane.geometry.attributes.position;
+
+  for(let i=0;i<pos.count;i++){
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    const z = Math.sin(x*0.3 + time) * 0.5 +
+              Math.cos(y*0.3 + time) * 0.5;
+    pos.setZ(i,z);
+  }
+
+  pos.needsUpdate = true;
+  renderer.render(scene,camera);
+}
+
+animate();
+
+window.addEventListener("resize",()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
 </script>
 
 </body>
