@@ -1,610 +1,229 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dave — Developer & Artist · David Unterberger</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>David Unterberger</title>
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CDN with custom config -->
-  <script>
-    // Tailwind Play CDN config: extend theme & add utilities
-    tailwind = window.tailwind || {};
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            charcoal: '#0f1214',
-            'charcoal-2': '#111416',
-            'forest': '#0f4d3f',
-            'forest-deep': '#08362b',
-            'neon-purple': '#8a2be2', // C# vibe neon purple
-            'accent-glow': '#8a2be2cc',
-            bread: '#e2b07b'
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
-          },
-          boxShadow: {
-            'neon-sm': '0 4px 18px rgba(138,43,226,0.12), 0 0 30px rgba(138,43,226,0.06)',
-            'neon-lg': '0 15px 60px rgba(138,43,226,0.12), 0 0 60px rgba(138,43,226,0.12)'
-          },
-          backgroundImage: theme => ({
-            'procedural-grid': "linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px)",
-          }),
-        }
+<script>
+tailwind = window.tailwind || {};
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        charcoal: '#0f1214',
+        forest: '#0f4d3f',
+        neon: '#8a2be2'
       },
-      plugins: []
+      fontFamily: {
+        sans: ['Inter','sans-serif'],
+        mono: ['JetBrains Mono','monospace']
+      }
     }
-  </script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  }
+}
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- React + Babel (for single-file demo) -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <style>
-    /* Extra custom styles */
-    :root {
-      --bg: #0f1214;
-      --card: #111416;
-      --muted: #9aa3a0;
-      --neon: #8a2be2;
-      --forest: #0f4d3f;
-      --bread: #e2b07b;
-    }
+<style>
+html,body,#root{
+  background:#0f1214;
+  color:#e8eef1;
+  font-family:Inter,sans-serif;
+}
 
-    html, body, #root {
-      height: 100%;
-      background: radial-gradient(1200px 600px at 10% 10%, rgba(15,77,63,0.06), transparent),
-                  radial-gradient(900px 500px at 90% 90%, rgba(138,43,226,0.03), transparent),
-                  var(--bg);
-      color: #e8eef1;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+.procedural-bg{
+  background-image:
+    repeating-linear-gradient(90deg,rgba(255,255,255,0.02) 0 1px,transparent 1px 80px),
+    repeating-linear-gradient(rgba(255,255,255,0.02) 0 1px,transparent 1px 80px);
+  background-size:80px 80px;
+}
 
-    /* subtle grid (procedural hint) */
-    .procedural-overlay {
-      background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 80px),
-                        repeating-linear-gradient(rgba(255,255,255,0.02) 0 1px, transparent 1px 80px);
-      background-size: 80px 80px, 80px 80px;
-      opacity: 0.06;
-    }
+.kinetic{
+  animation:fadeSlide 3s infinite;
+  color:#8a2be2;
+}
 
-    /* Kinetic typography letters animation */
-    .kinetic-word {
-      display: inline-block;
-      transform-origin: center;
-      animation: neonPop 2400ms ease-in-out infinite;
-      text-shadow:
-        0 0 10px rgba(138,43,226,0.08),
-        0 0 30px rgba(138,43,226,0.05);
-    }
-    @keyframes neonPop {
-      0% { transform: translateY(6px) rotateX(6deg) scale(0.98); opacity: 0; filter: blur(6px); }
-      10% { transform: translateY(0) rotateX(0) scale(1); opacity: 1; filter: blur(0); }
-      40% { transform: translateY(0) rotateX(0) scale(1); opacity: 1; }
-      60% { transform: translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateY(-6px) rotateX(-4deg) scale(0.98); opacity: 0; }
-    }
+@keyframes fadeSlide{
+  0%{opacity:0;transform:translateY(10px)}
+  10%{opacity:1;transform:translateY(0)}
+  80%{opacity:1}
+  100%{opacity:0;transform:translateY(-10px)}
+}
 
-    /* Floating bread animation */
-    .bread-bubble {
-      position: fixed;
-      z-index: 60;
-      pointer-events: none;
-      font-size: 20px;
-      animation: floatUp 6s linear infinite;
-      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45));
-      transform-origin: center;
-    }
-    @keyframes floatUp {
-      0% { transform: translateY(0) rotate(-6deg) }
-      50% { transform: translateY(-40vh) rotate(6deg) }
-      100% { transform: translateY(-80vh) rotate(-6deg) }
-    }
-
-    /* small modal */
-    .modal-backdrop {
-      backdrop-filter: blur(4px) saturate(1.1);
-    }
-
-    /* Animated progress bars for gaming stats */
-    .stat-bar {
-      background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-      border-radius: 999px;
-      overflow: hidden;
-      height: 10px;
-    }
-    .stat-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--neon), rgba(138,43,226,0.2));
-      box-shadow: 0 6px 24px rgba(138,43,226,0.08), inset 0 1px 0 rgba(255,255,255,0.02);
-      transform-origin: left center;
-      transform: scaleX(0);
-      transition: transform 900ms cubic-bezier(.2,.9,.25,1);
-    }
-
-    /* small utilities */
-    a.social:hover { transform: translateY(-3px) scale(1.02); }
-    .glass {
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border: 1px solid rgba(255,255,255,0.03);
-      backdrop-filter: blur(6px) saturate(1.05);
-    }
-
-    /* bread-mode cursor */
-    .bread-cursor * { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><text x="0" y="32" font-size="32">🍞</text></svg>') 8 8, auto; }
-
-    /* responsive tweaks */
-    @media (max-width: 640px) {
-      .kinetic-word { font-size: 22px; }
-    }
-  </style>
+.glass{
+  background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.05);
+  backdrop-filter:blur(6px);
+}
+</style>
 </head>
-<body class="antialiased">
 
-  <div id="root"></div>
+<body>
+<div id="root"></div>
 
-  <!-- React app -->
-  <script type="text/babel">
-    const {useState, useEffect, useRef} = React;
+<script type="text/babel">
+const {useState,useEffect} = React;
 
-    /* --- Utilities --- */
-    function useCycle(words, interval = 2500) {
-      const [index, setIndex] = useState(0);
-      useEffect(() => {
-        const t = setInterval(() => setIndex(i => (i+1) % words.length), interval);
-        return () => clearInterval(t);
-      }, [words.length, interval]);
-      return [words[index], index];
-    }
+function Hero(){
+  const roles=["Game Developer","Musician","Procedural Enthusiast"];
+  const [index,setIndex]=useState(0);
 
-    function useOnScreen(ref, rootMargin = "0px") {
-      const [isIntersecting, setIntersecting] = useState(false);
-      useEffect(() => {
-        if (!ref.current) return;
-        const observer = new IntersectionObserver(
-          ([entry]) => setIntersecting(entry.isIntersecting),
-          { rootMargin }
-        );
-        observer.observe(ref.current);
-        return () => observer.disconnect();
-      }, [ref, rootMargin]);
-      return isIntersecting;
-    }
+  useEffect(()=>{
+    const t=setInterval(()=>setIndex(i=>(i+1)%roles.length),2500);
+    return()=>clearInterval(t);
+  },[]);
 
-    /* --- Components --- */
+  return(
+    <section className="max-w-5xl mx-auto px-6 pt-24 pb-16">
+      <h1 className="text-5xl md:text-6xl font-extrabold mb-6">
+        David Unterberger
+      </h1>
 
-    function Hero({onToggleBread}) {
-      const roles = ["Game Dev", "Musician", "Woodworker"];
-      const [word] = useCycle(roles, 2600);
-      const [visible, setVisible] = useState(false);
-      useEffect(()=> { setVisible(true); }, []);
+      <p className="text-lg md:text-xl text-zinc-300 max-w-2xl mb-6">
+        Hobby game developer (since 2020), oboe player & DAW composer.
+        Passionate about procedural terrain generation, animation systems,
+        shader programming, physics simulations and machine learning.
+      </p>
 
-      return (
-        <header className="relative z-20 pb-12">
-          <div className="max-w-6xl mx-auto px-6 pt-16 flex flex-col lg:flex-row items-start gap-8">
-            <div className="flex-1">
-              <div className="text-sm uppercase text-forest-deep/80 inline-block mb-4 glass px-3 py-1 rounded-full border forest-deep">
-                Student @ HTBLuVA · Born 01.11.2008 · Austria
-              </div>
+      <div className="text-xl font-semibold kinetic">
+        {roles[index]}
+      </div>
+    </section>
+  );
+}
 
-              <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight tracking-tight mb-4">
-                <span className="block text-charcoal-2/0">Dave /</span>
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-200">David Unterberger</span>
-              </h1>
+function Lab(){
+  return(
+    <section id="lab" className="max-w-5xl mx-auto px-6 py-20">
+      <h2 className="text-2xl font-bold mb-8">The Lab</h2>
 
-              <p className="text-lg sm:text-xl max-w-prose text-muted-400/60 mb-6" style={{color:'#c7d1cf'}}>
-                Hobby game developer (since 2020), oboe player & DAW composer. I tinker with procedural terrain, shaders, physics sims and music — then carve a wooden animal or go for a hike.
-              </p>
+      <div className="glass p-8 rounded-xl">
+        <h3 className="text-xl font-semibold mb-3">
+          Current Focus — Procedural Terrain & Shader Systems
+        </h3>
 
-              <div className="flex items-center gap-4">
-                <a href="#lab" className="btn-primary inline-flex items-center px-4 py-2 rounded-md glass shadow-neon-sm border border-transparent hover:scale-[1.01] transition">
-                  Explore the Lab
-                </a>
+        <p className="text-zinc-300 mb-6">
+          Developing modular terrain systems with layered noise,
+          runtime deformation, and performance-conscious shader pipelines.
+          Exploring simulation-driven tools and creative ML integration.
+        </p>
 
-                <button onClick={onToggleBread} className="btn-bread inline-flex items-center gap-2 px-3 py-2 rounded-md glass border border-white/4 hover:scale-105 transition">
-                  <span role="img" aria-hidden>🍞</span>
-                  Bread Mode
-                </button>
-              </div>
-            </div>
+        <div className="flex gap-4">
+          <a href="https://davebbx.itch.io"
+             target="_blank"
+             className="px-4 py-2 rounded-md glass hover:scale-105 transition">
+            itch.io
+          </a>
 
-            <div className="w-full lg:w-96">
-              <div className="glass rounded-xl p-5 shadow-neon-lg border border-white/6">
-                <div className="text-sm uppercase text-zinc-300/60 mb-2">Identity</div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xl font-bold">Hobby Game Developer</div>
-                    <div className="text-sm text-muted-400 mt-1">Oboe & Composer · 10 years</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs text-zinc-400">Current focus</div>
-                    <div className="text-lg font-semibold text-neon-purple" style={{color:'#cbb6ff'}}>Procedural Systems</div>
-                  </div>
-                </div>
+          <a href="https://github.com/David-Unterberger"
+             target="_blank"
+             className="px-4 py-2 rounded-md glass hover:scale-105 transition">
+            GitHub
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-                <div className="mt-4 border-t border-white/4 pt-3">
-                  <div className="text-xs uppercase text-zinc-400 mb-2">Kinetic</div>
-                  <div className="text-xl sm:text-2xl font-semibold">
-                    <span className="kinetic-word" key={word} style={{color:'var(--neon)'}}>{word}</span>
-                  </div>
-                </div>
+function Skills(){
+  const languages=[
+    "C#",
+    "C",
+    "Python",
+    "C++",
+    "JavaScript",
+    "HTML",
+    "CSS",
+    "SQL"
+  ];
 
-                <div className="mt-4 flex gap-3">
-                  <a href="#contact" className="text-xs glass px-3 py-2 rounded-md">Contact</a>
-                  <a href="#arsenal" className="text-xs glass px-3 py-2 rounded-md">See Arsenal</a>
-                </div>
-              </div>
+  return(
+    <section className="max-w-5xl mx-auto px-6 py-20">
+      <h2 className="text-2xl font-bold mb-8">Skills</h2>
 
-              <div className="mt-4 glass rounded-lg p-3 border border-white/3">
-                <div className="flex items-center justify-between">
-                  <div className="text-xs uppercase text-zinc-400">Easter Egg</div>
-                  <CatTeaser />
-                </div>
-                <div className="text-xs mt-2 text-zinc-300">There's a very old brown & black striped cat — click the paw.</div>
-              </div>
-            </div>
-          </div>
-        </header>
-      );
-    }
+      <div className="grid md:grid-cols-2 gap-8">
 
-    function CatTeaser() {
-      const [open, setOpen] = useState(false);
-      return (
-        <>
-          <button onClick={()=>setOpen(true)} aria-label="Open cat details" className="p-2 rounded-md hover:scale-105 transition glass">
-            <span role="img" aria-hidden style={{fontSize:18}}>🐾</span>
-          </button>
-
-          {open && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
-              <div className="bg-[#0c0e0f] border border-white/6 rounded-xl p-6 max-w-sm mx-4 glass shadow-neon-lg">
-                <div className="flex items-start gap-3">
-                  <div className="text-4xl">🐱</div>
-                  <div>
-                    <div className="font-semibold text-lg">Old Brown & Black Striped Cat</div>
-                    <p className="text-sm text-zinc-300/80 mt-1">A very old companion who prefers sunbeams and quiet laps. Known for approving playtests with a single yawn.</p>
-                    <div className="mt-4 flex gap-2">
-                      <button onClick={()=>setOpen(false)} className="px-3 py-1 rounded bg-white/6">Close</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
-      );
-    }
-
-    function Lab() {
-      const ref = useRef();
-      const visible = useOnScreen(ref, "-100px");
-      useEffect(()=> {
-        if (visible) {
-          // reveal animations: add class to stat fills
-          document.querySelectorAll('.stat-fill').forEach(el => {
-            const val = el.getAttribute('data-val') || '0';
-            el.style.transform = `scaleX(${val})`;
-          });
-        }
-      }, [visible]);
-
-      return (
-        <section id="lab" ref={ref} className="max-w-6xl mx-auto px-6 py-16">
-          <h2 className="text-2xl font-bold mb-6">The Lab — Projects & Current Focus</h2>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="col-span-2 glass rounded-xl p-6 border border-white/6 shadow-neon-sm">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-xs uppercase text-zinc-400">Current Focus</div>
-                  <h3 className="text-xl font-semibold mt-1">Procedural Terrain + Shader Toolkit</h3>
-                  <p className="text-sm mt-3 text-zinc-300/80">Building modular procedural terrain systems and shaders for runtime deformation, LOD-friendly noise and runtime painting. Also integrating simple ML-assisted tools for anim artists.</p>
-
-                  <div className="mt-4 flex gap-3">
-                    <a href="https://itch.io/" target="_blank" rel="noreferrer" className="px-3 py-2 rounded-md glass">Play current build (placeholder)</a>
-                    <a href="#contact" className="px-3 py-2 rounded-md glass">Request Playtest</a>
-                  </div>
-                </div>
-
-                <div className="w-36 h-36 bg-gradient-to-br from-[#07140f] to-[#08221b] rounded-lg border border-white/6 flex items-center justify-center">
-                  <div className="text-xs text-zinc-400">Render Preview</div>
-                </div>
-              </div>
-
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 rounded-md border border-white/4 glass">
-                  <div className="text-xs text-zinc-400 uppercase mb-2">itch.io</div>
-                  <div className="text-sm font-medium">"Work-in-progress demo"</div>
-                  <p className="text-xs mt-1 text-zinc-300/70">Placeholder for itch.io game embeds. Replace links with your real pages.</p>
-                  <div className="mt-3">
-                    <a href="https://itch.io/" target="_blank" rel="noreferrer" className="text-sm glass px-3 py-1 rounded">Open itch.io</a>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-md border border-white/4 glass">
-                  <div className="text-xs text-zinc-400 uppercase mb-2">Playtester</div>
-                  <div className="text-sm font-medium">Playtests for unreleased titles</div>
-                  <p className="text-xs mt-1 text-zinc-300/70">Actively playtests community builds and gives feedback on gameplay, balance, and performance.</p>
-                </div>
-              </div>
-            </div>
-
-            <aside className="glass rounded-xl p-4 border border-white/6">
-              <div className="text-xs uppercase text-zinc-400">Quick Lab Notes</div>
-              <ul className="mt-3 text-sm text-zinc-300 space-y-2">
-                <li>• Procedural terrains (noise stacks & erosion)</li>
-                <li>• Shader graph experiments (HLSL/GLSL)</li>
-                <li>• Prototype audio-reactive visuals</li>
-              </ul>
-
-              <div className="mt-4 text-xs uppercase text-zinc-400">Recent builds</div>
-              <div className="mt-2">
-                <div className="stat-bar mb-3"><div className="stat-fill" data-val="0.7" style={{background:'linear-gradient(90deg,#8a2be2,#0f4d3f)'}}></div></div>
-                <div className="text-xs text-zinc-400">Terrain system — 70%</div>
-              </div>
-            </aside>
-          </div>
-        </section>
-      );
-    }
-
-    function Arsenal() {
-      const dev = ["Unity", "Visual Studio Code", "GitHub/Git", "C#"];
-      const tech = ["LT Spice", "Cisco Packet Tracer", "Wireshark", "DBeaver"];
-      const creative = ["Blender", "Photoshop", "Audacity", "FL Studio", "Reaper"];
-
-      return (
-        <section id="arsenal" className="max-w-6xl mx-auto px-6 py-16">
-          <h2 className="text-2xl font-bold mb-6">The Arsenal — Tools & Skills</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <SkillCard title="Dev" items={dev} accent="neon-purple" />
-            <SkillCard title="Tech / Networking" items={tech} accent="forest" />
-            <SkillCard title="Creative" items={creative} accent="charcoal-2" />
-          </div>
-        </section>
-      );
-    }
-
-    function SkillCard({title, items, accent}) {
-      return (
-        <div className="glass p-5 rounded-xl border border-white/6 shadow-neon-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs uppercase text-zinc-400">{title}</div>
-              <div className="font-semibold mt-1">{title === 'Dev' ? 'Development' : title}</div>
-            </div>
-            <div className="text-sm text-zinc-400">Experience</div>
-          </div>
-
-          <div className="mt-4 grid gap-3">
-            {items.map((it, i) => (
-              <div key={i} className="flex items-center justify-between p-2 rounded-md border border-white/3 glass">
-                <div className="text-sm">{it}</div>
-                <div className="text-xs text-zinc-400">•</div>
-              </div>
+        <div className="glass p-6 rounded-xl">
+          <h3 className="font-semibold mb-4">Programming Languages</h3>
+          <ul className="space-y-2 text-zinc-300">
+            {languages.map((lang,i)=>(
+              <li key={i}>• {lang}</li>
             ))}
-          </div>
+          </ul>
         </div>
-      );
-    }
 
-    function Workshop() {
-      return (
-        <section id="workshop" className="max-w-6xl mx-auto px-6 py-16">
-          <h2 className="text-2xl font-bold mb-6">The Workshop — Wood & Nature</h2>
-
-          <div className="glass rounded-xl p-6 border border-white/6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <div className="text-xs uppercase text-zinc-400">Woodworking</div>
-              <h3 className="text-xl font-semibold mt-1">Hard oak sculptures & sticks</h3>
-              <p className="mt-3 text-sm text-zinc-300/80">I carve oak sculptures of animals and tools — big, tactile forms that sit heavy in the hand. The woodwork feeds creative problem-solving for procedural design: patience, iteration, and layers.</p>
-
-              <div className="mt-4 flex gap-3">
-                <a className="glass px-3 py-2 rounded">Gallery (placeholder)</a>
-                <a className="glass px-3 py-2 rounded">Commission</a>
-              </div>
-            </div>
-
-            <div>
-              <div className="text-xs uppercase text-zinc-400">Nature</div>
-              <h3 className="text-xl font-semibold mt-1">Hiking & Biking</h3>
-              <p className="mt-3 text-sm text-zinc-300/80">Long hikes and bike rides shape how I design levels and terrains — gradients, line-of-sight, and breathing space. Often I sketch while on a break in the alpine woods.</p>
-
-              <div className="mt-4">
-                <svg viewBox="0 0 600 160" className="w-full rounded-md" preserveAspectRatio="none">
-                  {/* Procedural-looking ridge illustration (SVG stylized) */}
-                  <defs>
-                    <linearGradient id="g1" x1="0" x2="1">
-                      <stop offset="0%" stopColor="#073a2d" stopOpacity="0.8"/>
-                      <stop offset="100%" stopColor="#071414" stopOpacity="0.2"/>
-                    </linearGradient>
-                  </defs>
-                  <rect width="100%" height="100%" fill="#071916" />
-                  <path d="M0,130 C120,80 210,140 330,100 C420,70 520,120 600,90 L600 160 L0 160 Z" fill="url(#g1)" opacity="0.9"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    function GamingCorner() {
-      const stats = [
-        {name:'Shooters', val:0.45},
-        {name:'Story Games', val:0.35},
-        {name:'Fighting (Tekken/Smash)', val:0.9}
-      ];
-      const ref = useRef();
-      const onScreen = useOnScreen(ref, "-80px");
-      useEffect(()=> {
-        if (onScreen) {
-          document.querySelectorAll('.stat-fill-g').forEach(el => {
-            const val = el.getAttribute('data-val') || '0';
-            el.style.transform = `scaleX(${val})`;
-          });
-        }
-      }, [onScreen]);
-
-      return (
-        <section id="gaming" className="max-w-6xl mx-auto px-6 py-16">
-          <h2 className="text-2xl font-bold mb-6">Gaming Corner</h2>
-
-          <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="glass rounded-xl p-6 border border-white/6 shadow-neon-sm">
-              <div className="text-xs uppercase text-zinc-400">Favorite Stats</div>
-              <h3 className="text-lg font-semibold mt-2">Genres & Love</h3>
-              <div className="mt-4 space-y-3">
-                {stats.map((s, i) => (
-                  <div key={i}>
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <div>{s.name}</div>
-                      <div className="text-xs text-zinc-400">{Math.round(s.val*100)}%</div>
-                    </div>
-                    <div className="stat-bar">
-                      <div className="stat-fill-g" data-val={s.val} style={{width:'100%', background:'linear-gradient(90deg, #8a2be2, #0f4d3f)'}}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="glass rounded-xl p-6 border border-white/6">
-              <div className="text-xs uppercase text-zinc-400">Top Titles</div>
-              <ul className="mt-3 text-sm space-y-2">
-                <li>• Tekken — Practice mode & frame data</li>
-                <li>• Smash — Competitive stage picks</li>
-                <li>• Hollow Knight — Art & movement inspo</li>
-              </ul>
-            </div>
-
-            <div className="glass rounded-xl p-6 border border-white/6">
-              <div className="text-xs uppercase text-zinc-400">Playstyle</div>
-              <p className="mt-2 text-sm text-zinc-300/80">Quick, analytical, loves frame-perfect tech and tight movement. Games inform both UI and feel in my prototypes.</p>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    function Contact({itchUrl='#'}) {
-      return (
-        <footer id="contact" className="max-w-6xl mx-auto px-6 py-16">
-          <div className="glass rounded-xl p-6 border border-white/6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <div className="text-xs uppercase text-zinc-400">Get in touch</div>
-              <h3 className="text-xl font-semibold mt-1">David "Dave" Unterberger</h3>
-              <p className="text-sm mt-3 text-zinc-300/80">Student · Hobby Game Dev & Musician. Open to collabs, playtests, and commissions.</p>
-
-              <div className="mt-4 flex flex-wrap gap-3">
-                <a className="glass px-3 py-2 rounded-md" href="mailto:example@example.com">Email</a>
-                <a className="glass px-3 py-2 rounded-md" href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
-                <a className="glass px-3 py-2 rounded-md" href={itchUrl} target="_blank" rel="noreferrer">itch.io</a>
-              </div>
-            </div>
-
-            <div>
-              <div className="text-xs uppercase text-zinc-400">Social</div>
-              <div className="mt-3 flex gap-3 items-center">
-                <a className="social glass px-3 py-2 rounded-md" href="#" aria-label="GitHub" title="GitHub">GitHub</a>
-                <a className="social glass px-3 py-2 rounded-md" href="#" aria-label="LinkedIn" title="LinkedIn">LinkedIn</a>
-                <a className="social glass px-3 py-2 rounded-md" href="#" aria-label="YouTube" title="YouTube">YouTube</a>
-              </div>
-
-              <div className="mt-6">
-                <div className="text-xs text-zinc-400 uppercase">Small fun</div>
-                <div className="mt-2 text-sm">I like to eat bread. 🍞 Toggle "Bread Mode" near the top for some silliness.</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 text-xs text-zinc-400 text-center">© David Unterberger — Student @ HTBLuVA · Austria</div>
-        </footer>
-      );
-    }
-
-    /* --- Main App --- */
-    function App() {
-      const [breadMode, setBreadMode] = useState(false);
-      const [breadBubbles, setBreadBubbles] = useState([]);
-      const rootRef = useRef();
-
-      useEffect(()=> {
-        if (breadMode) {
-          document.body.classList.add('bread-cursor');
-          // spawn floating bread emojis
-          const ids = Array.from({length:6}).map((_,i) => ({id:i, left: 10 + Math.random()*80, delay: Math.random()*3}));
-          setBreadBubbles(ids);
-        } else {
-          document.body.classList.remove('bread-cursor');
-          setBreadBubbles([]);
-        }
-      }, [breadMode]);
-
-      // procedural background animation (simple subtle parallax)
-      useEffect(() => {
-        const handler = (e) => {
-          const x = (e.clientX / window.innerWidth - 0.5) * 30;
-          const y = (e.clientY / window.innerHeight - 0.5) * 30;
-          rootRef.current && (rootRef.current.style.backgroundPosition = `${50 - x}% ${50 - y}%`);
-        };
-        window.addEventListener('mousemove', handler);
-        return () => window.removeEventListener('mousemove', handler);
-      }, []);
-
-      return (
-        <div ref={rootRef} className="min-h-screen relative overflow-x-hidden">
-          {/* procedural overlay */}
-          <div className="absolute inset-0 pointer-events-none procedural-overlay z-0"></div>
-
-          <main className="relative z-10">
-            <Hero onToggleBread={() => setBreadMode(b => !b)} />
-            <Lab />
-            <Arsenal />
-            <Workshop />
-            <GamingCorner />
-            <Contact itchUrl="https://itch.io/" />
-          </main>
-
-          {/* decorative SVG/Glow */}
-          <div className="pointer-events-none absolute right-[-8%] top-0 w-96 h-96 opacity-30" style={{mixBlendMode:'screen'}}>
-            <svg viewBox="0 0 200 200" className="w-full h-full">
-              <defs>
-                <radialGradient id="rg" cx="50%" cy="50%">
-                  <stop offset="0%" stopColor="#8a2be2" stopOpacity="0.45" />
-                  <stop offset="100%" stopColor="#0f4d3f" stopOpacity="0.05" />
-                </radialGradient>
-              </defs>
-              <circle cx="100" cy="100" r="80" fill="url(#rg)"/>
-            </svg>
-          </div>
-
-          {/* Bread bubbles */}
-          {breadMode && breadBubbles.map(b => (
-            <div key={b.id} className="bread-bubble" style={{left: `${b.left}%`, bottom: `${-10 - (b.id*4)}px`, animationDelay: `${b.delay}s`, fontSize: `${14 + Math.random()*24}px`}}>
-              🍞
-            </div>
-          ))}
-
-          {/* small footer floating link */}
-          <a href="#lab" className="fixed left-6 bottom-6 glass rounded-full px-4 py-2 border border-white/4 z-30">Jump to Lab</a>
+        <div className="glass p-6 rounded-xl">
+          <h3 className="font-semibold mb-4">Tools & Software</h3>
+          <ul className="space-y-2 text-zinc-300">
+            <li>• Unity</li>
+            <li>• Git / GitHub</li>
+            <li>• Visual Studio Code</li>
+            <li>• Blender</li>
+            <li>• FL Studio</li>
+            <li>• Reaper</li>
+            <li>• Wireshark</li>
+            <li>• Cisco Packet Tracer</li>
+            <li>• LT Spice</li>
+            <li>• DBeaver</li>
+          </ul>
         </div>
-      );
-    }
 
-    // Render
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
+      </div>
+    </section>
+  );
+}
+
+function Contact(){
+  return(
+    <section className="max-w-5xl mx-auto px-6 py-20">
+      <div className="glass p-8 rounded-xl text-center">
+        <h2 className="text-2xl font-bold mb-4">
+          David Unterberger
+        </h2>
+
+        <div className="flex justify-center gap-6 mt-4">
+          <a href="https://github.com/David-Unterberger"
+             target="_blank"
+             className="glass px-4 py-2 rounded-md hover:scale-105 transition">
+            GitHub
+          </a>
+
+          <a href="https://davebbx.itch.io"
+             target="_blank"
+             className="glass px-4 py-2 rounded-md hover:scale-105 transition">
+            itch.io
+          </a>
+        </div>
+      </div>
+
+      <div className="text-center text-sm text-zinc-500 mt-10">
+        David Unterberger
+      </div>
+    </section>
+  );
+}
+
+function App(){
+  return(
+    <div className="procedural-bg">
+      <Hero/>
+      <Lab/>
+      <Skills/>
+      <Contact/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 
 </body>
 </html>
