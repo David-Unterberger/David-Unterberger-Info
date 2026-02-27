@@ -6,8 +6,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>David Unterberger</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap"
-    rel="stylesheet">
+  <!-- Source Code Pro (keeps it monospace / terminal-like) -->
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind (dev CDN; fine for now) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -15,91 +17,176 @@
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
   <script>
+    // Redirect only if not on Vercel host
     const allowedHost = "david-unterberger-info.vercel.app";
-
     if (window.location.hostname !== allowedHost) {
       window.location.replace("https://" + allowedHost + window.location.pathname + window.location.search);
     }
   </script>
 
   <style>
-    html,
-    body,
-    #root {
-      margin: 0;
-      background: transparent;
-      color: #e8eef1;
-      font-family: "Source Code Pro", monospace;
+    /*
+      CRT Terminal Theme
+      - Orange phosphor text
+      - Subtle scanlines, flicker, tube glow
+      - Terminal boxes instead of glass
+    */
+
+    :root{
+      --crt-bg: #030302;
+      --crt-orange: #ff9800;       /* main phosphor */
+      --crt-dim: #4b2b00;          /* border / dim */
+      --crt-glow: rgba(255,152,0,0.14);
+      --crt-soft: rgba(255,152,0,0.03);
+      --muted: #9e7a52;
+      --accent: #b56fff; /* small neon accent where needed */
     }
 
-    body {
-      background: #0f1214;
+    html,body,#root{
+      height:100%;
+      margin:0;
+      font-family:"Source Code Pro", monospace;
+      background: radial-gradient(circle at 40% 30%, rgba(255,152,0,0.03), transparent 20%), var(--crt-bg);
+      color: var(--crt-orange);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      text-shadow: 0 0 6px rgba(255,152,0,0.08);
+      letter-spacing:0.2px;
     }
 
+    /* Global small UI */
+    a { color: var(--crt-orange); }
+    a:hover { color: var(--accent); text-decoration: underline; }
+
+    /* Replace .glass with terminal style (keeps HTML changes minimal) */
+    .glass {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid var(--crt-dim);
+      padding: 0.75rem;
+      box-shadow: 0 0 24px var(--crt-glow);
+      color: var(--crt-orange);
+      backdrop-filter: none;
+      border-radius: 4px;
+    }
+
+    /* Headings */
+    h1, h2, h3 {
+      font-variant: all-small-caps;
+      color: var(--crt-orange);
+      letter-spacing:1px;
+    }
+
+    /* Terminal box look for big panels */
+    .terminal-box {
+      border: 1px solid var(--crt-dim);
+      padding: 1rem;
+      background: rgba(0,0,0,0.35);
+      box-shadow: 0 0 18px var(--crt-glow);
+      color: var(--crt-orange);
+      border-radius: 4px;
+    }
+
+    /* subtle top accent line for modules */
+    .module {
+      position: relative;
+      overflow: hidden;
+    }
+    .module::before {
+      content: '';
+      position: absolute;
+      left:0; right:0; top:0; height:3px;
+      background: linear-gradient(90deg, rgba(0,0,0,0), var(--accent), rgba(0,0,0,0));
+      opacity: 0.08;
+      pointer-events:none;
+    }
+
+    /* small terminal separators */
+    .term-sep {
+      color: var(--muted);
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+    }
+
+    /* scanlines overlay */
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,0),
+        rgba(0,0,0,0) 2px,
+        rgba(0,0,0,0.03) 3px,
+        rgba(0,0,0,0.03) 4px
+      );
+      mix-blend-mode: multiply;
+    }
+
+    /* subtle tube flicker */
+    @keyframes tubeFlicker {
+      0% { opacity: .98; filter: drop-shadow(0 0 4px rgba(255,152,0,0.05)); }
+      50% { opacity: 1; filter: drop-shadow(0 0 6px rgba(255,152,0,0.08)); }
+      100% { opacity: .99; filter: drop-shadow(0 0 4px rgba(255,152,0,0.05)); }
+    }
+    body { animation: tubeFlicker 3.6s infinite; }
+
+    /* terminal cursor class for headings */
+    .cursor::after {
+      content: "_";
+      margin-left: 6px;
+      opacity: 1;
+      animation: blink 1s steps(2) infinite;
+      color: var(--crt-orange);
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* small utility */
+    .mono { font-family: "Source Code Pro", monospace; font-size:0.95rem; }
+    .muted { color: var(--muted); }
+    .small { font-size:0.86rem; }
+
+    /* status dot override for contrast */
+    .status-dot { width: 12px; height:12px; border-radius:50%; margin-right:8px; display:inline-block; }
+    .online{ background: #57d16b; box-shadow: 0 0 8px rgba(87,209,107,0.12); }
+    .idle{ background:#f0b232; box-shadow:0 0 8px rgba(240,178,50,0.08); }
+    .dnd{ background:#f23f43; box-shadow:0 0 8px rgba(242,63,67,0.08); }
+    .offline{ background:#6b6b6b; }
+
+    /* headings small sizes on sections to fit terminal vibe */
+    .section-title { font-size: 1rem; margin-bottom: 0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--crt-orange); }
+
+    /* hero stays image-backed but tinted */
     .hero-bg {
       background-image:
-        linear-gradient(to bottom, rgba(0, 0, 0, .8), rgba(0, 0, 0, .95)),
+        linear-gradient(to bottom, rgba(3,3,3,0.9), rgba(3,3,3,0.95)),
         url("titel_background.png");
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
+      color: var(--crt-orange);
+      text-shadow:none;
     }
 
-    .glass {
-      background: rgba(255, 255, 255, .04);
-      border: 1px solid rgba(255, 255, 255, .07);
-      backdrop-filter: blur(10px);
+    /* adjust three.js plane color later via JS */
+    #terrain { z-index:0; }
+
+    /* responsive tweaks */
+    @media (max-width:640px) {
+      .glass, .terminal-box { padding: .65rem; }
+      .hero-bg h1 { font-size: 2rem; }
+      .hero-bg p { font-size: 0.95rem; }
     }
 
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 8px;
-    }
-
-    .online {
-      background: #23a55a;
-      box-shadow: 0 0 10px #23a55a;
-    }
-
-    .idle {
-      background: #f0b232;
-    }
-
-    .dnd {
-      background: #f23f43;
-    }
-
-    .offline {
-      background: #80848e;
-    }
-
-    #terrain {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
-    }
   </style>
 </head>
 
 <body>
   <canvas id="terrain"></canvas>
-  <div id="root" style="position:relative;z-index:10;"></div>
+  <div id="root" style="position:relative; z-index:10;"></div>
 
   <script type="text/babel">
-    /* single-file React app
-       - Robust Discord (lanyard ws + reconnection)
-       - Steam with fallback requests (allorigins -> corsproxy)
-       - GitHub using your supplied component (sort by pushed, per_page=6)
-       - Terrain canvas transparent & working
-    */
-
     const { useState, useEffect } = React;
 
     const DISCORD_ID = "780384263987920937";
@@ -107,272 +194,197 @@
     const GITHUB_USER = "David-Unterberger";
 
     /* ---------------- HERO ---------------- */
-
     function Hero() {
       const roles = ["Game Developer", "Systems Programmer", "Procedural Enthusiast"];
       const [i, setI] = useState(0);
-      useEffect(() => { const t = setInterval(() => setI(x => (x + 1) % roles.length), 3000); return () => clearInterval(t); }, []);
+      useEffect(() => {
+        const t = setInterval(() => setI(x => (x + 1) % roles.length), 3000);
+        return () => clearInterval(t);
+      }, []);
       return (
         <section className="hero-bg min-h-screen flex flex-col justify-center items-center text-center px-6">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">David Unterberger</h1>
-          <p className="text-lg text-zinc-300 max-w-2xl mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4 mono">David Unterberger</h1>
+          <div className="term-sep mono muted">========================================</div>
+          <p className="text-lg mono muted max-w-2xl mb-6">
             Hobby game developer since 2020. Focused on procedural terrain, simulation systems and shader experimentation.
           </p>
-          <div className="text-xl text-violet-400">{roles[i]}</div>
+          <div className="text-xl mono" style={{ color: "var(--crt-orange)" }}>{roles[i]}</div>
         </section>
       );
     }
 
     /* ---------------- CURRENT PROJECT ---------------- */
-
     function CurrentProject() {
       return (
-        <section className="max-w-5xl mx-auto px-6 py-20">
-          <h2 className="text-2xl font-bold mb-8">Current Project</h2>
-          <div className="glass p-8 rounded-xl">
-            <h3 className="text-xl font-semibold mb-4">Procedural Terrain & Shader Engine Experiments</h3>
-            <p className="text-zinc-300 mb-6">
-              Building modular terrain systems using layered noise stacks,
-              runtime mesh deformation and custom shader pipelines.
-              Exploring simulation-driven world generation.
-            </p>
-            <div className="flex gap-3 flex-wrap mb-6">
-              <span className="px-3 py-1 bg-violet-600/20 rounded text-sm">C#</span>
-              <span className="px-3 py-1 bg-violet-600/20 rounded text-sm">Shaders</span>
-              <span className="px-3 py-1 bg-violet-600/20 rounded text-sm">Procedural Gen</span>
-              <span className="px-3 py-1 bg-violet-600/20 rounded text-sm">Simulation</span>
-            </div>
-            <div className="flex gap-4">
-              <a href="https://github.com/David-Unterberger" target="_blank" className="px-4 py-2 rounded glass hover:scale-105 transition">GitHub</a>
-              <a href="https://davebbx.itch.io" target="_blank" className="px-4 py-2 rounded glass hover:scale-105 transition">itch.io</a>
+        <section className="max-w-5xl mx-auto px-6 py-12">
+          <div className="module terminal-box">
+            <div className="section-title cursor">:: current project</div>
+            <div className="mono small">
+              <div>NAME........... Procedural Terrain & Shader Engine Experiments</div>
+              <div className="muted term-sep">------------------------------------------</div>
+              <div>
+                Building modular terrain systems using layered noise stacks, runtime mesh deformation and custom shader pipelines.
+                Exploring simulation-driven world generation.
+              </div>
+              <div className="term-sep muted">------------------------------------------</div>
+              <div className="mt-3">
+                <span className="mono">TAGS:</span> <span className="muted">C# • Shaders • Procedural Gen • Simulation</span>
+              </div>
+              <div className="mt-3">
+                <a href="https://github.com/David-Unterberger" target="_blank" rel="noreferrer">github</a> • <a href="https://davebbx.itch.io" target="_blank" rel="noreferrer">itch.io</a>
+              </div>
             </div>
           </div>
         </section>
       );
     }
 
-    /* ---------------- DISCORD (robust single-card dashboard) ---------------- */
+    /* ---------------- DISCORD (terminal style) ---------------- */
     function Discord() {
-      const [data, setData] = React.useState(null);
-      const [elapsed, setElapsed] = React.useState("");
+      const [data, setData] = useState(null);
+      const [elapsed, setElapsed] = useState("");
 
-      React.useEffect(() => {
+      // poll Lanyard
+      useEffect(() => {
         let mounted = true;
-
         async function fetchPresence() {
           try {
             const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
             const json = await r.json();
-            if (json.success && mounted) {
-              setData(json.data);
-            }
-          } catch { }
+            if (json.success && mounted) setData(json.data);
+          } catch (e) { /* ignore */ }
         }
-
         fetchPresence();
         const id = setInterval(fetchPresence, 15000);
-        return () => {
-          mounted = false;
-          clearInterval(id);
-        };
+        return () => { mounted = false; clearInterval(id); };
       }, []);
 
-      /* Activity derived safely */
+      // derived
       const activity = data?.activities?.find(a => a.type === 0);
 
-      /* Live elapsed timer */
-      React.useEffect(() => {
-        if (!activity?.timestamps?.start) {
-          setElapsed("");
-          return;
-        }
-
+      // elapsed timer
+      useEffect(() => {
+        if (!activity?.timestamps?.start) { setElapsed(""); return; }
         function updateElapsed() {
           const start = Number(activity.timestamps.start);
           const diff = Date.now() - start;
-
           const hours = Math.floor(diff / (1000 * 60 * 60));
           const minutes = Math.floor((diff / (1000 * 60)) % 60);
-
           setElapsed(hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`);
         }
-
         updateElapsed();
-        const interval = setInterval(updateElapsed, 60000);
-        return () => clearInterval(interval);
+        const id = setInterval(updateElapsed, 60000);
+        return () => clearInterval(id);
       }, [activity]);
 
+      // wait for data
       if (!data) return null;
 
       const user = data.discord_user;
       const status = data.discord_status || "offline";
       const customStatus = data.activities?.find(a => a.type === 4);
 
-      /* Account creation */
+      // account age
       let accountAgeDays = null;
       try {
         const snowflake = BigInt(user.id);
         const timestamp = Number((snowflake >> 22n) + 1420070400000n);
         const createdAt = new Date(timestamp);
-        accountAgeDays = Math.floor(
-          (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
-        );
-      } catch { }
+        accountAgeDays = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+      } catch (e) { /* ignore */ }
 
-      /* Accent */
-      const accent = user?.accent_color
-        ? `#${user.accent_color.toString(16).padStart(6, "0")}`
-        : "#5865F2";
+      // accent color fallback
+      const accent = user?.accent_color ? `#${user.accent_color.toString(16).padStart(6,"0")}` : "#b56fff";
 
       function getActivityImage(act) {
-        if (!act?.assets?.large_image) return null;
-
-        const large = act.assets.large_image;
-
-        if (large.startsWith("mp:")) {
-          return `https://media.discordapp.net/${large.replace("mp:", "")}`;
+        if (!act?.assets?.large_image) {
+          // fallback for known apps like VS Code
+          if (typeof act?.name === "string" && act.name.toLowerCase().includes("visual studio")) {
+            return "https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg";
+          }
+          if (typeof act?.name === "string" && act.name.toLowerCase().includes("code")) {
+            return "https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg";
+          }
+          return null;
         }
 
+        const large = act.assets.large_image;
+        if (typeof large === "string" && large.startsWith("mp:")) {
+          return `https://media.discordapp.net/${large.replace("mp:", "")}`;
+        }
         if (act.application_id) {
           return `https://cdn.discordapp.com/app-assets/${act.application_id}/${large}.png`;
         }
-
         return null;
       }
 
       const party = activity?.party?.size;
 
       return (
-        <section className="max-w-5xl mx-auto px-6 py-20">
-          <h2 className="text-2xl font-bold mb-8">Discord</h2>
+        <section className="max-w-5xl mx-auto px-6 py-12">
+          <div className="module terminal-box">
+            <div className="section-title cursor">:: discord module</div>
+            <div className="mono small muted term-sep">========================================</div>
 
-          <div className="glass rounded-xl overflow-hidden border border-zinc-800 relative">
-            <div
-              className="absolute top-0 left-0 h-1 w-full"
-              style={{ backgroundColor: accent }}
-            />
-
-            <div className="p-8">
-
-              {/* Header */}
-              <div className="flex items-center gap-4 mb-6">
-                <div className="relative">
-                  <img
-                    src={
-                      user.avatar
-                        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-                        : "https://cdn.discordapp.com/embed/avatars/0.png"
-                    }
-                    className="w-20 h-20 rounded-full"
-                  />
-                  <span
-                    className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-black ${status === "online"
-                        ? "bg-green-500"
-                        : status === "idle"
-                          ? "bg-yellow-500"
-                          : status === "dnd"
-                            ? "bg-red-500"
-                            : "bg-gray-500"
-                      }`}
-                  />
-                </div>
-
-                <div>
-                  <div className="text-lg font-semibold">{user.username}</div>
-                  <div className="text-sm text-zinc-400 capitalize">{status}</div>
-                  {accountAgeDays && (
-                    <div className="text-xs text-zinc-500 mt-1">
-                      Account age: {accountAgeDays} days
-                    </div>
-                  )}
-                  {customStatus?.state && (
-                    <div className="text-sm text-zinc-400 mt-2">
-                      {customStatus.emoji?.name} {customStatus.state}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Activity */}
-              {activity && (
-                <div className="glass rounded-lg overflow-hidden flex mb-6">
-                  <div className="w-40 h-24 bg-zinc-900 flex items-center justify-center">
-                    {getActivityImage(activity) ? (
-                      <img
-                        src={getActivityImage(activity)}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-xs text-zinc-500">No art</div>
-                    )}
-                  </div>
-
-                  <div className="p-4 flex-1">
-                    <div className="font-semibold">{activity.name}</div>
-
-                    {activity.details && (
-                      <div className="text-sm text-zinc-400">
-                        {activity.details}
-                      </div>
-                    )}
-
-                    {activity.state && (
-                      <div className="text-sm text-zinc-500">
-                        {activity.state}
-                      </div>
-                    )}
-
-                    {elapsed && (
-                      <div className="text-xs text-zinc-400 mt-2">
-                        {elapsed} elapsed
-                      </div>
-                    )}
-
-                    {party && (
-                      <div className="text-xs text-zinc-400 mt-2">
-                        Party: {party[0]} / {party[1]}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div className="bg-zinc-900/40 p-3 rounded-lg">
-                  <div className="text-zinc-400 text-xs">Status</div>
-                  <div className="font-semibold capitalize">{status}</div>
-                </div>
-
-                <div className="bg-zinc-900/40 p-3 rounded-lg">
-                  <div className="text-zinc-400 text-xs">Activities</div>
-                  <div className="font-semibold">
-                    {data.activities?.filter(a => a.type !== 4).length}
-                  </div>
-                </div>
-
-                <div className="bg-zinc-900/40 p-3 rounded-lg">
-                  <div className="text-zinc-400 text-xs">User ID</div>
-                  <div className="font-semibold text-xs break-all">
-                    {user.id}
-                  </div>
-                </div>
-
-                <div className="bg-zinc-900/40 p-3 rounded-lg">
-                  <div className="text-zinc-400 text-xs">Public Flags</div>
-                  <div className="font-semibold">
-                    {user.public_flags || 0}
-                  </div>
-                </div>
-              </div>
-
+            <div className="mono small">
+              <div>USER............. <span style={{color:"var(--crt-orange)", fontWeight:600}}>{user.username}</span></div>
+              <div>STATUS........... <span className="muted">{status}</span></div>
+              {accountAgeDays !== null && <div>ACCOUNT_AGE...... <span className="muted">{accountAgeDays} days</span></div>}
+              {customStatus?.state && <div>CUSTOM_STATUS.... <span className="muted">{customStatus.emoji?.name} {customStatus.state}</span></div>}
             </div>
+
+            {activity && (
+              <>
+                <div style={{height:8}} />
+                <div className="glass small" style={{display:"flex", gap:12, alignItems:"center"}}>
+                  <div style={{width:128, height:72, background:"#000", display:"flex", alignItems:"center", justifyContent:"center"}}>
+                    {getActivityImage(activity) ? (
+                      <img src={getActivityImage(activity)} style={{width:"100%", height:"100%", objectFit:"cover"}} alt="art" />
+                    ) : (
+                      <div className="muted small">No art</div>
+                    )}
+                  </div>
+
+                  <div style={{flex:1}}>
+                    <div className="mono" style={{fontWeight:700}}>{activity.name}</div>
+                    {activity.details && <div className="muted small">{activity.details}</div>}
+                    {activity.state && <div className="muted small">{activity.state}</div>}
+                    {elapsed && <div className="muted small" style={{marginTop:8}}>{elapsed} elapsed</div>}
+                    {party && <div className="muted small" style={{marginTop:6}}>Party: {party[0]} / {party[1]}</div>}
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div style={{height:12}} />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div style={{background:"rgba(0,0,0,0.25)", padding:8, border:"1px solid var(--crt-dim)"}}>
+                <div className="muted small">Status</div>
+                <div className="mono">{status}</div>
+              </div>
+
+              <div style={{background:"rgba(0,0,0,0.25)", padding:8, border:"1px solid var(--crt-dim)"}}>
+                <div className="muted small">Activities</div>
+                <div className="mono">{data.activities?.filter(a => a.type !== 4).length}</div>
+              </div>
+
+              <div style={{background:"rgba(0,0,0,0.25)", padding:8, border:"1px solid var(--crt-dim)"}}>
+                <div className="muted small">User ID</div>
+                <div className="mono small break-all">{user.id}</div>
+              </div>
+
+              <div style={{background:"rgba(0,0,0,0.25)", padding:8, border:"1px solid var(--crt-dim)"}}>
+                <div className="muted small">Public Flags</div>
+                <div className="mono">{user.public_flags || 0}</div>
+              </div>
+            </div>
+
           </div>
         </section>
       );
     }
-    /* ---------------- STEAM (fallbacks & more robust) ---------------- */
 
+    /* ---------------- STEAM (terminal style lists) ---------------- */
     function Steam() {
       const [data, setData] = useState(null);
       const [error, setError] = useState(false);
@@ -387,8 +399,10 @@
       if (error) {
         return (
           <section className="max-w-5xl mx-auto px-6 py-20">
-            <h2 className="text-2xl font-bold mb-8">Steam</h2>
-            <div className="glass p-6 rounded-xl text-red-400">Steam data unavailable.</div>
+            <div className="terminal-box">
+              <div className="section-title cursor">:: steam</div>
+              <div className="mono muted">Steam data unavailable.</div>
+            </div>
           </section>
         );
       }
@@ -408,62 +422,52 @@
       }
 
       return (
-        <section className="max-w-5xl mx-auto px-6 py-20">
-          <h2 className="text-2xl font-bold mb-8">Steam</h2>
+        <section className="max-w-5xl mx-auto px-6 py-12">
+          <div className="module terminal-box">
+            <div className="section-title cursor">:: steam</div>
+            <div className="mono muted term-sep">========================================</div>
 
-          {/* Profile Card */}
-          <div className="glass p-8 rounded-xl mb-6 flex items-center gap-6">
-            <img src={profile.avatarfull} className="w-20 h-20 rounded-full" />
-            <div>
-              <div className="text-xl font-semibold">{profile.personaname}</div>
-              <div className="text-zinc-400">
-                {profile.gameextrainfo ? `Playing ${profile.gameextrainfo}` : "Offline / Not in game"}
-              </div>
-              <div className="text-sm text-zinc-500 mt-2">Total Games: {owned.game_count || 0}</div>
-              <div className="text-sm text-zinc-500">Total Hours Played: {totalHours} hrs</div>
-              <div className="text-sm text-zinc-500">Account created: {fmtUnixSeconds(profile.timecreated)}</div>
-              <div className="text-sm text-zinc-500">Last logoff: {fmtUnixSeconds(profile.lastlogoff)}</div>
+            <div className="mono small">
+              <div>PROFILE.......... <span style={{color:"var(--crt-orange)", fontWeight:700}}>{profile.personaname}</span></div>
+              <div>TOTAL_GAMES...... <span className="muted">{owned.game_count || 0}</span></div>
+              <div>TOTAL_HOURS...... <span className="muted">{totalHours} hrs</span></div>
+              <div>CREATED.......... <span className="muted">{fmtUnixSeconds(profile.timecreated)}</span></div>
+              <div>LAST_LOGOFF...... <span className="muted">{fmtUnixSeconds(profile.lastlogoff)}</span></div>
             </div>
-          </div>
 
-          {/* Recently Played */}
-          <h3 className="text-xl font-semibold mb-4">Recently Played</h3>
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {recent.map(game => (
-              <div key={game.appid} className="glass p-4 rounded-xl">
-                <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg`} className="rounded mb-3" />
-                <div className="font-semibold">{game.name}</div>
-                <div className="text-sm text-zinc-500">{Math.round((game.playtime_2weeks || 0) / 60)} hrs last 2 weeks</div>
-              </div>
-            ))}
-          </div>
+            <div style={{height:12}} />
 
-          {/* Top Played */}
-          <h3 className="text-xl font-semibold mb-4">Top Played</h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            {topPlayed.map(game => (
-              <div key={game.appid} className="glass p-4 rounded-xl">
-                <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg`} className="rounded mb-3" />
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">{game.name}</div>
-                  {game.completion_percent !== null && (
-                    <div className="text-xs px-2 py-1 rounded bg-zinc-900/40">{game.completion_percent}%</div>
-                  )}
+            <div className="mono small">
+              <div className="muted">-- recently played --</div>
+              {recent.map((g, i) => (
+                <div key={g.appid} style={{display:"flex", justifyContent:"space-between", paddingTop:6}}>
+                  <div>[{String(i+1).padStart(2,"0")}] {g.name}</div>
+                  <div className="muted">{Math.round((g.playtime_2weeks||0)/60)}h</div>
                 </div>
-                <div className="text-sm text-zinc-500 mt-2">{Math.round((game.playtime_forever || 0) / 60)} hrs total</div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <div style={{height:12}} />
+
+            <div className="mono small">
+              <div className="muted">-- top played --</div>
+              {topPlayed.map((g,i) => (
+                <div key={g.appid} style={{display:"flex", justifyContent:"space-between", paddingTop:6}}>
+                  <div>[{String(i+1).padStart(2,"0")}] {g.name}</div>
+                  <div className="muted">{Math.round((g.playtime_forever||0)/60)}h {g.completion_percent !== null ? ` • ${g.completion_percent}%` : ""}</div>
+                </div>
+              ))}
+            </div>
+
           </div>
         </section>
       );
     }
 
-    /* ---------------- GITHUB (user-supplied component) ---------------- */
-
+    /* ---------------- GITHUB (terminal style) ---------------- */
     function Github() {
       const [profile, setProfile] = useState(null);
       const [repos, setRepos] = useState([]);
-      const [events, setEvents] = useState([]);
       const username = GITHUB_USER;
 
       useEffect(() => {
@@ -475,21 +479,13 @@
         fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=pushed`)
           .then(r => r.json())
           .then(list => {
-            if (Array.isArray(list)) {
-              setRepos(list);
-            }
-          }).catch(() => { });
-
-        // recent public events
-        fetch(`https://api.github.com/users/${username}/events/public?per_page=10`)
-          .then(r => r.json())
-          .then(setEvents)
+            if (Array.isArray(list)) setRepos(list);
+          })
           .catch(() => { });
       }, []);
 
       if (!profile) return null;
 
-      // compute stats
       const totals = repos.reduce((acc, r) => {
         acc.stars += (r.stargazers_count || 0);
         acc.forks += (r.forks_count || 0);
@@ -498,58 +494,51 @@
         return acc;
       }, { stars: 0, forks: 0, langCount: {}, top: null });
 
-      // most used language
-      const mostUsedLanguage = Object.entries(totals.langCount).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
-
-      // contribution graph image (public service)
+      const mostUsedLanguage = Object.entries(totals.langCount).sort((a,b)=>b[1]-a[1])[0]?.[0] || "Unknown";
       const contributionsSvg = `https://ghchart.rshah.org/${username}`;
 
       return (
-        <section className="max-w-5xl mx-auto px-6 py-20">
-          <h2 className="text-2xl font-bold mb-8">GitHub</h2>
+        <section className="max-w-5xl mx-auto px-6 py-12">
+          <div className="module terminal-box">
+            <div className="section-title cursor">:: github</div>
+            <div className="mono muted term-sep">========================================</div>
 
-          {/* Profile Card */}
-          <div className="glass p-8 rounded-xl mb-8 flex items-center gap-6">
-            <img src={profile.avatar_url} className="w-20 h-20 rounded-full" />
-            <div>
-              <div className="text-xl font-semibold">{profile.name || profile.login}</div>
-              <div className="text-sm text-zinc-400">{profile.bio}</div>
-              <div className="text-sm text-zinc-500 mt-2">Public repos: {profile.public_repos}</div>
-              <div className="text-sm text-zinc-500">Followers: {profile.followers} • Following: {profile.following}</div>
-              <div className="text-sm text-zinc-500 mt-1">Most used: {mostUsedLanguage}</div>
-              <div className="text-sm text-zinc-500">Total stars: {totals.stars} • Total forks: {totals.forks}</div>
-              {totals.top && <div className="text-sm text-zinc-500 mt-2">Most starred: <a href={totals.top.url} target="_blank" className="text-violet-400 underline">{totals.top.name} ({totals.top.stars}★)</a></div>}
+            <div className="mono small">
+              <div>USER............. <span style={{color:"var(--crt-orange)", fontWeight:700}}>{profile.name || profile.login}</span></div>
+              <div>BIO.............. <span className="muted">{profile.bio || "—"}</span></div>
+              <div>PUBLIC_REPOS..... <span className="muted">{profile.public_repos}</span></div>
+              <div>TOTAL_STARS...... <span className="muted">{totals.stars}</span></div>
+              <div>TOTAL_FORKS...... <span className="muted">{totals.forks}</span></div>
+              <div>TOP_LANGUAGE..... <span className="muted">{mostUsedLanguage}</span></div>
+              {totals.top && <div className="mt-2">MOST_STARRED..... <a href={totals.top.url} target="_blank" rel="noreferrer" className="muted">{totals.top.name} ({totals.top.stars}★)</a></div>}
             </div>
-          </div>
 
-          {/* Contribution graph */}
-          <div className="glass p-6 rounded-xl mb-8">
-            <div className="text-sm text-zinc-400 mb-3">Contribution graph</div>
-            <img src={contributionsSvg} alt="contributions" className="w-full" />
-            <div className="text-xs text-zinc-500 mt-2">Commit graph (public service image)</div>
-          </div>
+            <div style={{height:12}} />
 
-          {/* quick repo cards */}
-          <h3 className="text-xl font-semibold mb-4 mt-8">Top repositories</h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            {repos.slice(0, 6).map(r => (
-              <a key={r.id} href={r.html_url} target="_blank" className="glass p-5 rounded-xl hover:scale-105 transition">
-                <div className="font-semibold">{r.name}</div>
-                <div className="text-sm text-zinc-400 mt-2">{r.language || "No language"}</div>
-                {r.description && <div className="text-sm text-zinc-300 mt-3">{r.description}</div>}
-                <div className="flex justify-between text-xs text-zinc-500 mt-4">
-                  <span>★ {r.stargazers_count}</span>
-                  <span>Forks {r.forks_count}</span>
+            <div className="glass small">
+              <div className="muted small mb-2">Contribution graph</div>
+              <img src={contributionsSvg} alt="contributions" style={{width:"100%", display:"block"}} />
+              <div className="text-xs muted mt-2">Commit graph (public service image)</div>
+            </div>
+
+            <div style={{height:12}} />
+
+            <div className="mono small">
+              <div className="muted">-- top repositories --</div>
+              {repos.slice(0,6).map(r => (
+                <div key={r.id} style={{display:"flex", justifyContent:"space-between", paddingTop:6}}>
+                  <a href={r.html_url} target="_blank" rel="noreferrer" style={{color:"var(--crt-orange)"}}>{r.name}</a>
+                  <div className="muted small">★{r.stargazers_count}</div>
                 </div>
-              </a>
-            ))}
+              ))}
+            </div>
+
           </div>
         </section>
       );
     }
 
     /* ---------------- WEATHER ---------------- */
-
     function Weather() {
       const [weather, setWeather] = useState(null);
       useEffect(() => {
@@ -558,18 +547,20 @@
       }, []);
       if (!weather) return null;
       return (
-        <section className="max-w-5xl mx-auto px-6 py-20">
-          <h2 className="text-2xl font-bold mb-8">Salzburg Weather</h2>
-          <div className="glass p-6 rounded-xl max-w-sm">
-            <div className="text-3xl font-bold">{weather.temperature}°C</div>
-            <div className="text-zinc-500">Wind {weather.windspeed} km/h</div>
+        <section className="max-w-5xl mx-auto px-6 py-12">
+          <div className="terminal-box">
+            <div className="section-title cursor">:: salzburg weather</div>
+            <div className="mono muted term-sep">========================================</div>
+            <div className="mono small">
+              <div>TEMP.............. <span style={{color:"var(--crt-orange)", fontWeight:700}}>{weather.temperature}°C</span></div>
+              <div>WIND.............. <span className="muted">{weather.windspeed} km/h</span></div>
+            </div>
           </div>
         </section>
       );
     }
 
     /* ---------------- APP ---------------- */
-
     function App() {
       return (
         <>
@@ -579,7 +570,7 @@
           <Steam />
           <Github />
           <Weather />
-          <footer className="text-center py-16 text-zinc-500">David Unterberger</footer>
+          <footer className="text-center py-12 muted mono">David Unterberger</footer>
         </>
       );
     }
@@ -589,7 +580,7 @@
   </script>
 
   <script>
-    /* Terrain Animation (transparent clear color + stable) */
+    // Terrain Animation — adjust color to match orange CRT
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("terrain"), alpha: true });
@@ -598,7 +589,14 @@
     camera.position.z = 30;
 
     const geometry = new THREE.PlaneGeometry(120, 120, 120, 120);
-    const material = new THREE.MeshBasicMaterial({ color: 0x0f4d3f, wireframe: true, transparent: true, opacity: .08 });
+    // warm orange, low opacity
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xff8a2b,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.06
+    });
+
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = -Math.PI / 2.7;
     scene.add(plane);
@@ -622,7 +620,6 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
   </script>
-
 </body>
 
 </html>
