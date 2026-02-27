@@ -154,94 +154,148 @@
     /* ---------------- DISCORD (robust single-card dashboard) ---------------- */
 
     function Discord() {
-      const [data, setData] = React.useState(null);
+  const [data, setData] = React.useState(null);
+  const [elapsed, setElapsed] = React.useState("");
 
-      React.useEffect(() => {
-        const fetchPresence = async () => {
-          const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
-          const json = await res.json();
-          if (json.success) setData(json.data);
-        };
+  React.useEffect(() => {
+    async function fetchPresence() {
+      try {
+        const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+        const json = await res.json();
+        if (json.success) setData(json.data);
+      } catch {}
+    }
 
-        fetchPresence();
-        const interval = setInterval(fetchPresence, 15000);
-        return () => clearInterval(interval);
-      }, []);
+    fetchPresence();
+    const interval = setInterval(fetchPresence, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
-      if (!data) return null;
+  React.useEffect(() => {
+    if (!data?.activities) return;
+    const act = data.activities.find(a => a.type === 0);
+    if (!act?.timestamps?.start) return;
 
-      const user = data.discord_user;
-      const status = data.discord_status;
-      const activity = data.activities?.find(a => a.type === 0);
-      const customStatus = data.activities?.find(a => a.type === 4);
-      const spotify = data.spotify;
+    const tick = () => {
+      const diff = Date.now() - act.timestamps.start;
+      const m = Math.floor(diff / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setElapsed(`${m}m ${s}s`);
+    };
 
-      const statusColor = {
-        online: "shadow-green-500/50",
-        idle: "shadow-yellow-500/50",
-        dnd: "shadow-red-500/50",
-        offline: "shadow-gray-500/50"
-      }[status] || "shadow-gray-500/50";
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [data]);
 
-      return (
-        <section className="max-w-5xl mx-auto px-6 py-20">
-          <h2 className="text-2xl font-bold mb-8">Discord</h2>
+  if (!data) return null;
 
-          <div className={`glass p-8 rounded-xl shadow-2xl ${statusColor}`}>
+  const user = data.discord_user;
+  const status = data.discord_status;
+  const activity = data.activities?.find(a => a.type === 0);
+  const customStatus = data.activities?.find(a => a.type === 4);
+  const spotify = data.spotify;
 
-            {/* Profile */}
-            <div className="flex items-center gap-4 mb-6">
-              <img
-                src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
-                className="w-20 h-20 rounded-full"
-              />
-              <div>
-                <div className="text-xl font-semibold">{user.username}</div>
-                <div className="text-sm capitalize text-zinc-400">{status}</div>
-                {customStatus && (
-                  <div className="text-sm mt-1">
-                    {customStatus.emoji?.name} {customStatus.state}
-                  </div>
-                )}
-              </div>
+  // Account creation from Discord snowflake
+  const discordEpoch = 1420070400000;
+  const createdAt = new Date((BigInt(user.id) >> 22n) + BigInt(discordEpoch));
+  const accountAgeDays = Math.floor((Date.now() - createdAt) / (1000 * 60 * 60 * 24));
+
+  return (
+    <section className="max-w-5xl mx-auto px-6 py-20">
+      <h2 className="text-2xl font-bold mb-8">Discord</h2>
+
+      <div className="glass p-8 rounded-xl border border-zinc-800">
+
+        {/* Profile */}
+        <div className="flex items-center gap-4 mb-6">
+          <div className={`relative`}>
+            <img
+              src={user.avatar
+                ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+                : "https://cdn.discordapp.com/embed/avatars/0.png"}
+              className="w-20 h-20 rounded-full"
+            />
+            <span className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-black ${
+              status === "online" ? "bg-green-500" :
+              status === "idle" ? "bg-yellow-500" :
+              status === "dnd" ? "bg-red-500" :
+              "bg-gray-500"
+            }`} />
+          </div>
+
+          <div>
+            <div className="text-lg font-semibold">
+              {user.username}
             </div>
 
-            {/* Platform status */}
-            <div className="flex gap-4 text-sm mb-6">
-              {data.active_on_discord_desktop && <span>💻 Desktop</span>}
-              {data.active_on_discord_mobile && <span>📱 Mobile</span>}
-              {data.active_on_discord_web && <span>🌐 Web</span>}
+            <div className="text-sm text-zinc-400">
+              ID: {user.id}
             </div>
 
-            {/* Game */}
-            {activity && (
-              <div className="mb-6">
-                <div className="text-zinc-400 text-sm">Playing</div>
-                <div className="font-semibold text-lg">{activity.name}</div>
-                {activity.details && (
-                  <div className="text-sm text-zinc-400">{activity.details}</div>
-                )}
-                {activity.state && (
-                  <div className="text-sm text-zinc-500">{activity.state}</div>
-                )}
-              </div>
-            )}
+            <div className="text-xs text-zinc-500 mt-1">
+              Account age: {accountAgeDays} days
+            </div>
 
-            {/* Spotify */}
-            {spotify && (
-              <div className="mt-6 p-4 bg-zinc-900/40 rounded-lg flex gap-4 items-center">
-                <img src={spotify.album_art_url} className="w-16 h-16 rounded" />
-                <div>
-                  <div className="text-sm text-zinc-400">Listening to Spotify</div>
-                  <div className="font-semibold">{spotify.song}</div>
-                  <div className="text-sm text-zinc-500">{spotify.artist}</div>
-                </div>
+            {customStatus?.state && (
+              <div className="text-sm text-zinc-400 mt-1">
+                {customStatus.emoji?.name} {customStatus.state}
               </div>
             )}
           </div>
-        </section>
-      );
-    }
+        </div>
+
+        {/* Platforms */}
+        <div className="flex gap-4 text-sm mb-6 text-zinc-400">
+          {data.active_on_discord_desktop && <span>💻 Desktop</span>}
+          {data.active_on_discord_mobile && <span>📱 Mobile</span>}
+          {data.active_on_discord_web && <span>🌐 Web</span>}
+        </div>
+
+        {/* Playing */}
+        {activity && (
+          <div className="mb-6">
+            <div className="text-zinc-400 text-sm">Playing</div>
+            <div className="font-semibold">{activity.name}</div>
+            {activity.details && (
+              <div className="text-sm text-zinc-400">{activity.details}</div>
+            )}
+            {activity.state && (
+              <div className="text-sm text-zinc-500">{activity.state}</div>
+            )}
+            {elapsed && (
+              <div className="text-xs text-zinc-500 mt-1">
+                {elapsed} elapsed
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Spotify */}
+        {spotify && (
+          <div className="mt-6 p-4 bg-zinc-900/40 rounded-lg flex gap-4 items-center">
+            <img
+              src={spotify.album_art_url}
+              className="w-16 h-16 rounded"
+            />
+            <div>
+              <div className="text-xs text-zinc-400">
+                Listening to Spotify
+              </div>
+              <div className="font-semibold">
+                {spotify.song}
+              </div>
+              <div className="text-sm text-zinc-500">
+                {spotify.artist}
+              </div>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </section>
+  );
+}
     /* ---------------- STEAM (fallbacks & more robust) ---------------- */
 
     function Steam() {
