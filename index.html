@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta http-equiv="refresh" content="0; url=david-unterberger-info.vercel.app">
   <title>David Unterberger</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap"
@@ -14,6 +13,14 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+
+  <script>
+    const allowedHost = "david-unterberger-info.vercel.app";
+
+    if (window.location.hostname !== allowedHost) {
+      window.location.replace("https://" + allowedHost + window.location.pathname + window.location.search);
+    }
+  </script>
 
   <style>
     html,
@@ -155,47 +162,27 @@
 
       // connect with exponential backoff reconnection
       useEffect(() => {
-        let mounted = true;
-        function connect() {
-          setStatusText("Connecting...");
-          const ws = new WebSocket("wss://api.lanyard.rest/socket?encoding=json");
-          wsRef.current = ws;
+        let interval;
 
-          ws.onopen = () => {
-            try { ws.send(JSON.stringify({ op: 2, d: { subscribe_to_id: DISCORD_ID } })); } catch (e) { }
-            setStatusText("Connected");
-            reconnectRef.current.tries = 0;
-          };
-
-          ws.onmessage = (e) => {
-            try {
-              const p = JSON.parse(e.data);
-              if (p.t === "INIT_STATE" || p.t === "PRESENCE_UPDATE") {
-                if (p.d && mounted) setData(p.d);
-              }
-            } catch (e) { console.warn("lanyard parse", e); }
-          };
-
-          ws.onclose = () => {
-            if (!mounted) return;
-            setStatusText("Disconnected — reconnecting...");
-            reconnectRef.current.tries++;
-            const delay = Math.min(30000, 1000 * Math.pow(2, reconnectRef.current.tries));
-            reconnectRef.current.timeoutId = setTimeout(connect, delay);
-          };
-
-          ws.onerror = (err) => {
-            console.warn("lanyard error", err);
-            ws.close();
-          };
+        async function fetchPresence() {
+          try {
+            const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+            const json = await res.json();
+            if (json.success) {
+              setData(json.data);
+              setStatusText("Connected");
+            } else {
+              setStatusText("No data available");
+            }
+          } catch (err) {
+            setStatusText("Connection failed");
+          }
         }
 
-        connect();
-        return () => {
-          mounted = false;
-          if (wsRef.current) wsRef.current.close();
-          if (reconnectRef.current.timeoutId) clearTimeout(reconnectRef.current.timeoutId);
-        };
+        fetchPresence();
+        interval = setInterval(fetchPresence, 15000);
+
+        return () => clearInterval(interval);
       }, []);
 
       // elapsed timer for activity
