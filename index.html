@@ -236,54 +236,33 @@ function Discord(){
 /* ---------------- STEAM (fallbacks & more robust) ---------------- */
 
 function Steam(){
-  const [games, setGames] = useState([]);
-  const [status, setStatus] = useState("Loading...");
+  const games=[
+    { name:"Elden Ring", hours:120, appid:1245620 },
+    { name:"Factorio", hours:200, appid:427520 },
+    { name:"Risk of Rain 2", hours:90, appid:632360 }
+  ];
 
-  useEffect(()=>{
-    let mounted=true;
-    async function fetchSteam(){
-      setStatus("Loading...");
-      // try allorigins first (often more permissive)
-      const endpoints = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://store.steampowered.com/dynamicstore/userdata/?steamid=${STEAM_ID}`)}`,
-        `https://corsproxy.io/?https://store.steampowered.com/dynamicstore/userdata/?steamid=${STEAM_ID}`
-      ];
-
-      for(const url of endpoints){
-        try{
-          const res = await fetch(url);
-          if(!res.ok) continue;
-          const json = await res.json();
-          if(json?.rgRecentlyPlayedApps){
-            const list = json.rgRecentlyPlayedApps.slice(0,3).map(g=>({
-              appid:g.appid, name:g.name, playtime:g.playtime_forever
-            }));
-            if(mounted){ setGames(list); setStatus(""); }
-            return;
-          }
-        }catch(e){
-          // try next
-        }
-      }
-      if(mounted){ setStatus("Unavailable (profile/settings or proxy)"); }
-    }
-
-    fetchSteam();
-    return ()=>{ mounted=false; };
-  },[]);
-
-  return (
+  return(
     <section className="max-w-5xl mx-auto px-6 py-20">
       <h2 className="text-2xl font-bold mb-8">Steam</h2>
 
-      {status && <div className="text-sm text-zinc-500 mb-4">{status}</div>}
+      <div className="glass p-8 rounded-xl mb-8">
+        <a href="https://steamcommunity.com/profiles/76561199474685726"
+           target="_blank"
+           className="text-violet-400 hover:underline">
+          View Steam Profile
+        </a>
+      </div>
 
       <div className="grid md:grid-cols-3 gap-6">
         {games.map(g=>(
           <div key={g.appid} className="glass p-4 rounded-xl">
-            <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} className="rounded mb-3" />
+            <img 
+              src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`}
+              className="rounded mb-3"
+            />
             <div className="font-semibold">{g.name}</div>
-            {g.playtime !== undefined && <div className="text-sm text-zinc-500">{Math.round(g.playtime/60)} hrs</div>}
+            <div className="text-sm text-zinc-500">{g.hours} hrs</div>
           </div>
         ))}
       </div>
