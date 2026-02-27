@@ -152,354 +152,388 @@
     }
 
     /* ---------------- DISCORD (robust single-card dashboard) ---------------- */
-function Discord() {
-  const [data, setData] = React.useState(null);
+    function Discord() {
+      const [data, setData] = React.useState(null);
 
-  React.useEffect(() => {
-    let mounted = true;
+      React.useEffect(() => {
+        let mounted = true;
 
-    async function fetchPresence() {
-      try {
-        const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
-        const json = await r.json();
-        if (json.success && mounted) {
-          setData(json.data);
+        async function fetchPresence() {
+          try {
+            const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+            const json = await r.json();
+            if (json.success && mounted) {
+              setData(json.data);
+            }
+          } catch { }
         }
-      } catch {}
-    }
 
-    fetchPresence();
-    const id = setInterval(fetchPresence, 15000);
-    return () => { mounted = false; clearInterval(id); };
-  }, []);
+        fetchPresence();
+        const id = setInterval(fetchPresence, 15000);
+        return () => { mounted = false; clearInterval(id); };
+      }, []);
 
-  if (!data) return null;
+      if (!data) return null;
 
-  const user = data.discord_user;
-  const status = data.discord_status || "offline";
-  const activity = data.activities?.find(a => a.type === 0);
-  const customStatus = data.activities?.find(a => a.type === 4);
+      const user = data.discord_user;
+      const status = data.discord_status || "offline";
+      const activity = data.activities?.find(a => a.type === 0);
+      const [elapsed, setElapsed] = React.useState("");
 
-  /* Account creation from snowflake */
-  let accountAgeDays = null;
-  try {
-    const snowflake = BigInt(user.id);
-    const timestamp = Number((snowflake >> 22n) + 1420070400000n);
-    const createdAt = new Date(timestamp);
-    accountAgeDays = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-  } catch {}
+      React.useEffect(() => {
+        if (!activity?.timestamps?.start) {
+          setElapsed("");
+          return;
+        }
 
-  /* Accent color */
-  const accent = user?.accent_color
-    ? `#${user.accent_color.toString(16).padStart(6, "0")}`
-    : "#5865F2";
+        function updateElapsed() {
+          const start = Number(activity.timestamps.start);
+          const diff = Date.now() - start;
 
-  /* Activity image resolver */
-  function getActivityImage(act) {
-    if (!act?.assets?.large_image) return null;
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff / (1000 * 60)) % 60);
 
-    const large = act.assets.large_image;
+          setElapsed(
+            hours > 0
+              ? `${hours}h ${minutes}m`
+              : `${minutes}m`
+          );
+        }
 
-    if (large.startsWith("mp:")) {
-      return `https://media.discordapp.net/${large.replace("mp:", "")}`;
-    }
+        updateElapsed();
+        const interval = setInterval(updateElapsed, 60000);
 
-    if (act.application_id) {
-      return `https://cdn.discordapp.com/app-assets/${act.application_id}/${large}.png`;
-    }
+        return () => clearInterval(interval);
+      }, [activity]);
 
-    return null;
-  }
+      const customStatus = data.activities?.find(a => a.type === 4);
 
-  const party = activity?.party?.size;
+      /* Account creation from snowflake */
+      let accountAgeDays = null;
+      try {
+        const snowflake = BigInt(user.id);
+        const timestamp = Number((snowflake >> 22n) + 1420070400000n);
+        const createdAt = new Date(timestamp);
+        accountAgeDays = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+      } catch { }
 
-  return (
-    <section className="max-w-5xl mx-auto px-6 py-20">
-      <h2 className="text-2xl font-bold mb-8">Discord</h2>
+      /* Accent color */
+      const accent = user?.accent_color
+        ? `#${user.accent_color.toString(16).padStart(6, "0")}`
+        : "#5865F2";
 
-      <div className="glass rounded-xl overflow-hidden border border-zinc-800 relative">
-        <div
-          className="absolute top-0 left-0 h-1 w-full"
-          style={{ backgroundColor: accent }}
-        />
+      /* Activity image resolver */
+      function getActivityImage(act) {
+        if (!act?.assets?.large_image) return null;
 
-        <div className="p-8">
+        const large = act.assets.large_image;
 
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="relative">
-              <img
-                src={user.avatar
-                  ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-                  : "https://cdn.discordapp.com/embed/avatars/0.png"}
-                className="w-20 h-20 rounded-full"
-              />
-              <span className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-black ${
-                status === "online" ? "bg-green-500" :
-                status === "idle" ? "bg-yellow-500" :
-                status === "dnd" ? "bg-red-500" :
-                "bg-gray-500"
-              }`} />
-            </div>
+        // External media proxy (Spotify, etc.)
+        if (large.startsWith("mp:")) {
+          return `https://media.discordapp.net/${large.replace("mp:", "")}`;
+        }
 
-            <div>
-              <div className="text-lg font-semibold">{user.username}</div>
-              <div className="text-sm text-zinc-400 capitalize">{status}</div>
-              {accountAgeDays && (
-                <div className="text-xs text-zinc-500 mt-1">
-                  Account age: {accountAgeDays} days
-                </div>
-              )}
-              {customStatus?.state && (
-                <div className="text-sm text-zinc-400 mt-2">
-                  {customStatus.emoji?.name} {customStatus.state}
-                </div>
-              )}
-            </div>
-          </div>
+        // Normal application asset
+        if (act.application_id) {
+          return `https://cdn.discordapp.com/app-assets/${act.application_id}/${large}.png`;
+        }
 
-          {/* Game */}
-          {activity && (
-            <div className="glass rounded-lg overflow-hidden flex mb-6">
-              <div className="w-40 h-24 bg-zinc-900 flex items-center justify-center">
-                {getActivityImage(activity) ? (
+        return null;
+      }
+
+      const party = activity?.party?.size;
+
+      return (
+        <section className="max-w-5xl mx-auto px-6 py-20">
+          <h2 className="text-2xl font-bold mb-8">Discord</h2>
+
+          <div className="glass rounded-xl overflow-hidden border border-zinc-800 relative">
+            <div
+              className="absolute top-0 left-0 h-1 w-full"
+              style={{ backgroundColor: accent }}
+            />
+
+            <div className="p-8">
+
+              {/* Header */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="relative">
                   <img
-                    src={getActivityImage(activity)}
-                    className="w-full h-full object-cover"
+                    src={user.avatar
+                      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+                      : "https://cdn.discordapp.com/embed/avatars/0.png"}
+                    className="w-20 h-20 rounded-full"
                   />
-                ) : (
-                  <div className="text-xs text-zinc-500">No art</div>
-                )}
+                  <span className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-black ${status === "online" ? "bg-green-500" :
+                    status === "idle" ? "bg-yellow-500" :
+                      status === "dnd" ? "bg-red-500" :
+                        "bg-gray-500"
+                    }`} />
+                </div>
+
+                <div>
+                  <div className="text-lg font-semibold">{user.username}</div>
+                  <div className="text-sm text-zinc-400 capitalize">{status}</div>
+                  {accountAgeDays && (
+                    <div className="text-xs text-zinc-500 mt-1">
+                      Account age: {accountAgeDays} days
+                    </div>
+                  )}
+                  {customStatus?.state && (
+                    <div className="text-sm text-zinc-400 mt-2">
+                      {customStatus.emoji?.name} {customStatus.state}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="p-4 flex-1">
-                <div className="font-semibold">{activity.name}</div>
-                {activity.details && (
-                  <div className="text-sm text-zinc-400">{activity.details}</div>
-                )}
-                {activity.state && (
-                  <div className="text-sm text-zinc-500">{activity.state}</div>
-                )}
-
-                {party && (
-                  <div className="text-xs text-zinc-400 mt-2">
-                    Party: {party[0]} / {party[1]}
+              {/* Game */}
+              {activity && (
+                <div className="glass rounded-lg overflow-hidden flex mb-6">
+                  <div className="w-40 h-24 bg-zinc-900 flex items-center justify-center">
+                    {getActivityImage(activity) ? (
+                      <img
+                        src={getActivityImage(activity)}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-xs text-zinc-500">No art</div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-          )}
 
-          {/* Clean Stats Grid (NO SPOTIFY) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div className="bg-zinc-900/40 p-3 rounded-lg">
-              <div className="text-zinc-400 text-xs">Status</div>
-              <div className="font-semibold capitalize">{status}</div>
-            </div>
+                  <div className="p-4 flex-1">
+                    <div className="font-semibold">{activity.name}</div>
+                    {activity.details && (
+                      <div className="text-sm text-zinc-400">{activity.details}</div>
+                    )}
+                    {activity.state && (
+                      <div className="text-sm text-zinc-500">{activity.state}</div>
+                    )}
+                    {elapsed && (
+                      <div className="text-xs text-zinc-400 mt-2">
+                        {elapsed} elapsed
+                      </div>
+                    )}
 
-            <div className="bg-zinc-900/40 p-3 rounded-lg">
-              <div className="text-zinc-400 text-xs">Activities</div>
-              <div className="font-semibold">
-                {data.activities?.filter(a => a.type !== 4).length}
-              </div>
-            </div>
+                    {party && (
+                      <div className="text-xs text-zinc-400 mt-2">
+                        Party: {party[0]} / {party[1]}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
-            <div className="bg-zinc-900/40 p-3 rounded-lg">
-              <div className="text-zinc-400 text-xs">User ID</div>
-              <div className="font-semibold text-xs break-all">
-                {user.id}
-              </div>
-            </div>
+              {/* Clean Stats Grid (NO SPOTIFY) */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="bg-zinc-900/40 p-3 rounded-lg">
+                  <div className="text-zinc-400 text-xs">Status</div>
+                  <div className="font-semibold capitalize">{status}</div>
+                </div>
 
-            <div className="bg-zinc-900/40 p-3 rounded-lg">
-              <div className="text-zinc-400 text-xs">Public Flags</div>
-              <div className="font-semibold">
-                {user.public_flags || 0}
+                <div className="bg-zinc-900/40 p-3 rounded-lg">
+                  <div className="text-zinc-400 text-xs">Activities</div>
+                  <div className="font-semibold">
+                    {data.activities?.filter(a => a.type !== 4).length}
+                  </div>
+                </div>
+
+                <div className="bg-zinc-900/40 p-3 rounded-lg">
+                  <div className="text-zinc-400 text-xs">User ID</div>
+                  <div className="font-semibold text-xs break-all">
+                    {user.id}
+                  </div>
+                </div>
+
+                <div className="bg-zinc-900/40 p-3 rounded-lg">
+                  <div className="text-zinc-400 text-xs">Public Flags</div>
+                  <div className="font-semibold">
+                    {user.public_flags || 0}
+                  </div>
+                </div>
               </div>
+
             </div>
           </div>
-
-        </div>
-      </div>
-    </section>
-  );
-}
+        </section>
+      );
+    }
     /* ---------------- STEAM (fallbacks & more robust) ---------------- */
 
     function Steam() {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(false);
+      const [data, setData] = useState(null);
+      const [error, setError] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/steam")
-      .then(r => { if (!r.ok) throw new Error("steam fetch"); return r.json(); })
-      .then(d => setData(d))
-      .catch(() => setError(true));
-  }, []);
+      useEffect(() => {
+        fetch("/api/steam")
+          .then(r => { if (!r.ok) throw new Error("steam fetch"); return r.json(); })
+          .then(d => setData(d))
+          .catch(() => setError(true));
+      }, []);
 
-  if (error) {
-    return (
-      <section className="max-w-5xl mx-auto px-6 py-20">
-        <h2 className="text-2xl font-bold mb-8">Steam</h2>
-        <div className="glass p-6 rounded-xl text-red-400">Steam data unavailable.</div>
-      </section>
-    );
-  }
+      if (error) {
+        return (
+          <section className="max-w-5xl mx-auto px-6 py-20">
+            <h2 className="text-2xl font-bold mb-8">Steam</h2>
+            <div className="glass p-6 rounded-xl text-red-400">Steam data unavailable.</div>
+          </section>
+        );
+      }
 
-  if (!data) return null;
+      if (!data) return null;
 
-  const profile = data.profile || {};
-  const owned = data.owned || { game_count: 0 };
-  const topPlayed = data.topPlayed || [].slice(0, 9);
-  const recent = data.recent?.games || [].slice(0, 3);
-  const totalHours = data.totalHours || 0;
+      const profile = data.profile || {};
+      const owned = data.owned || { game_count: 0 };
+      const topPlayed = (data.topPlayed || []).slice(0, 9);
+      const recent = (data.recent?.games || []).slice(0, 3);
+      const totalHours = data.totalHours || 0;
 
-  function fmtUnixSeconds(sec) {
-    if (!sec) return "Unknown";
-    const d = new Date(sec * 1000);
-    return d.toLocaleString();
-  }
+      function fmtUnixSeconds(sec) {
+        if (!sec) return "Unknown";
+        const d = new Date(sec * 1000);
+        return d.toLocaleString();
+      }
 
-  return (
-    <section className="max-w-5xl mx-auto px-6 py-20">
-      <h2 className="text-2xl font-bold mb-8">Steam</h2>
+      return (
+        <section className="max-w-5xl mx-auto px-6 py-20">
+          <h2 className="text-2xl font-bold mb-8">Steam</h2>
 
-      {/* Profile Card */}
-      <div className="glass p-8 rounded-xl mb-6 flex items-center gap-6">
-        <img src={profile.avatarfull} className="w-20 h-20 rounded-full" />
-        <div>
-          <div className="text-xl font-semibold">{profile.personaname}</div>
-          <div className="text-zinc-400">
-            {profile.gameextrainfo ? `Playing ${profile.gameextrainfo}` : "Offline / Not in game"}
-          </div>
-          <div className="text-sm text-zinc-500 mt-2">Total Games: {owned.game_count || 0}</div>
-          <div className="text-sm text-zinc-500">Total Hours Played: {totalHours} hrs</div>
-          <div className="text-sm text-zinc-500">Account created: {fmtUnixSeconds(profile.timecreated)}</div>
-          <div className="text-sm text-zinc-500">Last logoff: {fmtUnixSeconds(profile.lastlogoff)}</div>
-        </div>
-      </div>
-
-      {/* Recently Played */}
-      <h3 className="text-xl font-semibold mb-4">Recently Played</h3>
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
-        {recent.map(game => (
-          <div key={game.appid} className="glass p-4 rounded-xl">
-            <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg`} className="rounded mb-3" />
-            <div className="font-semibold">{game.name}</div>
-            <div className="text-sm text-zinc-500">{Math.round((game.playtime_2weeks||0) / 60)} hrs last 2 weeks</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Top Played */}
-      <h3 className="text-xl font-semibold mb-4">Top Played</h3>
-      <div className="grid md:grid-cols-3 gap-6">
-        {topPlayed.map(game => (
-          <div key={game.appid} className="glass p-4 rounded-xl">
-            <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg`} className="rounded mb-3" />
-            <div className="flex items-center justify-between">
-              <div className="font-semibold">{game.name}</div>
-              {game.completion_percent !== null && (
-                <div className="text-xs px-2 py-1 rounded bg-zinc-900/40">{game.completion_percent}%</div>
-              )}
+          {/* Profile Card */}
+          <div className="glass p-8 rounded-xl mb-6 flex items-center gap-6">
+            <img src={profile.avatarfull} className="w-20 h-20 rounded-full" />
+            <div>
+              <div className="text-xl font-semibold">{profile.personaname}</div>
+              <div className="text-zinc-400">
+                {profile.gameextrainfo ? `Playing ${profile.gameextrainfo}` : "Offline / Not in game"}
+              </div>
+              <div className="text-sm text-zinc-500 mt-2">Total Games: {owned.game_count || 0}</div>
+              <div className="text-sm text-zinc-500">Total Hours Played: {totalHours} hrs</div>
+              <div className="text-sm text-zinc-500">Account created: {fmtUnixSeconds(profile.timecreated)}</div>
+              <div className="text-sm text-zinc-500">Last logoff: {fmtUnixSeconds(profile.lastlogoff)}</div>
             </div>
-            <div className="text-sm text-zinc-500 mt-2">{Math.round((game.playtime_forever||0) / 60)} hrs total</div>
           </div>
-        ))}
-      </div>
-    </section>
-  );
-}
+
+          {/* Recently Played */}
+          <h3 className="text-xl font-semibold mb-4">Recently Played</h3>
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            {recent.map(game => (
+              <div key={game.appid} className="glass p-4 rounded-xl">
+                <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg`} className="rounded mb-3" />
+                <div className="font-semibold">{game.name}</div>
+                <div className="text-sm text-zinc-500">{Math.round((game.playtime_2weeks || 0) / 60)} hrs last 2 weeks</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Top Played */}
+          <h3 className="text-xl font-semibold mb-4">Top Played</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            {topPlayed.map(game => (
+              <div key={game.appid} className="glass p-4 rounded-xl">
+                <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg`} className="rounded mb-3" />
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">{game.name}</div>
+                  {game.completion_percent !== null && (
+                    <div className="text-xs px-2 py-1 rounded bg-zinc-900/40">{game.completion_percent}%</div>
+                  )}
+                </div>
+                <div className="text-sm text-zinc-500 mt-2">{Math.round((game.playtime_forever || 0) / 60)} hrs total</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    }
 
     /* ---------------- GITHUB (user-supplied component) ---------------- */
 
     function Github() {
-  const [profile, setProfile] = useState(null);
-  const [repos, setRepos] = useState([]);
-  const [events, setEvents] = useState([]);
-  const username = GITHUB_USER;
+      const [profile, setProfile] = useState(null);
+      const [repos, setRepos] = useState([]);
+      const [events, setEvents] = useState([]);
+      const username = GITHUB_USER;
 
-  useEffect(() => {
-    fetch(`https://api.github.com/users/${username}`)
-      .then(r => r.json())
-      .then(setProfile)
-      .catch(()=>{});
+      useEffect(() => {
+        fetch(`https://api.github.com/users/${username}`)
+          .then(r => r.json())
+          .then(setProfile)
+          .catch(() => { });
 
-    fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=pushed`)
-      .then(r => r.json())
-      .then(list => {
-        if(Array.isArray(list)){
-          setRepos(list);
-        }
-      }).catch(()=>{});
+        fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=pushed`)
+          .then(r => r.json())
+          .then(list => {
+            if (Array.isArray(list)) {
+              setRepos(list);
+            }
+          }).catch(() => { });
 
-    // recent public events
-    fetch(`https://api.github.com/users/${username}/events/public?per_page=10`)
-      .then(r=>r.json())
-      .then(setEvents)
-      .catch(()=>{});
-  }, []);
+        // recent public events
+        fetch(`https://api.github.com/users/${username}/events/public?per_page=10`)
+          .then(r => r.json())
+          .then(setEvents)
+          .catch(() => { });
+      }, []);
 
-  if(!profile) return null;
+      if (!profile) return null;
 
-  // compute stats
-  const totals = repos.reduce((acc, r) => {
-    acc.stars += (r.stargazers_count || 0);
-    acc.forks += (r.forks_count || 0);
-    if(r.language) acc.langCount[r.language] = (acc.langCount[r.language]||0)+1;
-    if(!acc.top || r.stargazers_count > acc.top.stars) acc.top = { name: r.name, stars: r.stargazers_count, url: r.html_url };
-    return acc;
-  }, { stars:0, forks:0, langCount:{}, top:null });
+      // compute stats
+      const totals = repos.reduce((acc, r) => {
+        acc.stars += (r.stargazers_count || 0);
+        acc.forks += (r.forks_count || 0);
+        if (r.language) acc.langCount[r.language] = (acc.langCount[r.language] || 0) + 1;
+        if (!acc.top || r.stargazers_count > acc.top.stars) acc.top = { name: r.name, stars: r.stargazers_count, url: r.html_url };
+        return acc;
+      }, { stars: 0, forks: 0, langCount: {}, top: null });
 
-  // most used language
-  const mostUsedLanguage = Object.entries(totals.langCount).sort((a,b)=>b[1]-a[1])[0]?.[0] || "Unknown";
+      // most used language
+      const mostUsedLanguage = Object.entries(totals.langCount).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
 
-  // contribution graph image (public service)
-  const contributionsSvg = `https://ghchart.rshah.org/${username}`;
+      // contribution graph image (public service)
+      const contributionsSvg = `https://ghchart.rshah.org/${username}`;
 
-  return (
-    <section className="max-w-5xl mx-auto px-6 py-20">
-      <h2 className="text-2xl font-bold mb-8">GitHub</h2>
+      return (
+        <section className="max-w-5xl mx-auto px-6 py-20">
+          <h2 className="text-2xl font-bold mb-8">GitHub</h2>
 
-      {/* Profile Card */}
-      <div className="glass p-8 rounded-xl mb-8 flex items-center gap-6">
-        <img src={profile.avatar_url} className="w-20 h-20 rounded-full"/>
-        <div>
-          <div className="text-xl font-semibold">{profile.name || profile.login}</div>
-          <div className="text-sm text-zinc-400">{profile.bio}</div>
-          <div className="text-sm text-zinc-500 mt-2">Public repos: {profile.public_repos}</div>
-          <div className="text-sm text-zinc-500">Followers: {profile.followers} • Following: {profile.following}</div>
-          <div className="text-sm text-zinc-500 mt-1">Most used: {mostUsedLanguage}</div>
-          <div className="text-sm text-zinc-500">Total stars: {totals.stars} • Total forks: {totals.forks}</div>
-          {totals.top && <div className="text-sm text-zinc-500 mt-2">Most starred: <a href={totals.top.url} target="_blank" className="text-violet-400 underline">{totals.top.name} ({totals.top.stars}★)</a></div>}
-        </div>
-      </div>
-
-      {/* Contribution graph */}
-      <div className="glass p-6 rounded-xl mb-8">
-        <div className="text-sm text-zinc-400 mb-3">Contribution graph</div>
-        <img src={contributionsSvg} alt="contributions" className="w-full" />
-        <div className="text-xs text-zinc-500 mt-2">Commit graph (public service image)</div>
-      </div>
-      
-      {/* quick repo cards */}
-      <h3 className="text-xl font-semibold mb-4 mt-8">Top repositories</h3>
-      <div className="grid md:grid-cols-3 gap-6">
-        {repos.slice(0,6).map(r => (
-          <a key={r.id} href={r.html_url} target="_blank" className="glass p-5 rounded-xl hover:scale-105 transition">
-            <div className="font-semibold">{r.name}</div>
-            <div className="text-sm text-zinc-400 mt-2">{r.language || "No language"}</div>
-            {r.description && <div className="text-sm text-zinc-300 mt-3">{r.description}</div>}
-            <div className="flex justify-between text-xs text-zinc-500 mt-4">
-              <span>★ {r.stargazers_count}</span>
-              <span>Forks {r.forks_count}</span>
+          {/* Profile Card */}
+          <div className="glass p-8 rounded-xl mb-8 flex items-center gap-6">
+            <img src={profile.avatar_url} className="w-20 h-20 rounded-full" />
+            <div>
+              <div className="text-xl font-semibold">{profile.name || profile.login}</div>
+              <div className="text-sm text-zinc-400">{profile.bio}</div>
+              <div className="text-sm text-zinc-500 mt-2">Public repos: {profile.public_repos}</div>
+              <div className="text-sm text-zinc-500">Followers: {profile.followers} • Following: {profile.following}</div>
+              <div className="text-sm text-zinc-500 mt-1">Most used: {mostUsedLanguage}</div>
+              <div className="text-sm text-zinc-500">Total stars: {totals.stars} • Total forks: {totals.forks}</div>
+              {totals.top && <div className="text-sm text-zinc-500 mt-2">Most starred: <a href={totals.top.url} target="_blank" className="text-violet-400 underline">{totals.top.name} ({totals.top.stars}★)</a></div>}
             </div>
-          </a>
-        ))}
-      </div>
-    </section>
-  );
-}
+          </div>
+
+          {/* Contribution graph */}
+          <div className="glass p-6 rounded-xl mb-8">
+            <div className="text-sm text-zinc-400 mb-3">Contribution graph</div>
+            <img src={contributionsSvg} alt="contributions" className="w-full" />
+            <div className="text-xs text-zinc-500 mt-2">Commit graph (public service image)</div>
+          </div>
+
+          {/* quick repo cards */}
+          <h3 className="text-xl font-semibold mb-4 mt-8">Top repositories</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            {repos.slice(0, 6).map(r => (
+              <a key={r.id} href={r.html_url} target="_blank" className="glass p-5 rounded-xl hover:scale-105 transition">
+                <div className="font-semibold">{r.name}</div>
+                <div className="text-sm text-zinc-400 mt-2">{r.language || "No language"}</div>
+                {r.description && <div className="text-sm text-zinc-300 mt-3">{r.description}</div>}
+                <div className="flex justify-between text-xs text-zinc-500 mt-4">
+                  <span>★ {r.stargazers_count}</span>
+                  <span>Forks {r.forks_count}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      );
+    }
 
     /* ---------------- WEATHER ---------------- */
 
