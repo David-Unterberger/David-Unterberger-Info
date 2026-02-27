@@ -13,224 +13,150 @@
 <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
 <style>
-html,body,#root{
-  margin:0;
-  background:#0f1214;
-  color:#e8eef1;
-  font-family:"Source Code Pro", monospace;
-  overflow-x:hidden;
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0f1214;
 }
 
-.hero-bg{
+#root {
+  color: #e8eef1;
+  font-family: "Source Code Pro", monospace;
+  overflow-x: hidden;
+  position: relative;
+  z-index: 10; /* Ensures text is above canvas */
+}
+
+.hero-bg {
   background-image:
-    linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.95)),
+    linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(15, 18, 20, 0.9)),
     url("titel_background.png");
-  background-size:cover;
-  background-position:center;
-  background-attachment:fixed;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
-.glass{
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06);
-  backdrop-filter:blur(10px);
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
 }
 
-.status-dot{
-  width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;
+.status-dot {
+  width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px;
 }
-.online{background:#23a55a;box-shadow:0 0 10px #23a55a;}
-.idle{background:#f0b232;}
-.dnd{background:#f23f43;}
-.offline{background:#80848e;}
+.online { background: #23a55a; box-shadow: 0 0 10px #23a55a; }
+.idle { background: #f0b232; }
+.dnd { background: #f23f43; }
+.offline { background: #80848e; }
 
-#terrain{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  z-index:0;
-  pointer-events:none;
+#terrain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0; /* Behind the content */
+  pointer-events: none; /* Allows interaction with elements above it */
 }
 </style>
 </head>
 <body>
 
 <canvas id="terrain"></canvas>
-<div id="root" style="position:relative; z-index:10;"></div>
+<div id="root"></div>
 
 <script type="text/babel">
+const { useState, useEffect } = React;
 
-const {useState,useEffect} = React;
+const DISCORD_ID = "780384263987920937";
+const STEAM_ID = "76561199474685726";
+const GITHUB_USER = "David-Unterberger";
 
-const DISCORD_ID="780384263987920937";
-const STEAM_ID="76561199474685726";
-const GITHUB_USER="David-Unterberger";
+function Hero() {
+  const roles = ["Game Developer", "Systems Programmer", "Procedural Enthusiast"];
+  const [i, setI] = useState(0);
 
-/* ---------------- HERO ---------------- */
+  useEffect(() => {
+    const t = setInterval(() => setI(x => (x + 1) % roles.length), 3000);
+    return () => clearInterval(t);
+  }, []);
 
-function Hero(){
-  const roles=["Game Developer","Systems Programmer","Procedural Enthusiast"];
-  const [i,setI]=useState(0);
-
-  useEffect(()=>{
-    const t=setInterval(()=>setI(x=>(x+1)%roles.length),3000);
-    return()=>clearInterval(t);
-  },[]);
-
-  return(
+  return (
     <section className="hero-bg min-h-screen flex flex-col justify-center items-center text-center px-6">
-      <h1 className="text-5xl md:text-6xl font-bold mb-6">
-        David Unterberger
-      </h1>
-
+      <h1 className="text-5xl md:text-6xl font-bold mb-6">David Unterberger</h1>
       <p className="text-lg text-zinc-300 max-w-2xl mb-6">
         Hobby game developer since 2020. Focused on procedural terrain, simulation systems and shader experimentation.
       </p>
-
-      <div className="text-xl text-violet-400">
+      <div className="text-xl text-violet-400 font-semibold h-8">
         {roles[i]}
       </div>
     </section>
   );
 }
 
-/* ---------------- CURRENT PROJECT ---------------- */
-
-function CurrentProject(){
-  return(
+function CurrentProject() {
+  return (
     <section className="max-w-5xl mx-auto px-6 py-20">
       <h2 className="text-2xl font-bold mb-8">Current Project</h2>
-
       <div className="glass p-8 rounded-xl">
-        <h3 className="text-xl font-semibold mb-4">
-          Procedural Terrain & Shader Engine Experiments
-        </h3>
-
+        <h3 className="text-xl font-semibold mb-4">Procedural Terrain & Shader Engine Experiments</h3>
         <p className="text-zinc-300 mb-6">
-          Building modular terrain systems using layered noise stacks,
-          runtime mesh deformation and custom shader pipelines.
-          Exploring simulation-driven world generation.
+          Building modular terrain systems using layered noise stacks, runtime mesh deformation and custom shader pipelines.
         </p>
-
         <div className="flex gap-3 flex-wrap mb-6">
-          <span className="px-3 py-1 bg-violet-600/20 rounded text-sm">C#</span>
-          <span className="px-3 py-1 bg-violet-600/20 rounded text-sm">Shaders</span>
-          <span className="px-3 py-1 bg-violet-600/20 rounded text-sm">Procedural Gen</span>
-          <span className="px-3 py-1 bg-violet-600/20 rounded text-sm">Simulation</span>
+          {["C#", "Shaders", "Procedural Gen", "Simulation"].map(tag => (
+            <span key={tag} className="px-3 py-1 bg-violet-600/20 rounded text-sm">{tag}</span>
+          ))}
         </div>
-
         <div className="flex gap-4">
-          <a href="https://github.com/David-Unterberger" target="_blank"
-             className="px-4 py-2 rounded glass hover:scale-105 transition">
-             GitHub
-          </a>
-
-          <a href="https://davebbx.itch.io" target="_blank"
-             className="px-4 py-2 rounded glass hover:scale-105 transition">
-             itch.io
-          </a>
+          <a href="https://github.com/David-Unterberger" target="_blank" className="px-4 py-2 rounded glass hover:scale-105 transition">GitHub</a>
+          <a href="https://davebbx.itch.io" target="_blank" className="px-4 py-2 rounded glass hover:scale-105 transition">itch.io</a>
         </div>
       </div>
     </section>
   );
 }
 
-/* ---------------- DISCORD DASHBOARD ---------------- */
+function Discord() {
+  const [data, setData] = useState(null);
+  const [elapsed, setElapsed] = useState("");
 
-function Discord(){
-  const [data,setData]=useState(null);
-  const [elapsed,setElapsed]=useState("");
-
-  useEffect(()=>{
-    const ws=new WebSocket("wss://api.lanyard.rest/socket");
-
-    ws.onopen=()=>{
-      ws.send(JSON.stringify({op:2,d:{subscribe_to_id:DISCORD_ID}}));
+  useEffect(() => {
+    const ws = new WebSocket("wss://api.lanyard.rest/socket");
+    ws.onopen = () => ws.send(JSON.stringify({ op: 2, d: { subscribe_to_id: DISCORD_ID } }));
+    ws.onmessage = (e) => {
+      const p = JSON.parse(e.data);
+      if (p.t === "INIT_STATE" || p.t === "PRESENCE_UPDATE") setData(p.d);
     };
+    return () => ws.close();
+  }, []);
 
-    ws.onmessage=(e)=>{
-      const p=JSON.parse(e.data);
-      if(p.t==="INIT_STATE"||p.t==="PRESENCE_UPDATE"){
-        setData(p.d);
-      }
-    };
+  if (!data) return null;
+  const { discord_user: user, discord_status: status, activities } = data;
+  const activity = activities?.find(a => a.type === 0);
+  const custom = activities?.find(a => a.type === 4);
+  const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
 
-    return()=>ws.close();
-  },[]);
-
-  useEffect(()=>{
-    if(!data) return;
-    const act=data.activities?.find(a=>a.type===0);
-    if(!act?.timestamps?.start) return;
-
-    const int=setInterval(()=>{
-      const diff=Date.now()-act.timestamps.start;
-      const m=Math.floor(diff/60000);
-      const s=Math.floor((diff%60000)/1000);
-      setElapsed(`${m}m ${s}s`);
-    },1000);
-
-    return()=>clearInterval(int);
-  },[data]);
-
-  if(!data) return null;
-
-  const user=data.discord_user;
-  const status=data.discord_status;
-  const activity=data.activities?.find(a=>a.type===0);
-  const custom=data.activities?.find(a=>a.type===4);
-
-  const avatarURL=`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
-
-  let gameImg=null;
-  if(activity?.assets?.large_image){
-    gameImg=activity.assets.large_image.startsWith("mp:")
-      ?`https://media.discordapp.net/${activity.assets.large_image.replace("mp:","")}`
-      :`https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.png`;
-  }
-
-  return(
+  return (
     <section className="max-w-5xl mx-auto px-6 py-20">
       <h2 className="text-2xl font-bold mb-8">Discord</h2>
-
-      <div className="glass p-8 rounded-xl">
-
-        <div className="flex items-center gap-4 mb-6">
-          <img src={avatarURL} className="w-16 h-16 rounded-full"/>
+      <div className="glass p-8 rounded-xl flex flex-col md:flex-row gap-6 items-start">
+        <div className="flex items-center gap-4">
+          <img src={avatarURL} className="w-16 h-16 rounded-full border-2 border-zinc-700" alt="avatar"/>
           <div>
             <div className="text-lg font-semibold">{user.username}</div>
             <div className="flex items-center text-sm">
               <span className={`status-dot ${status}`}></span>
               <span className="capitalize">{status}</span>
             </div>
-            {custom && (
-              <div className="text-sm text-zinc-400 mt-1">
-                {custom.state}
-              </div>
-            )}
           </div>
         </div>
-
         {activity && (
-          <div>
-            {gameImg && (
-              <img src={gameImg} className="rounded mb-4"/>
-            )}
-            <div className="text-zinc-400 text-sm">Playing</div>
+          <div className="border-l border-zinc-800 pl-6">
+            <div className="text-zinc-400 text-xs uppercase tracking-widest mb-1">Current Activity</div>
             <div className="font-semibold">{activity.name}</div>
-            {activity.details && (
-              <div className="text-sm text-zinc-400">{activity.details}</div>
-            )}
-            {activity.state && (
-              <div className="text-sm text-zinc-500">{activity.state}</div>
-            )}
-            {elapsed && (
-              <div className="text-sm text-zinc-500 mt-1">
-                {elapsed} elapsed
-              </div>
-            )}
+            <div className="text-sm text-zinc-400">{activity.details}</div>
           </div>
         )}
       </div>
@@ -238,39 +164,31 @@ function Discord(){
   );
 }
 
-/* ---------------- STEAM ---------------- */
-
-function Steam(){
-  const [games,setGames]=useState([]);
-
-  useEffect(()=>{
+function Steam() {
+  const [games, setGames] = useState([]);
+  useEffect(() => {
     fetch(`https://corsproxy.io/?https://steamcommunity.com/profiles/${STEAM_ID}/games?xml=1`)
-    .then(r=>r.text())
-    .then(str=>{
-      const parser=new DOMParser();
-      const xml=parser.parseFromString(str,"text/xml");
-      const nodes=[...xml.querySelectorAll("game")].slice(0,3);
+      .then(r => r.text())
+      .then(str => {
+        const xml = new DOMParser().parseFromString(str, "text/xml");
+        const nodes = [...xml.querySelectorAll("game")].slice(0, 3);
+        setGames(nodes.map(n => ({
+          name: n.querySelector("name")?.textContent,
+          logo: n.querySelector("logo")?.textContent,
+          hours: n.querySelector("hoursOnRecord")?.textContent
+        })));
+      }).catch(() => {});
+  }, []);
 
-      const parsed=nodes.map(n=>({
-        name:n.querySelector("name")?.textContent,
-        logo:n.querySelector("logo")?.textContent,
-        hours:n.querySelector("hoursOnRecord")?.textContent
-      }));
-
-      setGames(parsed);
-    }).catch(()=>{});
-  },[]);
-
-  return(
+  return (
     <section className="max-w-5xl mx-auto px-6 py-20">
-      <h2 className="text-2xl font-bold mb-8">Steam</h2>
-
+      <h2 className="text-2xl font-bold mb-8">Steam Recent</h2>
       <div className="grid md:grid-cols-3 gap-6">
-        {games.map((g,i)=>(
+        {games.map((g, i) => (
           <div key={i} className="glass p-4 rounded-xl">
-            <img src={g.logo} className="rounded mb-3"/>
-            <div className="font-semibold">{g.name}</div>
-            <div className="text-sm text-zinc-500">{g.hours}</div>
+            <img src={g.logo} className="rounded mb-3 w-full" alt={g.name}/>
+            <div className="font-semibold text-sm truncate">{g.name}</div>
+            <div className="text-xs text-zinc-500">{g.hours} hrs on record</div>
           </div>
         ))}
       </div>
@@ -278,54 +196,31 @@ function Steam(){
   );
 }
 
-/* ---------------- GITHUB ---------------- */
+function Github() {
+  const [repos, setRepos] = useState([]);
+  const [languages, setLanguages] = useState({});
 
-function Github(){
-  const [repos,setRepos]=useState([]);
-  const [languages,setLanguages]=useState({});
-
-  useEffect(()=>{
+  useEffect(() => {
     fetch(`https://api.github.com/users/${GITHUB_USER}/repos`)
-    .then(r=>r.json())
-    .then(data=>{
-      setRepos(data.slice(0,6));
-      const langCount={};
-      data.forEach(r=>{
-        if(r.language){
-          langCount[r.language]=(langCount[r.language]||0)+1;
+      .then(r => r.json())
+      .then(data => {
+        if(Array.isArray(data)) {
+          setRepos(data.slice(0, 6));
+          const langCount = {};
+          data.forEach(r => { if(r.language) langCount[r.language] = (langCount[r.language] || 0) + 1; });
+          setLanguages(langCount);
         }
       });
-      setLanguages(langCount);
-    });
-  },[]);
+  }, []);
 
-  return(
+  return (
     <section className="max-w-5xl mx-auto px-6 py-20">
       <h2 className="text-2xl font-bold mb-8">GitHub</h2>
-
-      <div className="mb-10">
-        {Object.entries(languages).map(([lang,count])=>(
-          <div key={lang} className="mb-3">
-            <div className="flex justify-between text-sm mb-1">
-              <span>{lang}</span>
-              <span>{count}</span>
-            </div>
-            <div className="bg-zinc-800 h-2 rounded">
-              <div
-                className="bg-violet-500 h-2 rounded"
-                style={{width:`${count*15}px`}}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
       <div className="grid md:grid-cols-3 gap-6">
-        {repos.map(r=>(
-          <a key={r.id} href={r.html_url} target="_blank"
-             className="glass p-4 rounded-xl hover:scale-105 transition">
-            <div className="font-semibold">{r.name}</div>
-            <div className="text-sm text-zinc-400">{r.language}</div>
+        {repos.map(r => (
+          <a key={r.id} href={r.html_url} target="_blank" className="glass p-4 rounded-xl hover:scale-105 transition">
+            <div className="font-semibold mb-1">{r.name}</div>
+            <div className="text-xs text-violet-400">{r.language}</div>
           </a>
         ))}
       </div>
@@ -333,35 +228,27 @@ function Github(){
   );
 }
 
-/* ---------------- WEATHER ---------------- */
-
-function Weather(){
-  const [weather,setWeather]=useState(null);
-
-  useEffect(()=>{
+function Weather() {
+  const [weather, setWeather] = useState(null);
+  useEffect(() => {
     fetch("https://api.open-meteo.com/v1/forecast?latitude=47.8095&longitude=13.0550&current_weather=true")
-    .then(r=>r.json())
-    .then(d=>setWeather(d.current_weather));
-  },[]);
+      .then(r => r.json()).then(d => setWeather(d.current_weather));
+  }, []);
 
-  if(!weather) return null;
-
-  return(
+  if (!weather) return null;
+  return (
     <section className="max-w-5xl mx-auto px-6 py-20">
-      <h2 className="text-2xl font-bold mb-8">Salzburg Weather</h2>
-
-      <div className="glass p-6 rounded-xl max-w-sm">
+      <h2 className="text-2xl font-bold mb-8">Salzburg</h2>
+      <div className="glass p-6 rounded-xl inline-block">
         <div className="text-3xl font-bold">{weather.temperature}°C</div>
-        <div className="text-zinc-500">Wind {weather.windspeed} km/h</div>
+        <div className="text-zinc-500 text-sm">Wind: {weather.windspeed} km/h</div>
       </div>
     </section>
   );
 }
 
-/* ---------------- APP ---------------- */
-
-function App(){
-  return(
+function App() {
+  return (
     <>
       <Hero/>
       <CurrentProject/>
@@ -369,59 +256,59 @@ function App(){
       <Steam/>
       <Github/>
       <Weather/>
-      <footer className="text-center py-16 text-zinc-500">
-        David Unterberger
+      <footer className="text-center py-16 text-zinc-600 text-sm">
+        &copy; {new Date().getFullYear()} David Unterberger
       </footer>
     </>
   );
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-
 </script>
 
 <script>
-/* Refined Terrain */
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
-const renderer=new THREE.WebGLRenderer({canvas:document.getElementById("terrain"),alpha:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
-camera.position.z=30;
+/* Refined Terrain Background */
+window.onload = () => {
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("terrain"), alpha: true, antialias: true });
+  
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.position.z = 40;
 
-const geometry=new THREE.PlaneGeometry(120,120,120,120);
-const material=new THREE.MeshBasicMaterial({
-  color:0x0f4d3f,
-  wireframe:true,
-  transparent:true,
-  opacity:0.08
-});
+  const geometry = new THREE.PlaneGeometry(150, 150, 100, 100);
+  const material = new THREE.MeshBasicMaterial({
+    color: 0x4c1d95,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.1
+  });
 
-const plane=new THREE.Mesh(geometry,material);
-plane.rotation.x=-Math.PI/2.7;
-scene.add(plane);
+  const plane = new THREE.Mesh(geometry, material);
+  plane.rotation.x = -Math.PI / 2.5;
+  scene.add(plane);
 
-function animate(){
-  requestAnimationFrame(animate);
-  const t=Date.now()*0.0003;
-  const pos=plane.geometry.attributes.position;
-  for(let i=0;i<pos.count;i++){
-    const x=pos.getX(i);
-    const y=pos.getY(i);
-    pos.setZ(i,
-      Math.sin(x*0.2+t)*0.4+
-      Math.cos(y*0.25+t)*0.4
-    );
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = Date.now() * 0.0005;
+    const pos = plane.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = Math.sin(x * 0.1 + t) * 1.5 + Math.cos(y * 0.15 + t) * 1.5;
+      pos.setZ(i, z);
+    }
+    pos.needsUpdate = true;
+    renderer.render(scene, camera);
   }
-  pos.needsUpdate=true;
-  renderer.render(scene,camera);
-}
-animate();
+  animate();
 
-window.addEventListener("resize",()=>{
-  camera.aspect=window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
-});
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+};
 </script>
 
 </body>
