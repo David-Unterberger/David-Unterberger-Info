@@ -27,7 +27,7 @@ export default async function handler(req: any, res: any) {
     // prepare top played (by total minutes)
     const topPlayed = [...ownedGames]
       .sort((a: any, b: any) => (b.playtime_forever || 0) - (a.playtime_forever || 0))
-      .slice(0, 6);
+      .slice(0, 9);
 
     // For topPlayed, try to fetch achievements and schema to compute completion %
     async function enrichGame(game: any) {

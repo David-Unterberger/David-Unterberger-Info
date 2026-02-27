@@ -152,29 +152,9 @@
     }
 
     /* ---------------- DISCORD (robust single-card dashboard) ---------------- */
-
-    function Discord() {
+function Discord() {
   const [data, setData] = React.useState(null);
-  const [lastOnlineTs, setLastOnlineTs] = React.useState(null);
-  const [elapsed, setElapsed] = React.useState("");
-  const lastSeenRef = React.useRef(null);
 
-  // badge bitfield mapping (common flags)
-  const badgeMap = [
-    { bit: 1 << 0, label: "Discord Employee", emoji: "🛡️" },
-    { bit: 1 << 1, label: "Partnered Server Owner", emoji: "🤝" },
-    { bit: 1 << 2, label: "HypeSquad Events", emoji: "🎪" },
-    { bit: 1 << 3, label: "Bug Hunter Level 1", emoji: "🪲" },
-    { bit: 1 << 4, label: "Early Supporter", emoji: "🌟" },
-    { bit: 1 << 6, label: "HypeSquad Bravery", emoji: "🦁" },
-    { bit: 1 << 7, label: "HypeSquad Brilliance", emoji: "🧠" },
-    { bit: 1 << 8, label: "HypeSquad Balance", emoji: "⚖️" },
-    { bit: 1 << 9, label: "Early Verified Bot Dev", emoji: "🤖" },
-    { bit: 1 << 14, label: "Discord Certified Moderator", emoji: "🔰" },
-    // add more as needed
-  ];
-
-  // fetch presence via Lanyard polling (stable)
   React.useEffect(() => {
     let mounted = true;
 
@@ -184,19 +164,8 @@
         const json = await r.json();
         if (json.success && mounted) {
           setData(json.data);
-          // detect online -> update lastOnline timestamp
-          if (json.data.discord_status && json.data.discord_status !== "offline") {
-            const now = Date.now();
-            lastSeenRef.current = now;
-            setLastOnlineTs(now);
-          } else {
-            // if offline and we had lastOnline timestamp, keep it
-            if (!lastSeenRef.current) lastSeenRef.current = Date.now();
-          }
         }
-      } catch (e) {
-        // ignore
-      }
+      } catch {}
     }
 
     fetchPresence();
@@ -204,195 +173,157 @@
     return () => { mounted = false; clearInterval(id); };
   }, []);
 
-  // elapsed timer for activity (like before)
-  React.useEffect(() => {
-    if (!data?.activities) { setElapsed(""); return; }
-    const act = data.activities.find(a => a.type === 0);
-    if (!act?.timestamps?.start) { setElapsed(""); return; }
-
-    const tick = () => {
-      const diff = Date.now() - act.timestamps.start;
-      const m = Math.floor(diff / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      setElapsed(`${m}m ${s}s`);
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [data]);
-
-  // compute last seen (human readable)
-  function formatLastSeen() {
-    if (!lastSeenRef.current) return "Unknown";
-    const diff = Date.now() - lastSeenRef.current;
-    const s = Math.floor(diff / 1000);
-    if (s < 60) return `${s}s ago`;
-    const m = Math.floor(s / 60);
-    if (m < 60) return `${m}m ago`;
-    const h = Math.floor(m / 60);
-    if (h < 24) return `${h}h ago`;
-    const d = Math.floor(h / 24);
-    return `${d}d ago`;
-  }
-
   if (!data) return null;
 
   const user = data.discord_user;
   const status = data.discord_status || "offline";
   const activity = data.activities?.find(a => a.type === 0);
   const customStatus = data.activities?.find(a => a.type === 4);
-  const spotify = data.spotify;
-  const accent = user?.accent_color ? `#${user.accent_color.toString(16).padStart(6,"0")}` : null;
 
-  // badges from public_flags bitfield (if present)
-  const flags = user?.public_flags || 0;
-  const badges = badgeMap.filter(b => (flags & b.bit) === b.bit);
+  /* Account creation from snowflake */
+  let accountAgeDays = null;
+  try {
+    const snowflake = BigInt(user.id);
+    const timestamp = Number((snowflake >> 22n) + 1420070400000n);
+    const createdAt = new Date(timestamp);
+    accountAgeDays = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+  } catch {}
 
-  // helper to get activity large image url
+  /* Accent color */
+  const accent = user?.accent_color
+    ? `#${user.accent_color.toString(16).padStart(6, "0")}`
+    : "#5865F2";
+
+  /* Activity image resolver */
   function getActivityImage(act) {
-    if (!act?.assets) return null;
+    if (!act?.assets?.large_image) return null;
+
     const large = act.assets.large_image;
-    if (!large) return null;
+
     if (large.startsWith("mp:")) {
-      // media proxy
       return `https://media.discordapp.net/${large.replace("mp:", "")}`;
     }
-    if (act.application_id && typeof large === "string") {
+
+    if (act.application_id) {
       return `https://cdn.discordapp.com/app-assets/${act.application_id}/${large}.png`;
     }
+
     return null;
   }
 
-  // party size
-  const party = activity?.party?.size; // may be [current, max]
+  const party = activity?.party?.size;
 
   return (
     <section className="max-w-5xl mx-auto px-6 py-20">
       <h2 className="text-2xl font-bold mb-8">Discord</h2>
 
-      <div className="glass rounded-xl overflow-hidden" style={{ borderLeft: accent ? `4px solid ${accent}` : undefined }}>
-        <div className="p-6">
+      <div className="glass rounded-xl overflow-hidden border border-zinc-800 relative">
+        <div
+          className="absolute top-0 left-0 h-1 w-full"
+          style={{ backgroundColor: accent }}
+        />
 
-          {/* Header row */}
-          <div className="flex items-center gap-4 mb-4">
-            <img
-              src={user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : "https://cdn.discordapp.com/embed/avatars/0.png"}
-              className="w-16 h-16 rounded-full"
-              alt="avatar"
-            />
-            <div>
-              <div className="text-lg font-semibold">{user.username}</div>
-              <div className="text-sm text-zinc-400">Status: <span className="capitalize">{status}</span></div>
-              <div className="text-xs text-zinc-500 mt-1">Last seen: {formatLastSeen()}</div>
+        <div className="p-8">
+
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative">
+              <img
+                src={user.avatar
+                  ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+                  : "https://cdn.discordapp.com/embed/avatars/0.png"}
+                className="w-20 h-20 rounded-full"
+              />
+              <span className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-black ${
+                status === "online" ? "bg-green-500" :
+                status === "idle" ? "bg-yellow-500" :
+                status === "dnd" ? "bg-red-500" :
+                "bg-gray-500"
+              }`} />
             </div>
 
-            {/* badges */}
-            <div className="ml-auto flex gap-2">
-              {badges.map(b => (
-                <div key={b.label} title={b.label} className="text-sm px-2 py-1 rounded bg-zinc-900/40">
-                  <span className="mr-1">{b.emoji}</span>{b.label}
+            <div>
+              <div className="text-lg font-semibold">{user.username}</div>
+              <div className="text-sm text-zinc-400 capitalize">{status}</div>
+              {accountAgeDays && (
+                <div className="text-xs text-zinc-500 mt-1">
+                  Account age: {accountAgeDays} days
                 </div>
-              ))}
+              )}
+              {customStatus?.state && (
+                <div className="text-sm text-zinc-400 mt-2">
+                  {customStatus.emoji?.name} {customStatus.state}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Custom status */}
-          {customStatus?.state && (
-            <div className="text-sm text-zinc-400 mb-4">
-              {customStatus.emoji?.name} {customStatus.state}
-            </div>
-          )}
-
-          {/* Game card with artwork & progress */}
+          {/* Game */}
           {activity && (
-            <div className="mb-4">
-              <div className="text-zinc-400 text-sm">Playing</div>
-              <div className="mt-2 glass rounded-lg overflow-hidden flex">
-                {/* artwork left */}
-                <div className="w-40 h-24 flex-shrink-0 bg-zinc-900">
-                  {getActivityImage(activity) ? (
-                    <img src={getActivityImage(activity)} className="w-full h-full object-cover"/>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-sm text-zinc-500">No art</div>
-                  )}
-                </div>
+            <div className="glass rounded-lg overflow-hidden flex mb-6">
+              <div className="w-40 h-24 bg-zinc-900 flex items-center justify-center">
+                {getActivityImage(activity) ? (
+                  <img
+                    src={getActivityImage(activity)}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-xs text-zinc-500">No art</div>
+                )}
+              </div>
 
-                {/* details right */}
-                <div className="p-3 flex-1">
-                  <div className="font-semibold">{activity.name}</div>
-                  {activity.details && <div className="text-sm text-zinc-400">{activity.details}</div>}
-                  {activity.state && <div className="text-sm text-zinc-500">{activity.state}</div>}
+              <div className="p-4 flex-1">
+                <div className="font-semibold">{activity.name}</div>
+                {activity.details && (
+                  <div className="text-sm text-zinc-400">{activity.details}</div>
+                )}
+                {activity.state && (
+                  <div className="text-sm text-zinc-500">{activity.state}</div>
+                )}
 
-                  {/* party size */}
-                  {party && Array.isArray(party) && (
-                    <div className="text-xs text-zinc-500 mt-2">Party: {party[0]} / {party[1]}</div>
-                  )}
-
-                  {/* animated elapsed/progress */}
-                  {activity.timestamps && activity.timestamps.start && (
-                    <div className="mt-3">
-                      <div className="text-xs text-zinc-400 mb-1">{elapsed} elapsed</div>
-                      <div className="w-full bg-zinc-800 h-2 rounded overflow-hidden">
-                        {/* animate width based on e.g. if both start and end exist, compute percent */}
-                        <GameProgressBar activity={activity}/>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {party && (
+                  <div className="text-xs text-zinc-400 mt-2">
+                    Party: {party[0]} / {party[1]}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {/* Spotify */}
-          {spotify && (
-            <div className="mt-4 p-3 bg-zinc-900/40 rounded-md flex items-center gap-3">
-              <img src={spotify.album_art_url} className="w-12 h-12 rounded" />
-              <div>
-                <div className="text-xs text-zinc-400">Listening to Spotify</div>
-                <div className="font-semibold">{spotify.song}</div>
-                <div className="text-sm text-zinc-500">{spotify.artist}</div>
+          {/* Clean Stats Grid (NO SPOTIFY) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="bg-zinc-900/40 p-3 rounded-lg">
+              <div className="text-zinc-400 text-xs">Status</div>
+              <div className="font-semibold capitalize">{status}</div>
+            </div>
+
+            <div className="bg-zinc-900/40 p-3 rounded-lg">
+              <div className="text-zinc-400 text-xs">Activities</div>
+              <div className="font-semibold">
+                {data.activities?.filter(a => a.type !== 4).length}
               </div>
             </div>
-          )}
+
+            <div className="bg-zinc-900/40 p-3 rounded-lg">
+              <div className="text-zinc-400 text-xs">User ID</div>
+              <div className="font-semibold text-xs break-all">
+                {user.id}
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/40 p-3 rounded-lg">
+              <div className="text-zinc-400 text-xs">Public Flags</div>
+              <div className="font-semibold">
+                {user.public_flags || 0}
+              </div>
+            </div>
+          </div>
 
         </div>
       </div>
     </section>
   );
 }
-
-/* helper component for progress bar - use timestamps if available */
-function GameProgressBar({ activity }) {
-  const [pct, setPct] = React.useState(0);
-
-  React.useEffect(() => {
-    const start = activity.timestamps?.start ? Number(activity.timestamps.start) : null;
-    const end = activity.timestamps?.end ? Number(activity.timestamps.end) : null;
-
-    if (!start || !end) {
-      // animate subtle pulse if no end time
-      setPct(50);
-      return;
-    }
-
-    function tick() {
-      const now = Date.now();
-      const total = end - start;
-      const done = Math.max(0, Math.min(total, now - start));
-      const p = Math.round((done / total) * 100);
-      setPct(p);
-    }
-
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [activity]);
-
-  return (
-    <div style={{ width: `${pct}%` }} className="h-2 bg-violet-500 transition-all duration-500" />
-  );
-}
-
     /* ---------------- STEAM (fallbacks & more robust) ---------------- */
 
     function Steam() {
@@ -419,8 +350,8 @@ function GameProgressBar({ activity }) {
 
   const profile = data.profile || {};
   const owned = data.owned || { game_count: 0 };
-  const topPlayed = data.topPlayed || [];
-  const recent = data.recent?.games || [];
+  const topPlayed = data.topPlayed || [].slice(0, 9);
+  const recent = data.recent?.games || [].slice(0, 3);
   const totalHours = data.totalHours || 0;
 
   function fmtUnixSeconds(sec) {
@@ -550,21 +481,9 @@ function GameProgressBar({ activity }) {
         <img src={contributionsSvg} alt="contributions" className="w-full" />
         <div className="text-xs text-zinc-500 mt-2">Commit graph (public service image)</div>
       </div>
-
-      {/* Recent activity */}
-      <h3 className="text-xl font-semibold mb-4">Recent activity</h3>
-      <div className="grid md:grid-cols-2 gap-4">
-        {events.slice(0,6).map((ev, i) => (
-          <div key={i} className="glass p-3 rounded">
-            <div className="text-xs text-zinc-400">{new Date(ev.created_at).toLocaleString()}</div>
-            <div className="font-semibold">{ev.type}</div>
-            {ev.repo && <div className="text-sm text-zinc-500">{ev.repo.name}</div>}
-          </div>
-        ))}
-      </div>
-
+      
       {/* quick repo cards */}
-      <h3 className="text-xl font-semibold mb-4 mt-8">Top repositories (recently pushed)</h3>
+      <h3 className="text-xl font-semibold mb-4 mt-8">Top repositories</h3>
       <div className="grid md:grid-cols-3 gap-6">
         {repos.slice(0,6).map(r => (
           <a key={r.id} href={r.html_url} target="_blank" className="glass p-5 rounded-xl hover:scale-105 transition">
