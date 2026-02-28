@@ -471,7 +471,16 @@
       // render DOM nodes (not full React render into original structure) — keep simple
       return (
         <div className="mono small">
-          <div>USER............. <span style={{ color: "var(--crt-orange)", fontWeight: 700 }}>{user.username}</span></div>
+          <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 12 }}>
+            <img
+              className="avatar"
+              src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
+            />
+            <div>
+              <div style={{ fontWeight: 700 }}>{user.username}</div>
+              <div className="muted small">{status}</div>
+            </div>
+          </div>
           <div>STATUS........... <span className="muted">{status}</span></div>
           {accountAgeDays !== null && <div>ACCOUNT_AGE...... <span className="muted">{accountAgeDays} days</span></div>}
           {customStatus?.state && <div>CUSTOM_STATUS.... <span className="muted">{customStatus.emoji?.name} {customStatus.state}</span></div>}
@@ -540,7 +549,13 @@
 
       return (
         <div className="mono small">
-          <div>PROFILE.......... <span style={{ color: "var(--crt-orange)", fontWeight: 700 }}>{profile.personaname}</span></div>
+          <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 14 }}>
+            <img className="avatar" src={profile.avatarfull} />
+            <div>
+              <div style={{ fontWeight: 700 }}>{profile.personaname}</div>
+              <div className="muted small">{profile.personastate === 1 ? "Online" : "Offline"}</div>
+            </div>
+          </div>
           <div>TOTAL_GAMES...... <span className="muted">{owned.game_count || 0}</span></div>
           <div>TOTAL_HOURS...... <span className="muted">{totalHours} hrs</span></div>
           <div>CREATED.......... <span className="muted">{fmt(profile.timecreated)}</span></div>
@@ -549,28 +564,58 @@
           <div style={{ height: 10 }} />
 
           <div className="muted small">-- recently played --</div>
-          {recent.map((g, i) => (
-            <div key={g.appid} style={{ display: "flex", gap: 12, alignItems: "center", paddingTop: 8 }}>
-              <img className="game-header" src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} alt={g.name} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700 }}>{g.name}</div>
-                <div className="muted small">{Math.round((g.playtime_2weeks || 0) / 60)}h last 2 weeks</div>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(240px,1fr))",
+            gap: "14px",
+            marginTop: "10px"
+          }}>
+            {recent.map(g => (
+              <div key={g.appid} style={{
+                border: "1px solid var(--crt-dim)",
+                background: "rgba(0,0,0,0.18)",
+                padding: "10px"
+              }}>
+                <img
+                  src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`}
+                  className="game-header"
+                />
+                <div style={{ fontWeight: 700, marginTop: 8 }}>{g.name}</div>
+                <div className="muted small">
+                  {Math.round((g.playtime_2weeks || 0) / 60)}h last 2 weeks
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
 
           <div style={{ height: 10 }} />
 
-          <div className="muted small">-- top played --</div>
-          {topPlayed.map((g, i) => (
-            <div key={g.appid} style={{ display: "flex", gap: 12, alignItems: "center", paddingTop: 8 }}>
-              <img className="game-header" src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} alt={g.name} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700 }}>[{String(i + 1).padStart(2, '0')}] {g.name}</div>
-                <div className="muted small">{Math.round((g.playtime_forever || 0) / 60)}h total{g.completion_percent !== null ? ` • ${g.completion_percent}%` : ''}</div>
+          <div className="muted small">-- recently played --</div>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(240px,1fr))",
+            gap: "14px",
+            marginTop: "10px"
+          }}>
+            {topPlayed.map(g => (
+              <div key={g.appid} style={{
+                border: "1px solid var(--crt-dim)",
+                background: "rgba(0,0,0,0.18)",
+                padding: "10px"
+              }}>
+                <img
+                  src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`}
+                  className="game-header"
+                />
+                <div style={{ fontWeight: 700, marginTop: 8 }}>{g.name}</div>
+                <div className="muted small">
+                  {Math.round((g.playtime_2weeks || 0) / 60)}h last 2 weeks
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       );
     }
@@ -593,7 +638,13 @@
 
       return (
         <div className="mono small">
-          <div>USER............. <span style={{ color: "var(--crt-orange)", fontWeight: 700 }}>{profile.name || profile.login}</span></div>
+          <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 14 }}>
+            <img className="avatar" src={profile.avatar_url} />
+            <div>
+              <div style={{ fontWeight: 700 }}>{profile.name || profile.login}</div>
+              <div className="muted small">{profile.followers} followers</div>
+            </div>
+          </div>
           <div>BIO.............. <span className="muted">{profile.bio || '—'}</span></div>
           <div>PUBLIC_REPOS..... <span className="muted">{profile.public_repos}</span></div>
           <div>TOTAL_STARS...... <span className="muted">{totals.stars}</span></div>
@@ -610,13 +661,43 @@
 
           <div style={{ height: 12 }} />
 
+          <div style={{ height: 12 }} />
+
           <div className="muted small">-- top repositories --</div>
-          {repos.slice(0, 6).map(r => (
-            <div key={r.id} style={{ display: "flex", justifyContent: "space-between", paddingTop: 8 }}>
-              <a href={r.html_url} target="_blank" rel="noreferrer" style={{ color: "var(--crt-orange)" }}>{r.name}</a>
-              <div className="muted small">★{r.stargazers_count}</div>
-            </div>
-          ))}
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))",
+            gap: "14px",
+            marginTop: "10px"
+          }}>
+            {repos
+              .sort((a, b) => b.stargazers_count - a.stargazers_count)
+              .slice(0, 6)
+              .map(r => (
+                <a
+                  key={r.id}
+                  href={r.html_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    border: "1px solid var(--crt-dim)",
+                    padding: "12px",
+                    background: "rgba(0,0,0,0.18)",
+                    textDecoration: "none",
+                    color: "var(--crt-orange)"
+                  }}
+                >
+                  <div style={{ fontWeight: 700 }}>{r.name}</div>
+                  <div className="muted small" style={{ marginTop: 6 }}>
+                    {r.description || "No description"}
+                  </div>
+                  <div className="muted small" style={{ marginTop: 8 }}>
+                    ★ {r.stargazers_count} • {r.language || "—"}
+                  </div>
+                </a>
+              ))}
+          </div>
         </div>
       );
     }
@@ -638,7 +719,9 @@
             <div className="weather-temp">{weather.temperature}°C</div>
             <div className="muted small">Wind {weather.windspeed} km/h</div>
             <div style={{ height: 8 }} />
-            <div className="muted small">Updated now</div>
+            <div className="muted small">
+              Local time: {new Date().toLocaleTimeString()}
+            </div>
           </div>
         </div>
       );
@@ -674,7 +757,8 @@
     const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('terrain'), alpha: true, antialias: true });
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.position.z = 30;
+    camera.position.z = 25;
+    camera.position.y = 10;
 
     const geometry = new THREE.PlaneGeometry(120, 120, 120, 120);
     const material = new THREE.MeshBasicMaterial({ color: 0xff8a2b, wireframe: true, transparent: true, opacity: 0.06 });
