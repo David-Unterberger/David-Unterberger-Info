@@ -541,8 +541,8 @@
 
       const profile = data.profile || {};
       const owned = data.owned || { game_count: 0 };
-      const topPlayed = (data.topPlayed || []).slice(0, 9);
-      const recent = (data.recent?.games || []).slice(0, 3);
+      const topPlayed = (data.topPlayed || []).slice(0, 12);
+      const recent = (data.recent?.games || []).slice(0, 4);
       const totalHours = data.totalHours || 0;
 
       function fmt(sec) { if (!sec) return "Unknown"; return new Date(sec * 1000).toLocaleString(); }
