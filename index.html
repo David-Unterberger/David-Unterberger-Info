@@ -591,7 +591,7 @@
 
           <div style={{ height: 10 }} />
 
-          <div className="muted small">-- recently played --</div>
+          <div className="muted small">-- top played --</div>
 
           <div style={{
             display: "grid",
@@ -611,7 +611,7 @@
                 />
                 <div style={{ fontWeight: 700, marginTop: 8 }}>{g.name}</div>
                 <div className="muted small">
-                  {Math.round((g.playtime_2weeks || 0) / 60)}h last 2 weeks
+                  {Math.round((g.playtime_forever || 0) / 60)}h total{g.completion_percent !== null ? ` • ${g.completion_percent}%` : ''}
                 </div>
               </div>
             ))}
