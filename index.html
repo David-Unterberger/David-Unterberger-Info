@@ -268,6 +268,59 @@
         font-size: 2.0rem;
       }
     }
+
+
+    /* Dark CRT commit graph */
+    .ContributionCalendar-day[data-level="0"] {
+      fill: #0a0f0a !important;
+    }
+
+    .ContributionCalendar-day[data-level="1"] {
+      fill: #0f1f0f !important;
+    }
+
+    .ContributionCalendar-day[data-level="2"] {
+      fill: #143514 !important;
+    }
+
+    .ContributionCalendar-day[data-level="3"] {
+      fill: #1d4a1d !important;
+    }
+
+    .ContributionCalendar-day[data-level="4"] {
+      fill: #2aff2a !important;
+    }
+
+    .center-shell {
+      transform: perspective(1200px) rotateX(2deg);
+      transform-origin: center top;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.5) 100%);
+      mix-blend-mode: screen;
+    }
+
+    .terminal-text {
+      text-shadow:
+        0 0 4px rgba(50, 255, 50, 0.6),
+        0 0 8px rgba(50, 255, 50, 0.4);
+    }
+
+    .center-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255, 0, 0, 0.02), rgba(0, 255, 255, 0.02));
+      mix-blend-mode: screen;
+    }
   </style>
 </head>
 
@@ -276,17 +329,23 @@
 
   <div id="root">
     <div class="center-shell">
+      <div id="boot-sequence"></div>
       <!-- ASCII-ish banner -->
       <div style="text-align:center; margin-bottom:12px;">
         <pre class="mono" style="margin:0; font-size:0.95rem; line-height:1;">
-  ____    _    _   _ ___ ___ _   _  _   _  _   _
- |  _ \  / \  | \ | |_ _/ __| \ | || \ | || \ | |
- | | | |/ _ \ |  \| || | (_ |  \| ||  \| ||  \| |
- | |_| / ___ \| |\  || |\___| |\  || |\  || |\  |
- |____/_/   \_\_| \_|___|    |_| \_||_| \_||_| \_|
+__/\\\\\\\\\\\\_______________________________________________/\\\_____________/\\\________/\\\___________________________________________________________/\\\_______________________________________________________________________________        
+ _\/\\\////////\\\____________________________________________\/\\\____________\/\\\_______\/\\\__________________________________________________________\/\\\_______________________________________________________________________________       
+  _\/\\\______\//\\\_______________________________/\\\________\/\\\____________\/\\\_______\/\\\___________________/\\\___________________________________\/\\\_______________________________________/\\\\\\\\_______________________________      
+   _\/\\\_______\/\\\__/\\\\\\\\\_____/\\\____/\\\_\///_________\/\\\____________\/\\\_______\/\\\__/\\/\\\\\\____/\\\\\\\\\\\_____/\\\\\\\\___/\\/\\\\\\\__\/\\\____________/\\\\\\\\___/\\/\\\\\\\___/\\\////\\\_____/\\\\\\\\___/\\/\\\\\\\__     
+    _\/\\\_______\/\\\_\////////\\\___\//\\\__/\\\___/\\\___/\\\\\\\\\____________\/\\\_______\/\\\_\/\\\////\\\__\////\\\////____/\\\/////\\\_\/\\\/////\\\_\/\\\\\\\\\____/\\\/////\\\_\/\\\/////\\\_\//\\\\\\\\\___/\\\/////\\\_\/\\\/////\\\_    
+     _\/\\\_______\/\\\___/\\\\\\\\\\___\//\\\/\\\___\/\\\__/\\\////\\\____________\/\\\_______\/\\\_\/\\\__\//\\\____\/\\\_______/\\\\\\\\\\\__\/\\\___\///__\/\\\////\\\__/\\\\\\\\\\\__\/\\\___\///___\///////\\\__/\\\\\\\\\\\__\/\\\___\///__   
+      _\/\\\_______/\\\___/\\\/////\\\____\//\\\\\____\/\\\_\/\\\__\/\\\____________\//\\\______/\\\__\/\\\___\/\\\____\/\\\_/\\__\//\\///////___\/\\\_________\/\\\__\/\\\_\//\\///////___\/\\\__________/\\_____\\\_\//\\///////___\/\\\_________  
+       _\/\\\\\\\\\\\\/___\//\\\\\\\\/\\____\//\\\_____\/\\\_\//\\\\\\\/\\____________\///\\\\\\\\\/___\/\\\___\/\\\____\//\\\\\____\//\\\\\\\\\\_\/\\\_________\/\\\\\\\\\___\//\\\\\\\\\\_\/\\\_________\//\\\\\\\\___\//\\\\\\\\\\_\/\\\_________ 
+        _\////////////______\////////\//______\///______\///___\///////\//_______________\/////////_____\///____\///______\/////______\//////////__\///__________\/////////_____\//////////__\///___________\////////_____\//////////__\///__________
         </pre>
         <div class="term-sep muted mono">========================================</div>
       </div>
+      <div id="fake-command"></div>
 
       <!-- HERO (static title + tagline) -->
       <div class="module">
@@ -344,6 +403,8 @@
           <div id="discord-mount" />
         </div>
 
+        <div style="height:24px;"></div>
+
         <!-- Steam module -->
         <div style="margin-bottom:18px;">
           <div class="section-title small">:: steam</div>
@@ -379,6 +440,77 @@
     const DISCORD_ID = "780384263987920937";
     const STEAM_ID = "76561199474685726";
     const GITHUB_USER = "David-Unterberger";
+
+    function runBootSequence() {
+      const el = document.getElementById("boot-sequence");
+      const lines = [
+        "INITIALIZING ARCHIVE NODE...",
+        "LOADING OPERATOR PROFILE...",
+        "AUTHENTICATING DISCORD PRESENCE...",
+        "SCANNING STEAM RECORDS...",
+        "INDEXING GITHUB REPOSITORIES...",
+        "ACCESS LEVEL: GRANTED",
+        ""
+      ];
+
+      let i = 0;
+
+      function nextLine() {
+        if (i >= lines.length) {
+          setTimeout(() => {
+            el.style.display = "none";
+          }, 600);
+          return;
+        }
+
+        const line = document.createElement("div");
+        line.textContent = lines[i];
+        el.appendChild(line);
+        i++;
+        setTimeout(nextLine, 250);
+      }
+
+      nextLine();
+    }
+
+    function runFakeCommand() {
+      const el = document.getElementById("fake-command");
+      const command = "run profile --deep-scan";
+
+      let i = 0;
+
+      function type() {
+        if (i <= command.length) {
+          el.textContent = "> " + command.slice(0, i);
+          i++;
+          setTimeout(type, 40);
+        }
+      }
+
+      type();
+    }
+    
+    function randomLogLine() {
+      const lines = [
+        "TRACE SIGNAL DETECTED...",
+        "UNAUTHORIZED NODE PING...",
+        "ARCHIVE FRAGMENT CORRUPTED...",
+        "RECONSTRUCTING MEMORY BLOCK...",
+        "DECRYPTION KEY ACCEPTED...",
+        "REMOTE OBSERVER DISCONNECTED..."
+      ];
+
+      const container = document.getElementById("boot-sequence");
+      const line = document.createElement("div");
+      line.textContent = lines[Math.floor(Math.random() * lines.length)];
+      container.appendChild(line);
+
+      setTimeout(() => {
+        line.remove();
+      }, 4000);
+    }
+
+    setInterval(randomLogLine, 8000);
 
     /* --- UTIL: Typewriter reveal for elements with class 'typewriter' --- */
     function runTypewriterOnce() {
@@ -645,8 +777,21 @@
               <div className="muted small">{profile.followers} followers</div>
             </div>
           </div>
-          <div>BIO.............. <span className="muted">{profile.bio || '—'}</span></div>
-          <div>PUBLIC_REPOS..... <span className="muted">{profile.public_repos}</span></div>
+          {profile.bio && (
+            <div style={{ marginTop: 14 }}>
+              <div className="muted small">-- operator notes --</div>
+              <div style={{
+                marginTop: 8,
+                whiteSpace: "pre-wrap",
+                lineHeight: 1.6
+              }}>
+                {profile.bio.replace(/ - /g, "\n")}
+              </div>
+            </div>
+          )}
+          <div className="muted small" style={{ marginTop: 10 }}>
+            repositories indexed: {profile.public_repos}
+          </div>
           <div>TOTAL_STARS...... <span className="muted">{totals.stars}</span></div>
           <div>TOTAL_FORKS...... <span className="muted">{totals.forks}</span></div>
           <div>TOP_LANGUAGE..... <span className="muted">{mostUsed}</span></div>
@@ -747,6 +892,9 @@
     ReactDOM.createRoot(document.getElementById('github-mount')).render(<GithubComponent />);
     ReactDOM.createRoot(document.getElementById('weather-mount')).render(<WeatherComponent />);
 
+    runBootSequence();
+    runFakeCommand();
+
     setTimeout(() => runTypewriterOnce(), 350);
   </script>
 
@@ -758,9 +906,9 @@
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.position.z = 25;
-    camera.position.y = 10;
+    camera.position.y = 12 + Math.sin(Date.now() * 0.0002) * 1.5;
 
-    const geometry = new THREE.PlaneGeometry(120, 120, 120, 120);
+    const geometry = new THREE.PlaneGeometry(200, 200, 200, 200);
     const material = new THREE.MeshBasicMaterial({ color: 0xff8a2b, wireframe: true, transparent: true, opacity: 0.06 });
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = -Math.PI / 2.7;
