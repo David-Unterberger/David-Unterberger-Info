@@ -41,7 +41,7 @@
       height: 100%;
       margin: 0;
       font-family: "Source Code Pro", monospace;
-      background: var(--crt-bg);
+      background: transparent;
       color: var(--crt-orange);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -69,14 +69,103 @@
     .center-shell {
       max-width: 1100px;
       margin: 6vh auto;
-      background: rgba(0, 0, 0, 0.65);
-      /* a bit darker */
+      background: rgba(0, 0, 0, 0.68);
       border: 1px solid var(--crt-dim);
       padding: 28px;
       color: var(--crt-orange);
       overflow: visible;
       box-sizing: border-box;
       border-radius: 6px;
+      transform: perspective(1200px) rotateX(2deg);
+      transform-origin: center top;
+      animation: crtFlicker 6s infinite;
+    }
+
+    /* scanlines + vignette + beam combined (clean) */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      /* scanlines */
+      background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.03) 3px,
+        rgba(0, 0, 0, 0.03) 4px
+      ), radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.55) 100%);
+      background-blend-mode: overlay, normal;
+      z-index: 2;
+      mix-blend-mode: overlay;
+      opacity: 0.45;
+    }
+
+    /* vertical moving scan beam as after */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255, 152, 0, 0.07) 48%,
+        rgba(255, 152, 0, 0.16) 50%,
+        rgba(255, 152, 0, 0.07) 52%,
+        transparent 100%
+      );
+      animation: scanMove 7s linear infinite;
+      mix-blend-mode: screen;
+      z-index: 3;
+    }
+
+    @keyframes scanMove {
+      from {
+        transform: translateY(-100%);
+      }
+
+      to {
+        transform: translateY(100%);
+      }
+    }
+
+    @keyframes crtFlicker {
+      0% {
+        opacity: 1;
+      }
+
+      2% {
+        opacity: 0.98;
+      }
+
+      4% {
+        opacity: 1;
+      }
+
+      19% {
+        opacity: 1;
+      }
+
+      21% {
+        opacity: 0.97;
+      }
+
+      23% {
+        opacity: 1;
+      }
+
+      80% {
+        opacity: 1;
+      }
+
+      82% {
+        opacity: 0.99;
+      }
+
+      100% {
+        opacity: 1;
+      }
     }
 
     /* Remove glows, keep crisp terminal look */
@@ -88,20 +177,17 @@
       padding: 0;
     }
 
-    /* module wrapper */
     .module {
       border-top: 1px solid var(--crt-dim);
       padding: 16px 0;
     }
 
-    /* small terminal separators */
     .term-sep {
       color: var(--muted);
       margin: 8px 0;
       font-size: 0.95rem;
     }
 
-    /* headings and cursor */
     .section-title {
       font-size: 0.98rem;
       letter-spacing: 1px;
@@ -122,7 +208,6 @@
       }
     }
 
-    /* boxes for small grouped data (no glow) */
     .data-box {
       background: rgba(0, 0, 0, 0.18);
       border: 1px solid var(--crt-dim);
@@ -130,7 +215,6 @@
       font-size: 0.92rem;
     }
 
-    /* image styling (keeps avatars and headers crisp) */
     img.avatar {
       width: 72px;
       height: 72px;
@@ -153,7 +237,6 @@
       border: 1px solid var(--crt-dim);
     }
 
-    /* activity art container fit */
     .activity-art {
       width: 128px;
       height: 72px;
@@ -169,7 +252,6 @@
       display: block;
     }
 
-    /* bigger weather block */
     .weather-large {
       display: flex;
       gap: 18px;
@@ -186,7 +268,6 @@
       color: var(--crt-orange);
     }
 
-    /* typography utilities */
     .mono {
       font-family: "Source Code Pro", monospace;
     }
@@ -199,53 +280,16 @@
       font-size: 0.92rem;
     }
 
-    /* scanlines overlay subtle */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image: repeating-linear-gradient(to bottom,
-          rgba(0, 0, 0, 0) 0px,
-          rgba(0, 0, 0, 0) 2px,
-          rgba(0, 0, 0, 0.03) 3px,
-          rgba(0, 0, 0, 0.03) 4px);
-      z-index: 2;
-      mix-blend-mode: overlay;
-      opacity: 0.45;
-    }
+    /* contribution graph darker */
+    .ContributionCalendar-day[data-level="0"] { fill:#060806 !important; }
+    .ContributionCalendar-day[data-level="1"] { fill:#0b1c0b !important; }
+    .ContributionCalendar-day[data-level="2"] { fill:#123312 !important; }
+    .ContributionCalendar-day[data-level="3"] { fill:#1b4a1b !important; }
+    .ContributionCalendar-day[data-level="4"] { fill:#29ff29 !important; }
 
-    /* subtle tube flicker */
-    @keyframes tubeFlicker {
-      0% {
-        opacity: .99;
-        filter: none;
-      }
-
-      50% {
-        opacity: 1;
-        filter: none;
-      }
-
-      100% {
-        opacity: .995;
-        filter: none;
-      }
-    }
-
-    .center-shell {
-      animation: tubeFlicker 4s infinite;
-    }
-
-    /* typewriter reveal (JS sets visible text) */
-    .type-hidden {
-      color: transparent;
-      white-space: pre-wrap;
-    }
-
-    .type-visible {
-      color: var(--crt-orange);
-    }
+    /* type behaviors */
+    .type-hidden { color: transparent; white-space: pre-wrap; }
+    .type-visible { color: var(--crt-orange); }
 
     /* small responsive */
     @media (max-width:768px) {
@@ -254,73 +298,23 @@
         padding: 16px;
       }
 
-      img.avatar {
-        width: 56px;
-        height: 56px;
-      }
-
-      .activity-art {
-        width: 96px;
-        height: 56px;
-      }
-
-      .weather-temp {
-        font-size: 2.0rem;
-      }
+      img.avatar { width: 56px; height: 56px; }
+      .activity-art { width: 96px; height: 56px; }
+      .weather-temp { font-size: 2.0rem; }
     }
 
-
-    /* Dark CRT commit graph */
-    .ContributionCalendar-day[data-level="0"] {
-      fill: #0a0f0a !important;
-    }
-
-    .ContributionCalendar-day[data-level="1"] {
-      fill: #0f1f0f !important;
-    }
-
-    .ContributionCalendar-day[data-level="2"] {
-      fill: #143514 !important;
-    }
-
-    .ContributionCalendar-day[data-level="3"] {
-      fill: #1d4a1d !important;
-    }
-
-    .ContributionCalendar-day[data-level="4"] {
-      fill: #2aff2a !important;
-    }
-
-    .center-shell {
-      transform: perspective(1200px) rotateX(2deg);
-      transform-origin: center top;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.5) 100%);
-      mix-blend-mode: screen;
-    }
-
-    .terminal-text {
-      text-shadow:
-        0 0 4px rgba(50, 255, 50, 0.6),
-        0 0 8px rgba(50, 255, 50, 0.4);
-    }
-
-    .center-shell::before {
+    /* subtle phosphor bloom */
+    .center-shell::after {
       content: "";
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background:
-        linear-gradient(rgba(255, 0, 0, 0.02), rgba(0, 255, 255, 0.02));
+      background: linear-gradient(rgba(255,152,0,0.01), rgba(181,111,255,0.01));
       mix-blend-mode: screen;
     }
+
+    /* small terminal cursor style */
+    .cursor { display:inline-block; width:10px; }
   </style>
 </head>
 
@@ -329,25 +323,29 @@
 
   <div id="root">
     <div class="center-shell">
-      <div id="boot-sequence"></div>
+      <div id="boot-sequence" class="mono small" style="margin-bottom:10px;"></div>
+
+      <!-- small fake command area used by runFakeCommand (we create it here) -->
+      <div id="fake-command" class="mono muted small" style="margin-bottom:8px;"></div>
+
       <!-- ASCII-ish banner -->
       <div style="text-align:center; margin-bottom:12px;">
         <pre class="mono" style="margin:0; font-size:0.95rem; line-height:1;">
-__/\\\\\\\\\\\\_______________________________________________/\\\_____________/\\\________/\\\___________________________________________________________/\\\_______________________________________________________________________________        
- _\/\\\////////\\\____________________________________________\/\\\____________\/\\\_______\/\\\__________________________________________________________\/\\\_______________________________________________________________________________       
-  _\/\\\______\//\\\_______________________________/\\\________\/\\\____________\/\\\_______\/\\\___________________/\\\___________________________________\/\\\_______________________________________/\\\\\\\\_______________________________      
-   _\/\\\_______\/\\\__/\\\\\\\\\_____/\\\____/\\\_\///_________\/\\\____________\/\\\_______\/\\\__/\\/\\\\\\____/\\\\\\\\\\\_____/\\\\\\\\___/\\/\\\\\\\__\/\\\____________/\\\\\\\\___/\\/\\\\\\\___/\\\////\\\_____/\\\\\\\\___/\\/\\\\\\\__     
-    _\/\\\_______\/\\\_\////////\\\___\//\\\__/\\\___/\\\___/\\\\\\\\\____________\/\\\_______\/\\\_\/\\\////\\\__\////\\\////____/\\\/////\\\_\/\\\/////\\\_\/\\\\\\\\\____/\\\/////\\\_\/\\\/////\\\_\//\\\\\\\\\___/\\\/////\\\_\/\\\/////\\\_    
-     _\/\\\_______\/\\\___/\\\\\\\\\\___\//\\\/\\\___\/\\\__/\\\////\\\____________\/\\\_______\/\\\_\/\\\__\//\\\____\/\\\_______/\\\\\\\\\\\__\/\\\___\///__\/\\\////\\\__/\\\\\\\\\\\__\/\\\___\///___\///////\\\__/\\\\\\\\\\\__\/\\\___\///__   
-      _\/\\\_______/\\\___/\\\/////\\\____\//\\\\\____\/\\\_\/\\\__\/\\\____________\//\\\______/\\\__\/\\\___\/\\\____\/\\\_/\\__\//\\///////___\/\\\_________\/\\\__\/\\\_\//\\///////___\/\\\__________/\\_____\\\_\//\\///////___\/\\\_________  
-       _\/\\\\\\\\\\\\/___\//\\\\\\\\/\\____\//\\\_____\/\\\_\//\\\\\\\/\\____________\///\\\\\\\\\/___\/\\\___\/\\\____\//\\\\\____\//\\\\\\\\\\_\/\\\_________\/\\\\\\\\\___\//\\\\\\\\\\_\/\\\_________\//\\\\\\\\___\//\\\\\\\\\\_\/\\\_________ 
-        _\////////////______\////////\//______\///______\///___\///////\//_______________\/////////_____\///____\///______\/////______\//////////__\///__________\/////////_____\//////////__\///___________\////////_____\//////////__\///__________
+  _____              _     _   _    _       _            _                              
+ |  __ \            (_)   | | | |  | |     | |          | |                             
+ | |  | | __ ___   ___  __| | | |  | |_ __ | |_ ___ _ __| |__   ___ _ __ __ _  ___ _ __ 
+ | |  | |/ _` \ \ / / |/ _` | | |  | | '_ \| __/ _ \ '__| '_ \ / _ \ '__/ _` |/ _ \ '__|
+ | |__| | (_| |\ V /| | (_| | | |__| | | | | ||  __/ |  | |_) |  __/ | | (_| |  __/ |
+ |_____/ \__,_| \_/ |_|\__,_|  \____/|_| |_|\__\___|_|  |_.__/ \___|_|  \__, |\___|_|
+                                                                         __/ |
+                                                                        |___/
         </pre>
         <div class="term-sep muted mono">========================================</div>
       </div>
-      <div id="fake-command"></div>
 
-      <!-- HERO (static title + tagline) -->
+      <div id="terminal-input" class="mono small" style="margin-top:6px;"></div>
+
+      <!-- HERO -->
       <div class="module">
         <div class="section-title cursor typewriter" data-type-speed="18">:: david unterberger</div>
         <div class="term-sep muted"></div>
@@ -356,76 +354,60 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
         </div>
       </div>
 
-      <!-- One continuous content stack below -->
+      <!-- Continuous content -->
       <div class="module" id="content-stack">
-
         <!-- Current project -->
         <div style="margin-bottom:18px;">
           <div class="section-title small">:: current project</div>
           <div class="term-sep muted">------------------------------------------</div>
-
           <div style="display:flex; gap:16px; align-items:flex-start; margin-top:8px;">
-            <!-- left: project text -->
             <div style="flex:1;">
               <div class="mono small">
-                <div style="font-weight:700; color:var(--crt-orange)">Procedural Terrain & Shader Engine Experiments
-                </div>
+                <div style="font-weight:700; color:var(--crt-orange)">Procedural Terrain & Shader Engine Experiments</div>
                 <div class="muted small" style="margin-top:6px;">
-                  Building modular terrain systems using layered noise stacks, runtime mesh deformation and custom
-                  shader pipelines.
-                  Exploring simulation-driven world generation.
+                  Building modular terrain systems using layered noise stacks, runtime mesh deformation and custom shader pipelines.
                 </div>
-                <div class="muted small" style="margin-top:8px;">
-                  TAGS: C# • Shaders • Procedural Gen • Simulation
-                </div>
+                <div class="muted small" style="margin-top:8px;">TAGS: C# • Shaders • Procedural Gen • Simulation</div>
                 <div style="margin-top:8px;">
-                  <a href="https://github.com/David-Unterberger" target="_blank" rel="noreferrer">github</a> • <a
-                    href="https://davebbx.itch.io" target="_blank" rel="noreferrer">itch.io</a>
+                  <a href="https://github.com/David-Unterberger" target="_blank" rel="noreferrer">github</a> •
+                  <a href="https://davebbx.itch.io" target="_blank" rel="noreferrer">itch.io</a>
                 </div>
               </div>
             </div>
 
-            <!-- right: small mock preview image area (keeps imagery) -->
             <div style="width:220px;">
-              <!-- placeholder or project cover (uses title background if available) -->
-              <img src="titel_background.png" alt="project"
-                style="width:220px; height:120px; object-fit:cover; border:1px solid var(--crt-dim)" />
+              <img src="titel_background.png" alt="project" style="width:220px; height:120px; object-fit:cover; border:1px solid var(--crt-dim)" />
             </div>
           </div>
         </div>
 
-        <!-- Discord module -->
+        <!-- Discord -->
         <div style="margin-bottom:18px;">
           <div class="section-title small">:: discord</div>
           <div class="term-sep muted">------------------------------------------</div>
-
-          <!-- Discord content rendered by React -->
-          <div id="discord-mount" />
+          <div id="discord-mount"></div>
         </div>
 
         <div style="height:24px;"></div>
 
-        <!-- Steam module -->
+        <!-- Steam -->
         <div style="margin-bottom:18px;">
           <div class="section-title small">:: steam</div>
           <div class="term-sep muted">------------------------------------------</div>
-
           <div id="steam-mount"></div>
         </div>
 
-        <!-- GitHub module -->
+        <!-- GitHub -->
         <div style="margin-bottom:18px;">
           <div class="section-title small">:: github</div>
           <div class="term-sep muted">------------------------------------------</div>
-
           <div id="github-mount"></div>
         </div>
 
-        <!-- Weather module (larger) -->
+        <!-- Weather -->
         <div style="margin-bottom:6px;">
           <div class="section-title small">:: salzburg weather</div>
           <div class="term-sep muted">------------------------------------------</div>
-
           <div id="weather-mount" style="margin-top:8px;"></div>
         </div>
 
@@ -434,6 +416,11 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
     </div>
   </div>
 
+  <!-- Boot hum audio (browser may block until interaction) -->
+  <audio id="boot-hum" preload="auto">
+    <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+  </audio>
+
   <!-- React app script -->
   <script type="text/babel">
     const { useState, useEffect } = React;
@@ -441,8 +428,24 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
     const STEAM_ID = "76561199474685726";
     const GITHUB_USER = "David-Unterberger";
 
+    /* ---------------- BOOT, TERMINAL, TYPEWRITER, LOGS ---------------- */
+
     function runBootSequence() {
       const el = document.getElementById("boot-sequence");
+      const audio = document.getElementById("boot-hum");
+
+      // try to play boot hum - browsers may block until user gesture
+      audio.volume = 0.15;
+      audio.play().catch(()=>{ /* OK if blocked */ });
+
+      // gentle fade after a while so hum doesn't loop loud
+      setTimeout(() => {
+        let fade = setInterval(() => {
+          if (audio.volume > 0.02) audio.volume -= 0.02;
+          else clearInterval(fade);
+        }, 100);
+      }, 2000);
+
       const lines = [
         "INITIALIZING ARCHIVE NODE...",
         "LOADING OPERATOR PROFILE...",
@@ -454,31 +457,25 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
       ];
 
       let i = 0;
-
       function nextLine() {
         if (i >= lines.length) {
-          setTimeout(() => {
-            el.style.display = "none";
-          }, 600);
+          setTimeout(() => { el.style.display = "none"; }, 600);
           return;
         }
-
         const line = document.createElement("div");
         line.textContent = lines[i];
         el.appendChild(line);
         i++;
         setTimeout(nextLine, 250);
       }
-
       nextLine();
     }
 
     function runFakeCommand() {
       const el = document.getElementById("fake-command");
+      if(!el) return;
       const command = "run profile --deep-scan";
-
       let i = 0;
-
       function type() {
         if (i <= command.length) {
           el.textContent = "> " + command.slice(0, i);
@@ -486,38 +483,46 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
           setTimeout(type, 40);
         }
       }
-
       type();
     }
-    
-    function randomLogLine() {
-      const lines = [
-        "TRACE SIGNAL DETECTED...",
-        "UNAUTHORIZED NODE PING...",
-        "ARCHIVE FRAGMENT CORRUPTED...",
-        "RECONSTRUCTING MEMORY BLOCK...",
-        "DECRYPTION KEY ACCEPTED...",
-        "REMOTE OBSERVER DISCONNECTED..."
-      ];
 
-      const container = document.getElementById("boot-sequence");
-      const line = document.createElement("div");
-      line.textContent = lines[Math.floor(Math.random() * lines.length)];
-      container.appendChild(line);
-
-      setTimeout(() => {
-        line.remove();
-      }, 4000);
+    function initInteractiveTerminal() {
+      const container = document.getElementById("terminal-input");
+      if(!container) return;
+      container.innerHTML = "";
+      const inputLine = document.createElement("div");
+      inputLine.innerHTML = '> <span id="cmd"></span><span class="cursor">_</span>';
+      container.appendChild(inputLine);
+      const cmdSpan = document.getElementById("cmd");
+      let buffer = "";
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace") {
+          buffer = buffer.slice(0, -1);
+        } else if (e.key === "Enter") {
+          executeCommand(buffer.trim());
+          buffer = "";
+        } else if (e.key.length === 1) {
+          buffer += e.key;
+        }
+        if(cmdSpan) cmdSpan.textContent = buffer;
+      });
+      function executeCommand(cmd) {
+        const output = document.createElement("div");
+        output.className = "muted small";
+        output.style.marginTop = "4px";
+        if (cmd === "help") output.textContent = "Available: help, clear, status, scan";
+        else if (cmd === "clear") { container.innerHTML = ""; initInteractiveTerminal(); return; }
+        else if (cmd === "status") output.textContent = "SYSTEM STATUS: OPERATIONAL";
+        else if (cmd === "scan") output.textContent = "SCANNING ARCHIVE...";
+        else if (cmd.length > 0) output.textContent = "UNKNOWN COMMAND";
+        container.insertBefore(output, inputLine);
+      }
     }
 
-    setInterval(randomLogLine, 8000);
-
-    /* --- UTIL: Typewriter reveal for elements with class 'typewriter' --- */
     function runTypewriterOnce() {
-      // run once after first render
       const nodes = document.querySelectorAll('.typewriter');
       nodes.forEach(el => {
-        if (el.dataset._typed) return; // already ran
+        if (el.dataset._typed) return;
         el.dataset._typed = "1";
         const full = el.textContent.trim();
         el.textContent = "";
@@ -536,8 +541,27 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
       });
     }
 
-    /* ---------------- DISCORD COMPONENT (renders into #discord-mount) ---------------- */
-    function DiscordComponent({ rootId }) {
+    // occasional ominous log lines in the boot area
+    function randomLogLine() {
+      const lines = [
+        "TRACE SIGNAL DETECTED...",
+        "UNAUTHORIZED NODE PING...",
+        "ARCHIVE FRAGMENT CORRUPTED...",
+        "RECONSTRUCTING MEMORY BLOCK...",
+        "DECRYPTION KEY ACCEPTED...",
+        "REMOTE OBSERVER DISCONNECTED..."
+      ];
+      const container = document.getElementById("boot-sequence");
+      if(!container) return;
+      const line = document.createElement("div");
+      line.textContent = lines[Math.floor(Math.random() * lines.length)];
+      container.appendChild(line);
+      setTimeout(() => { line.remove(); }, 4000);
+    }
+    setInterval(randomLogLine, 8000);
+
+    /* ---------------- DISCORD COMPONENT ---------------- */
+    function DiscordComponent() {
       const [data, setData] = useState(null);
       const [elapsed, setElapsed] = useState("");
 
@@ -548,7 +572,7 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
             const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
             const json = await r.json();
             if (json.success && mounted) setData(json.data);
-          } catch (e) { }
+          } catch (e) { /* ignore */ }
         }
         fetchPresence();
         const id = setInterval(fetchPresence, 15000);
@@ -581,12 +605,14 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
       try {
         const snowflake = BigInt(user.id);
         const timestamp = Number((snowflake >> 22n) + 1420070400000n);
-        accountAgeDays = Math.floor((Date.now() - timestamp) / (1000 * 60 * 60 * 24));
-      } catch { }
+        const createdAt = new Date(timestamp);
+        accountAgeDays = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+      } catch (e) {
+        accountAgeDays = null;
+      }
 
       function getActivityImage(act) {
         if (!act?.assets?.large_image) {
-          // VS Code fallback
           if (typeof act?.name === "string" && /visual studio|code/i.test(act.name)) {
             return "https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg";
           }
@@ -600,19 +626,16 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
 
       const party = activity?.party?.size;
 
-      // render DOM nodes (not full React render into original structure) — keep simple
       return (
         <div className="mono small">
           <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 12 }}>
-            <img
-              className="avatar"
-              src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
-            />
+            <img className="avatar" src={user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : "https://cdn.discordapp.com/embed/avatars/0.png"} />
             <div>
               <div style={{ fontWeight: 700 }}>{user.username}</div>
               <div className="muted small">{status}</div>
             </div>
           </div>
+
           <div>STATUS........... <span className="muted">{status}</span></div>
           {accountAgeDays !== null && <div>ACCOUNT_AGE...... <span className="muted">{accountAgeDays} days</span></div>}
           {customStatus?.state && <div>CUSTOM_STATUS.... <span className="muted">{customStatus.emoji?.name} {customStatus.state}</span></div>}
@@ -622,6 +645,7 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
               <div className="activity-art">
                 {getActivityImage(activity) ? <img src={getActivityImage(activity)} alt="act" /> : <div style={{ padding: 8 }} className="muted small">No art</div>}
               </div>
+
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 700 }}>{activity.name}</div>
                 {activity.details && <div className="muted small">{activity.details}</div>}
@@ -673,8 +697,8 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
 
       const profile = data.profile || {};
       const owned = data.owned || { game_count: 0 };
-      const topPlayed = (data.topPlayed || []).slice(0, 12);
-      const recent = (data.recent?.games || []).slice(0, 4);
+      const topPlayed = (data.topPlayed || []).slice(0, 9);
+      const recent = (data.recent?.games || []).slice(0, 3);
       const totalHours = data.totalHours || 0;
 
       function fmt(sec) { if (!sec) return "Unknown"; return new Date(sec * 1000).toLocaleString(); }
@@ -682,12 +706,13 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
       return (
         <div className="mono small">
           <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 14 }}>
-            <img className="avatar" src={profile.avatarfull} />
+            <img className="avatar" src={profile.avatarfull} alt="steam avatar" />
             <div>
               <div style={{ fontWeight: 700 }}>{profile.personaname}</div>
-              <div className="muted small">{profile.personastate === 1 ? "Online" : "Offline"}</div>
+              <div className="muted small">{profile.gameextrainfo ? profile.gameextrainfo : (profile.personastate === 1 ? "Online" : "Offline")}</div>
             </div>
           </div>
+
           <div>TOTAL_GAMES...... <span className="muted">{owned.game_count || 0}</span></div>
           <div>TOTAL_HOURS...... <span className="muted">{totalHours} hrs</span></div>
           <div>CREATED.......... <span className="muted">{fmt(profile.timecreated)}</span></div>
@@ -696,7 +721,6 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
           <div style={{ height: 10 }} />
 
           <div className="muted small">-- recently played --</div>
-
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(240px,1fr))",
@@ -704,19 +728,10 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
             marginTop: "10px"
           }}>
             {recent.map(g => (
-              <div key={g.appid} style={{
-                border: "1px solid var(--crt-dim)",
-                background: "rgba(0,0,0,0.18)",
-                padding: "10px"
-              }}>
-                <img
-                  src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`}
-                  className="game-header"
-                />
+              <div key={g.appid} style={{ border: "1px solid var(--crt-dim)", background: "rgba(0,0,0,0.18)", padding: "10px" }}>
+                <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} className="game-header" alt={g.name} />
                 <div style={{ fontWeight: 700, marginTop: 8 }}>{g.name}</div>
-                <div className="muted small">
-                  {Math.round((g.playtime_2weeks || 0) / 60)}h last 2 weeks
-                </div>
+                <div className="muted small">{Math.round((g.playtime_2weeks || 0) / 60)}h last 2 weeks</div>
               </div>
             ))}
           </div>
@@ -724,7 +739,6 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
           <div style={{ height: 10 }} />
 
           <div className="muted small">-- top played --</div>
-
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(240px,1fr))",
@@ -732,19 +746,10 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
             marginTop: "10px"
           }}>
             {topPlayed.map(g => (
-              <div key={g.appid} style={{
-                border: "1px solid var(--crt-dim)",
-                background: "rgba(0,0,0,0.18)",
-                padding: "10px"
-              }}>
-                <img
-                  src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`}
-                  className="game-header"
-                />
+              <div key={g.appid} style={{ border: "1px solid var(--crt-dim)", background: "rgba(0,0,0,0.18)", padding: "10px" }}>
+                <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} className="game-header" alt={g.name} />
                 <div style={{ fontWeight: 700, marginTop: 8 }}>{g.name}</div>
-                <div className="muted small">
-                  {Math.round((g.playtime_forever || 0) / 60)}h total{g.completion_percent !== null ? ` • ${g.completion_percent}%` : ''}
-                </div>
+                <div className="muted small">{Math.round((g.playtime_forever || 0) / 60)}h total{g.completion_percent !== null ? ` • ${g.completion_percent}%` : ''}</div>
               </div>
             ))}
           </div>
@@ -771,27 +776,21 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
       return (
         <div className="mono small">
           <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 14 }}>
-            <img className="avatar" src={profile.avatar_url} />
+            <img className="avatar" src={profile.avatar_url} alt="github avatar" />
             <div>
               <div style={{ fontWeight: 700 }}>{profile.name || profile.login}</div>
               <div className="muted small">{profile.followers} followers</div>
             </div>
           </div>
+
           {profile.bio && (
             <div style={{ marginTop: 14 }}>
               <div className="muted small">-- operator notes --</div>
-              <div style={{
-                marginTop: 8,
-                whiteSpace: "pre-wrap",
-                lineHeight: 1.6
-              }}>
-                {profile.bio.replace(/ - /g, "\n")}
-              </div>
+              <div style={{ marginTop: 8, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{profile.bio.replace(/ - /g, "\n")}</div>
             </div>
           )}
-          <div className="muted small" style={{ marginTop: 10 }}>
-            repositories indexed: {profile.public_repos}
-          </div>
+
+          <div className="muted small" style={{ marginTop: 10 }}>repositories indexed: {profile.public_repos}</div>
           <div>TOTAL_STARS...... <span className="muted">{totals.stars}</span></div>
           <div>TOTAL_FORKS...... <span className="muted">{totals.forks}</span></div>
           <div>TOP_LANGUAGE..... <span className="muted">{mostUsed}</span></div>
@@ -806,42 +805,15 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
 
           <div style={{ height: 12 }} />
 
-          <div style={{ height: 12 }} />
-
           <div className="muted small">-- top repositories --</div>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))",
-            gap: "14px",
-            marginTop: "10px"
-          }}>
-            {repos
-              .sort((a, b) => b.stargazers_count - a.stargazers_count)
-              .slice(0, 6)
-              .map(r => (
-                <a
-                  key={r.id}
-                  href={r.html_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    border: "1px solid var(--crt-dim)",
-                    padding: "12px",
-                    background: "rgba(0,0,0,0.18)",
-                    textDecoration: "none",
-                    color: "var(--crt-orange)"
-                  }}
-                >
-                  <div style={{ fontWeight: 700 }}>{r.name}</div>
-                  <div className="muted small" style={{ marginTop: 6 }}>
-                    {r.description || "No description"}
-                  </div>
-                  <div className="muted small" style={{ marginTop: 8 }}>
-                    ★ {r.stargazers_count} • {r.language || "—"}
-                  </div>
-                </a>
-              ))}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: "14px", marginTop: "10px" }}>
+            {repos.sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 6).map(r => (
+              <a key={r.id} href={r.html_url} target="_blank" rel="noreferrer" style={{ border: "1px solid var(--crt-dim)", padding: "12px", background: "rgba(0,0,0,0.18)", textDecoration: "none", color: "var(--crt-orange)" }}>
+                <div style={{ fontWeight: 700 }}>{r.name}</div>
+                <div className="muted small" style={{ marginTop: 6 }}>{r.description || "No description"}</div>
+                <div className="muted small" style={{ marginTop: 8 }}>★ {r.stargazers_count} • {r.language || "—"}</div>
+              </a>
+            ))}
           </div>
         </div>
       );
@@ -852,7 +824,6 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
       const [weather, setWeather] = useState(null);
       useEffect(() => { fetch("https://api.open-meteo.com/v1/forecast?latitude=47.8095&longitude=13.0550&current_weather=true").then(r => r.json()).then(d => setWeather(d.current_weather)).catch(() => { }); }, []);
       if (!weather) return null;
-
       const glyph = weather.temperature > 20 ? '☀️' : (weather.temperature > 8 ? '⛅' : '❄️');
       return (
         <div className="weather-large mono">
@@ -864,38 +835,44 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
             <div className="weather-temp">{weather.temperature}°C</div>
             <div className="muted small">Wind {weather.windspeed} km/h</div>
             <div style={{ height: 8 }} />
-            <div className="muted small">
-              Local time: {new Date().toLocaleTimeString()}
-            </div>
+            <div className="muted small">Local time: {new Date().toLocaleTimeString()}</div>
           </div>
         </div>
       );
     }
 
-    /* ---------------- APP (mount components into prebuilt slots) ---------------- */
-    function MainApp() {
-      useEffect(() => {
-        setTimeout(() => runTypewriterOnce(), 350);
-      }, []);
+    /* ---------------- MOUNT ALL MINI-COMPONENTS ---------------- */
 
-      return (
-        <>
-          <DiscordComponent />
-          <SteamComponent />
-          <GithubComponent />
-          <WeatherComponent />
-        </>
-      );
+    // Mount each component into pre-existing divs
+    function mountAll() {
+      // discord
+      const discordRoot = document.getElementById('discord-mount');
+      if (discordRoot) ReactDOM.createRoot(discordRoot).render(<DiscordComponent />);
+
+      // steam
+      const steamRoot = document.getElementById('steam-mount');
+      if (steamRoot) ReactDOM.createRoot(steamRoot).render(<SteamComponent />);
+
+      // github
+      const githubRoot = document.getElementById('github-mount');
+      if (githubRoot) ReactDOM.createRoot(githubRoot).render(<GithubComponent />);
+
+      // weather
+      const weatherRoot = document.getElementById('weather-mount');
+      if (weatherRoot) ReactDOM.createRoot(weatherRoot).render(<WeatherComponent />);
     }
-    ReactDOM.createRoot(document.getElementById('discord-mount')).render(<DiscordComponent />);
-    ReactDOM.createRoot(document.getElementById('steam-mount')).render(<SteamComponent />);
-    ReactDOM.createRoot(document.getElementById('github-mount')).render(<GithubComponent />);
-    ReactDOM.createRoot(document.getElementById('weather-mount')).render(<WeatherComponent />);
 
-    runBootSequence();
-    runFakeCommand();
-
-    setTimeout(() => runTypewriterOnce(), 350);
+    // start-up sequence after DOM ready
+    window.addEventListener('DOMContentLoaded', () => {
+      // small delay so everything paints
+      setTimeout(() => {
+        runBootSequence();
+        runFakeCommand();
+        initInteractiveTerminal();
+        runTypewriterOnce();
+        mountAll();
+      }, 220);
+    });
   </script>
 
   <!-- Terrain animation (behind) - color tuned to orange -->
@@ -906,7 +883,6 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.position.z = 25;
-    camera.position.y = 12 + Math.sin(Date.now() * 0.0002) * 1.5;
 
     const geometry = new THREE.PlaneGeometry(200, 200, 200, 200);
     const material = new THREE.MeshBasicMaterial({ color: 0xff8a2b, wireframe: true, transparent: true, opacity: 0.06 });
@@ -917,10 +893,15 @@ __/\\\\\\\\\\\\_______________________________________________/\\\_____________/
     function animate() {
       requestAnimationFrame(animate);
       const t = Date.now() * 0.0003;
+      camera.position.y = 12 + Math.sin(t * 0.5) * 1.2;
+
       const pos = plane.geometry.attributes.position;
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i), y = pos.getY(i);
-        pos.setZ(i, Math.sin(x * 0.2 + t) * 0.4 + Math.cos(y * 0.25 + t) * 0.4);
+        pos.setZ(i,
+          Math.sin(x * 0.2 + t) * 0.4 +
+          Math.cos(y * 0.25 + t) * 0.4
+        );
       }
       pos.needsUpdate = true;
       renderer.render(scene, camera);
