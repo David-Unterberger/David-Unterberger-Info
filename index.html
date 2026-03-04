@@ -1,20 +1,15 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>David Unterberger - Terminal Access</title>
   
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="titel_background.png">
-
-  <!-- Monospace Font -->
   <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-  <!-- React and dependencies -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
@@ -41,7 +36,6 @@
       line-height: 1.5;
     }
 
-    /* TERRAIN BACKGROUND - ALWAYS BEHIND */
     #terrain {
       position: fixed;
       inset: 0;
@@ -49,7 +43,6 @@
       pointer-events: none;
     }
 
-    /* TERMINAL CONTAINER */
     .terminal-container {
       position: relative;
       z-index: 1;
@@ -63,30 +56,20 @@
         inset 0 0 100px rgba(255, 122, 26, 0.03);
     }
 
-    /* CRT CURVATURE EFFECT */
     .terminal-container::before {
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at center,
-          transparent 50%,
-          rgba(0, 0, 0, 0.5) 100%);
+      background: radial-gradient(circle at center, transparent 50%, rgba(0, 0, 0, 0.5) 100%);
       pointer-events: none;
       z-index: -1;
     }
 
-    /* SCANLINES - VISIBLE AND ANIMATED */
     body::after {
       content: "";
       position: fixed;
       inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(255, 122, 26, 0.03) 0px,
-        rgba(255, 122, 26, 0.03) 1px,
-        transparent 1px,
-        transparent 2px
-      );
+      background: repeating-linear-gradient(0deg, rgba(255, 122, 26, 0.03) 0px, rgba(255, 122, 26, 0.03) 1px, transparent 1px, transparent 2px);
       pointer-events: none;
       z-index: 999;
       animation: scanline 8s linear infinite;
@@ -97,12 +80,10 @@
       100% { transform: translateY(4px); }
     }
 
-    /* PHOSPHOR GLOW */
     .terminal-container {
       text-shadow: 0 0 5px rgba(255, 122, 26, 0.5);
     }
 
-    /* ASCII HEADER */
     .ascii-header {
       color: var(--amber);
       font-size: 10px;
@@ -113,10 +94,8 @@
       letter-spacing: 1px;
     }
 
-    /* TERMINAL LINE */
     .term-line {
       margin: 4px 0;
-      font-family: "Source Code Pro", monospace;
     }
 
     .term-line::before {
@@ -124,7 +103,6 @@
       color: var(--amber-soft);
     }
 
-    /* SECTION HEADER */
     .section-header {
       color: var(--amber-soft);
       border-bottom: 1px solid var(--amber-dim);
@@ -134,22 +112,6 @@
       letter-spacing: 2px;
     }
 
-    /* CURSOR BLINK */
-    .cursor {
-      display: inline-block;
-      width: 8px;
-      height: 14px;
-      background: var(--amber);
-      margin-left: 2px;
-      animation: blink 1s infinite;
-    }
-
-    @keyframes blink {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: 0; }
-    }
-
-    /* BOOT SEQUENCE */
     .boot-line {
       margin: 3px 0;
       color: var(--amber);
@@ -161,7 +123,6 @@
       to { opacity: 1; }
     }
 
-    /* COMPONENT CONTAINERS */
     .component-box {
       background: rgba(10, 5, 2, 0.6);
       border: 1px solid var(--amber-dim);
@@ -169,7 +130,6 @@
       margin: 15px 0;
     }
 
-    /* AVATAR */
     .avatar {
       width: 48px;
       height: 48px;
@@ -178,7 +138,6 @@
       margin-right: 12px;
     }
 
-    /* ACTIVITY IMAGE */
     .activity-img {
       width: 64px;
       height: 64px;
@@ -187,7 +146,6 @@
       margin-right: 12px;
     }
 
-    /* GAME CARD */
     .game-card {
       background: rgba(5, 2, 0, 0.8);
       border: 1px solid var(--amber-dim);
@@ -202,7 +160,6 @@
       margin-bottom: 8px;
     }
 
-    /* REPO CARD */
     .repo-card {
       background: rgba(5, 2, 0, 0.8);
       border: 1px solid var(--amber-dim);
@@ -218,7 +175,6 @@
       background: rgba(10, 5, 2, 0.9);
     }
 
-    /* GRID LAYOUTS */
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -231,7 +187,6 @@
       gap: 10px;
     }
 
-    /* DATA ROW */
     .data-row {
       display: flex;
       justify-content: space-between;
@@ -249,7 +204,6 @@
       font-weight: 600;
     }
 
-    /* WEATHER BOX */
     .weather-box {
       display: flex;
       align-items: center;
@@ -269,7 +223,6 @@
       color: var(--amber);
     }
 
-    /* TERMINAL LOGS AT BOTTOM */
     .terminal-logs {
       margin-top: 30px;
       padding-top: 15px;
@@ -291,7 +244,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* LINKS */
     a {
       color: var(--amber-soft);
       text-decoration: none;
@@ -303,14 +255,12 @@
       border-bottom-color: var(--amber-soft);
     }
 
-    /* UTILITY CLASSES */
     .text-dim { color: rgba(255, 122, 26, 0.7); }
     .text-bright { color: var(--amber-soft); }
     .mb-10 { margin-bottom: 10px; }
     .mb-15 { margin-bottom: 15px; }
     .mt-10 { margin-top: 10px; }
     .flex { display: flex; }
-    .flex-between { display: flex; justify-content: space-between; }
     .flex-align { display: flex; align-items: center; }
     .gap-10 { gap: 10px; }
     .font-bold { font-weight: 700; }
@@ -321,7 +271,6 @@
   <canvas id="terrain"></canvas>
 
   <div class="terminal-container">
-    <!-- ASCII BANNER -->
     <pre class="ascii-header">
 ╔═══════════════════════════════════════════════════════════════╗
 ║                    SECURE TERMINAL ACCESS                     ║
@@ -330,20 +279,15 @@
 ╚═══════════════════════════════════════════════════════════════╝
     </pre>
 
-    <!-- BOOT SEQUENCE -->
     <div id="boot-sequence"></div>
 
-    <!-- MAIN CONTENT -->
     <div id="main-content" style="display: none;">
-      
-      <!-- OPERATOR INFO -->
       <div class="section-header">[ OPERATOR PROFILE ]</div>
       <div class="term-line">NAME: David Unterberger</div>
       <div class="term-line">ROLE: Hobby Game Developer</div>
       <div class="term-line">ACTIVE_SINCE: 2020</div>
       <div class="term-line">FOCUS: Procedural Terrain, Simulation Systems, Shader Experimentation</div>
       
-      <!-- CURRENT PROJECT -->
       <div class="section-header">[ CURRENT PROJECT ]</div>
       <div class="component-box">
         <div class="font-bold text-bright mb-10">Procedural Terrain & Shader Engine Experiments</div>
@@ -355,23 +299,18 @@
         </div>
       </div>
 
-      <!-- DISCORD -->
       <div class="section-header">[ DISCORD PRESENCE ]</div>
       <div id="discord-mount" class="component-box">Loading Discord data...</div>
 
-      <!-- STEAM -->
       <div class="section-header">[ STEAM RECORDS ]</div>
       <div id="steam-mount" class="component-box">Loading Steam data...</div>
 
-      <!-- GITHUB -->
       <div class="section-header">[ GITHUB REPOSITORY INDEX ]</div>
       <div id="github-mount" class="component-box">Loading GitHub data...</div>
 
-      <!-- WEATHER -->
       <div class="section-header">[ LOCATION: SALZBURG ]</div>
       <div id="weather-mount" class="component-box">Loading weather data...</div>
 
-      <!-- TERMINAL LOGS -->
       <div class="terminal-logs">
         <div class="text-dim mb-10">[ SYSTEM LOG ]</div>
         <div id="log-container"></div>
@@ -379,15 +318,10 @@
     </div>
   </div>
 
-  <!-- REACT COMPONENTS -->
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+  <!-- VANILLA JAVASCRIPT FOR BOOT/LOGS -->
+  <script>
+    console.log('Starting boot sequence...');
 
-    const DISCORD_ID = "780384263987920937";
-    const STEAM_ID = "76561199474685726";
-    const GITHUB_USER = "David-Unterberger";
-
-    /* ============ BOOT SEQUENCE ============ */
     function bootSequence() {
       const bootDiv = document.getElementById('boot-sequence');
       const mainContent = document.getElementById('main-content');
@@ -414,6 +348,7 @@
             bootDiv.style.display = 'none';
             mainContent.style.display = 'block';
             startLogging();
+            loadReactComponents();
           }, 500);
           return;
         }
@@ -421,13 +356,11 @@
         const line = document.createElement('div');
         line.className = 'boot-line';
         line.textContent = '> ' + lines[i];
-        line.style.animationDelay = '0s';
         bootDiv.appendChild(line);
         i++;
       }, 200);
     }
 
-    /* ============ SYSTEM LOGS ============ */
     function startLogging() {
       const logContainer = document.getElementById('log-container');
       const logs = [
@@ -447,17 +380,29 @@
         const log = logs[Math.floor(Math.random() * logs.length)];
         const entry = document.createElement('div');
         entry.className = 'log-entry';
-        entry.textContent = `[${new Date().toLocaleTimeString()}] ${log}...`;
+        entry.textContent = '[' + new Date().toLocaleTimeString() + '] ' + log + '...';
         logContainer.appendChild(entry);
         
-        // Keep only last 8 logs
         while (logContainer.children.length > 8) {
           logContainer.removeChild(logContainer.firstChild);
         }
       }, 5000);
     }
 
-    /* ============ DISCORD COMPONENT ============ */
+    // Start when page loads
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootSequence);
+    } else {
+      bootSequence();
+    }
+  </script>
+
+  <!-- REACT COMPONENTS -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const DISCORD_ID = "780384263987920937";
+    const GITHUB_USER = "David-Unterberger";
+
     function DiscordComponent() {
       const [data, setData] = useState(null);
       const [elapsed, setElapsed] = useState("");
@@ -468,9 +413,7 @@
             const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
             const json = await r.json();
             if (json.success) setData(json.data);
-          } catch (e) {
-            console.error('Discord fetch failed:', e);
-          }
+          } catch (e) {}
         }
         fetchPresence();
         const interval = setInterval(fetchPresence, 30000);
@@ -570,7 +513,6 @@
       );
     }
 
-    /* ============ STEAM COMPONENT ============ */
     function SteamComponent() {
       const [data, setData] = useState(null);
       const [error, setError] = useState(false);
@@ -647,7 +589,6 @@
       );
     }
 
-    /* ============ GITHUB COMPONENT ============ */
     function GithubComponent() {
       const [profile, setProfile] = useState(null);
       const [repos, setRepos] = useState([]);
@@ -729,7 +670,6 @@
       );
     }
 
-    /* ============ WEATHER COMPONENT ============ */
     function WeatherComponent() {
       const [weather, setWeather] = useState(null);
 
@@ -756,48 +696,33 @@
       );
     }
 
-    /* ============ MOUNT COMPONENTS ============ */
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        bootSequence();
-        
-        // Mount React components after boot
-        setTimeout(() => {
-          const discordRoot = document.getElementById('discord-mount');
-          const steamRoot = document.getElementById('steam-mount');
-          const githubRoot = document.getElementById('github-mount');
-          const weatherRoot = document.getElementById('weather-mount');
+    window.loadReactComponents = function() {
+      console.log('Loading React components...');
+      
+      const discordRoot = document.getElementById('discord-mount');
+      const steamRoot = document.getElementById('steam-mount');
+      const githubRoot = document.getElementById('github-mount');
+      const weatherRoot = document.getElementById('weather-mount');
 
-          if (discordRoot) ReactDOM.render(<DiscordComponent />, discordRoot);
-          if (steamRoot) ReactDOM.render(<SteamComponent />, steamRoot);
-          if (githubRoot) ReactDOM.render(<GithubComponent />, githubRoot);
-          if (weatherRoot) ReactDOM.render(<WeatherComponent />, weatherRoot);
-        }, 2500);
-      }, 100);
-    });
+      if (discordRoot) ReactDOM.render(<DiscordComponent />, discordRoot);
+      if (steamRoot) ReactDOM.render(<SteamComponent />, steamRoot);
+      if (githubRoot) ReactDOM.render(<GithubComponent />, githubRoot);
+      if (weatherRoot) ReactDOM.render(<WeatherComponent />, weatherRoot);
+    };
   </script>
 
   <!-- TERRAIN BACKGROUND -->
   <script>
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ 
-      canvas: document.getElementById('terrain'), 
-      alpha: true, 
-      antialias: true 
-    });
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('terrain'), alpha: true, antialias: true });
     
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.position.set(0, 12, 25);
 
     const geometry = new THREE.PlaneGeometry(200, 200, 200, 200);
-    const material = new THREE.MeshBasicMaterial({ 
-      color: 0xff8a2b, 
-      wireframe: true, 
-      transparent: true, 
-      opacity: 0.06 
-    });
+    const material = new THREE.MeshBasicMaterial({ color: 0xff8a2b, wireframe: true, transparent: true, opacity: 0.06 });
     
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = -Math.PI / 2.7;
@@ -813,10 +738,7 @@
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i);
         const y = pos.getY(i);
-        pos.setZ(i, 
-          Math.sin(x * 0.2 + t) * 0.4 + 
-          Math.cos(y * 0.25 + t) * 0.4
-        );
+        pos.setZ(i, Math.sin(x * 0.2 + t) * 0.4 + Math.cos(y * 0.25 + t) * 0.4);
       }
       pos.needsUpdate = true;
       
