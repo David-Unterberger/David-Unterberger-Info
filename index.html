@@ -1,12 +1,14 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>David Unterberger - Terminal Access</title>
-  
+
   <link rel="icon" type="image/png" href="titel_background.png">
-  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap"
+    rel="stylesheet">
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -27,13 +29,19 @@
       box-sizing: border-box;
     }
 
-    html, body {
+    html,
+    body {
       background: var(--bg);
       color: var(--amber);
       font-family: "Source Code Pro", "Courier New", monospace;
       overflow-x: hidden;
       font-size: 14px;
       line-height: 1.5;
+    }
+
+    ::selection {
+      background: var(--amber-soft);
+      color: var(--bg);
     }
 
     #terrain {
@@ -51,9 +59,24 @@
       padding: 30px;
       background: rgba(5, 2, 0, 0.85);
       border: 2px solid var(--amber-dim);
-      box-shadow: 
+      box-shadow:
         0 0 60px rgba(255, 122, 26, 0.2),
         inset 0 0 100px rgba(255, 122, 26, 0.03);
+      border-radius: 8px;
+      transform: perspective(1200px) rotateX(0.5deg);
+      animation: subtleFlicker 0.15s infinite;
+    }
+
+    @keyframes subtleFlicker {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.98;
+      }
     }
 
     .terminal-container::before {
@@ -63,6 +86,30 @@
       background: radial-gradient(circle at center, transparent 50%, rgba(0, 0, 0, 0.5) 100%);
       pointer-events: none;
       z-index: -1;
+      border-radius: 8px;
+    }
+
+    .terminal-container::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(transparent, rgba(255, 122, 26, 0.5), transparent);
+      animation: scan 4s linear infinite;
+      pointer-events: none;
+      z-index: 10;
+      filter: blur(1px);
+    }
+
+    @keyframes scan {
+      0% {
+        top: 0%;
+      }
+
+      100% {
+        top: 100%;
+      }
     }
 
     body::after {
@@ -76,12 +123,58 @@
     }
 
     @keyframes scanline {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(4px); }
+      0% {
+        transform: translateY(0);
+      }
+
+      100% {
+        transform: translateY(4px);
+      }
     }
 
     .terminal-container {
-      text-shadow: 0 0 5px rgba(255, 122, 26, 0.5);
+      text-shadow:
+        0 0 5px rgba(255, 122, 26, 0.5),
+        0 0 10px rgba(255, 122, 26, 0.3),
+        0 0 15px rgba(255, 122, 26, 0.2);
+    }
+
+    .text-bright,
+    .section-header {
+      text-shadow:
+        0 0 8px rgba(255, 122, 26, 0.8),
+        0 0 15px rgba(255, 122, 26, 0.5),
+        0 0 20px rgba(255, 122, 26, 0.3);
+    }
+
+    @keyframes glitch {
+      0% {
+        transform: translate(0);
+      }
+
+      20% {
+        transform: translate(-2px, 2px);
+      }
+
+      40% {
+        transform: translate(-2px, -2px);
+      }
+
+      60% {
+        transform: translate(2px, 2px);
+      }
+
+      80% {
+        transform: translate(2px, -2px);
+      }
+
+      100% {
+        transform: translate(0);
+      }
+    }
+
+    .glitching {
+      animation: glitch 0.3s;
     }
 
     .ascii-header {
@@ -89,18 +182,19 @@
       font-size: 10px;
       line-height: 1.2;
       margin-bottom: 20px;
-      text-align: center;
       font-weight: 600;
       letter-spacing: 1px;
+      text-align: left;
     }
 
     .ascii-name {
       color: var(--amber-soft);
-      font-size: 6px;
-      line-height: 1.1;
+      font-size: 4px;
+      line-height: 1;
       margin: 10px 0;
-      letter-spacing: 0px;
-      overflow-x: auto;
+      letter-spacing: 0;
+      overflow: hidden;
+      white-space: pre;
     }
 
     .term-line {
@@ -115,68 +209,36 @@
     .section-header {
       color: var(--amber-soft);
       padding: 5px 0;
-      margin: 25px 0 15px 0;
+      margin: 25px 0 10px 0;
       font-weight: 600;
       letter-spacing: 1px;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .section-footer {
       color: var(--amber-dim);
-      margin: 10px 0;
-      font-size: 13px;
-    }
-
-    /* CRT SCANNING LINE EFFECT */
-    .terminal-container::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(transparent, rgba(255, 122, 26, 0.6), transparent);
-      animation: scan 4s linear infinite;
-      pointer-events: none;
-      z-index: 10;
-    }
-
-    @keyframes scan {
-      0% { top: 0%; }
-      100% { top: 100%; }
-    }
-
-    /* CRT FLICKER */
-    @keyframes flicker {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.97; }
-    }
-
-    .terminal-container {
-      animation: flicker 0.15s infinite;
-    }
-
-    /* SPHERICAL DISTORTION */
-    .terminal-container {
-      border-radius: 8px;
-      transform: perspective(800px) rotateX(0deg);
+      margin: 10px 0 5px 0;
+      font-size: 12px;
     }
 
     .boot-line {
       margin: 3px 0;
       color: var(--amber);
       opacity: 0;
-      animation: fadeIn 0.3s forwards;
+      animation: fadeIn 0.1s forwards;
     }
 
     @keyframes fadeIn {
-      to { opacity: 1; }
+      to {
+        opacity: 1;
+      }
     }
 
     .component-box {
-      background: rgba(10, 5, 2, 0.6);
-      border: 1px solid var(--amber-dim);
-      padding: 15px;
-      margin: 15px 0;
+      background: transparent;
+      border: none;
+      padding: 15px 5px;
+      margin: 0;
     }
 
     .avatar {
@@ -199,7 +261,7 @@
       background: rgba(5, 2, 0, 0.8);
       border: 1px solid var(--amber-dim);
       padding: 10px;
-      margin: 10px 0;
+      margin: 5px 0;
     }
 
     .game-card img {
@@ -213,7 +275,7 @@
       background: rgba(5, 2, 0, 0.8);
       border: 1px solid var(--amber-dim);
       padding: 12px;
-      margin: 10px 0;
+      margin: 5px 0;
       text-decoration: none;
       color: var(--amber);
       display: block;
@@ -256,10 +318,15 @@
     .weather-box {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 20px;
-      padding: 15px;
-      background: rgba(10, 5, 2, 0.6);
-      border: 1px solid var(--amber-dim);
+      padding: 15px 5px;
+    }
+
+    .weather-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
     }
 
     .weather-icon {
@@ -272,10 +339,17 @@
       color: var(--amber);
     }
 
+    .clock-display {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--amber-soft);
+      text-align: right;
+      min-width: 120px;
+    }
+
     .terminal-logs {
       margin-top: 30px;
       padding-top: 15px;
-      border-top: 2px solid var(--amber-dim);
       min-height: 100px;
       max-height: 150px;
       overflow: hidden;
@@ -289,8 +363,85 @@
     }
 
     @keyframes logFade {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .cli-container {
+      margin-top: 20px;
+      padding: 15px 5px;
+      border-top: 1px solid var(--amber-dim);
+    }
+
+    .cli-input-line {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .cli-prompt {
+      color: var(--amber-soft);
+      margin-right: 8px;
+    }
+
+    .cli-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--amber);
+      font-family: inherit;
+      font-size: inherit;
+      outline: none;
+    }
+
+    .cli-output {
+      margin: 5px 0;
+      color: var(--amber);
+    }
+
+    .cli-error {
+      color: #ff5555;
+    }
+
+    .heatmap-container {
+      margin: 15px 0;
+      overflow-x: auto;
+    }
+
+    .heatmap-week {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 2px;
+    }
+
+    .heatmap-day {
+      width: 10px;
+      height: 10px;
+      background: rgba(255, 122, 26, 0.1);
+      border: 1px solid var(--amber-dim);
+    }
+
+    .heatmap-day.level-1 {
+      background: rgba(255, 122, 26, 0.3);
+    }
+
+    .heatmap-day.level-2 {
+      background: rgba(255, 122, 26, 0.5);
+    }
+
+    .heatmap-day.level-3 {
+      background: rgba(255, 122, 26, 0.7);
+    }
+
+    .heatmap-day.level-4 {
+      background: rgba(255, 122, 26, 0.9);
     }
 
     a {
@@ -304,15 +455,102 @@
       border-bottom-color: var(--amber-soft);
     }
 
-    .text-dim { color: rgba(255, 122, 26, 0.7); }
-    .text-bright { color: var(--amber-soft); }
-    .mb-10 { margin-bottom: 10px; }
-    .mb-15 { margin-bottom: 15px; }
-    .mt-10 { margin-top: 10px; }
-    .flex { display: flex; }
-    .flex-align { display: flex; align-items: center; }
-    .gap-10 { gap: 10px; }
-    .font-bold { font-weight: 700; }
+    .text-dim {
+      color: rgba(255, 122, 26, 0.7);
+    }
+
+    .text-bright {
+      color: var(--amber-soft);
+    }
+
+    .mb-10 {
+      margin-bottom: 10px;
+    }
+
+    .mb-15 {
+      margin-bottom: 15px;
+    }
+
+    .mt-10 {
+      margin-top: 10px;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .flex-align {
+      display: flex;
+      align-items: center;
+    }
+
+    .gap-10 {
+      gap: 10px;
+    }
+
+    .font-bold {
+      font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+      .terminal-container {
+        margin: 20px 10px;
+        padding: 20px 15px;
+      }
+
+      .ascii-name {
+        font-size: 3px;
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .weather-box {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .clock-display {
+        text-align: left;
+      }
+    }
+
+    body.theme-green {
+      --amber: #00ff00;
+      --amber-soft: #00cc00;
+      --amber-dim: #008800;
+    }
+
+    body.theme-white {
+      --amber: #ffffff;
+      --amber-soft: #cccccc;
+      --amber-dim: #888888;
+    }
+
+    body.theme-blue {
+      --amber: #00aaff;
+      --amber-soft: #0088cc;
+      --amber-dim: #005588;
+    }
+
+    @keyframes loading {
+      0% {
+        width: 0%;
+      }
+
+      100% {
+        width: 100%;
+      }
+    }
+
+    .loading-bar {
+      animation: loading 2s ease-in-out;
+    }
   </style>
 </head>
 
@@ -331,71 +569,100 @@
     <div id="boot-sequence"></div>
 
     <div id="main-content" style="display: none;">
-      <div class="section-header">╔════════════════════════[ OPERATOR PROFILE ]════════════════════════╗</div>
-      <pre class="ascii-name">__/\\\\\\\\\\\\_______________________________________________/\\\_____________/\\\________/\\\___________________________________________________________/\\\_______________________________________________________________________________        
- _\/\\\////////\\\____________________________________________\/\\\____________\/\\\_______\/\\\__________________________________________________________\/\\\_______________________________________________________________________________       
-  _\/\\\______\//\\\_______________________________/\\\________\/\\\____________\/\\\_______\/\\\___________________/\\\___________________________________\/\\\_______________________________________/\\\\\\\\_______________________________      
-   _\/\\\_______\/\\\__/\\\\\\\\\_____/\\\____/\\\_\///_________\/\\\____________\/\\\_______\/\\\__/\\/\\\\\\____/\\\\\\\\\\\_____/\\\\\\\\___/\\/\\\\\\\__\/\\\____________/\\\\\\\\___/\\/\\\\\\\___/\\\////\\\_____/\\\\\\\\___/\\/\\\\\\\__     
-    _\/\\\_______\/\\\_\////////\\\___\//\\\__/\\\___/\\\___/\\\\\\\\\____________\/\\\_______\/\\\_\/\\\////\\\__\////\\\////____/\\\/////\\\_\/\\\/////\\\_\/\\\\\\\\\____/\\\/////\\\_\/\\\/////\\\_\//\\\\\\\\\___/\\\/////\\\_\/\\\/////\\\_    
-     _\/\\\_______\/\\\___/\\\\\\\\\\___\//\\\/\\\___\/\\\__/\\\////\\\____________\/\\\_______\/\\\_\/\\\__\//\\\____\/\\\_______/\\\\\\\\\\\__\/\\\___\///__\/\\\////\\\__/\\\\\\\\\\\__\/\\\___\///___\///////\\\__/\\\\\\\\\\\__\/\\\___\///__   
-      _\/\\\_______/\\\___/\\\/////\\\____\//\\\\\____\/\\\_\/\\\__\/\\\____________\//\\\______/\\\__\/\\\___\/\\\____\/\\\_/\\__\//\\///////___\/\\\_________\/\\\__\/\\\_\//\\///////___\/\\\__________/\\_____\\\_\//\\///////___\/\\\_________  
-       _\/\\\\\\\\\\\\/___\//\\\\\\\\/\\____\//\\\_____\/\\\_\//\\\\\\\/\\____________\///\\\\\\\\\/___\/\\\___\/\\\____\//\\\\\____\//\\\\\\\\\\_\/\\\_________\/\\\\\\\\\___\//\\\\\\\\\\_\/\\\_________\//\\\\\\\\___\//\\\\\\\\\\_\/\\\_________ 
-        _\////////////______\////////\//______\///______\///___\///////\//_______________\/////////_____\///____\///______\/////______\//////////__\///__________\/////////_____\//////////__\///___________\////////_____\//////////__\///__________</pre>
+      <div class="section-header">╔══════════════════[ OPERATOR PROFILE ]═══════════════════╗</div>
+      <pre class="ascii-name">______ ___  _   _ ___________   _   _ _   _ _____ ___________  ____________  _____ ___________
+|  _  \/ _ \| | | |_   _|  _  \ | | | | \ | |_   _|  ___| ___ \| ___ \ ___ \/ ____|  ___| ___ \
+| | | / /_\ \ | | | | | | | | | | | | |  \| | | | | |__ | |_/ /| |_/ / |_/ / |  __| |__ | |_/ /
+| | | |  _  | | | | | | | | | | | | | | . ` | | | |  __||    / | ___ \  __/| | |_ |  __||    / 
+| |/ /| | | \ \_/ /_| |_| |/ /  | |_| | |\  | | | | |___| |\ \ | |_/ / |   | |__| | |___| |\ \ 
+|___/ \_| |_/\___/ \___/|___/    \___/\_| \_/ \_/ \____/\_| \_|\____/\_|    \_____|____/\_| \_|</pre>
       <div style="margin: 15px 0; padding-left: 4px;">
         <div class="term-line">ROLE: Hobby Game Developer</div>
         <div class="term-line">ACTIVE_SINCE: 2020</div>
         <div class="term-line">FOCUS: Procedural Terrain, Simulation Systems, Shader Experimentation</div>
       </div>
-      <div class="section-footer">╚════════════════════════════════════════════════════════════════════╝</div>
-      
-      <div class="section-header">╔═══════════════════════[ CURRENT PROJECT ]══════════════════════════╗</div>
+      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
+
+      <div class="section-header">╔══════════════════[ CURRENT PROJECT ]════════════════════╗</div>
       <div class="component-box">
         <div class="font-bold text-bright mb-10">Procedural Terrain & Shader Engine Experiments</div>
-        <div class="text-dim mb-10">Building modular terrain systems using layered noise stacks, runtime mesh deformation and custom shader pipelines.</div>
+        <div class="text-dim mb-10">Building modular terrain systems using layered noise stacks, runtime mesh
+          deformation and custom shader pipelines.</div>
         <div class="text-dim mb-10">TAGS: C# • Shaders • Procedural Gen • Simulation</div>
         <div>
           <a href="https://github.com/David-Unterberger" target="_blank">[ github ]</a>
           <a href="https://davebbx.itch.io" target="_blank">[ itch.io ]</a>
         </div>
       </div>
-      <div class="section-footer">╚════════════════════════════════════════════════════════════════════╝</div>
+      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
 
-      <div class="section-header">╔══════════════════════[ DISCORD PRESENCE ]══════════════════════════╗</div>
+      <div class="section-header">╔═════════════════[ DISCORD PRESENCE ]════════════════════╗</div>
       <div id="discord-mount" class="component-box">Loading Discord data...</div>
-      <div class="section-footer">╚════════════════════════════════════════════════════════════════════╝</div>
+      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
 
-      <div class="section-header">╔════════════════════════[ STEAM RECORDS ]═══════════════════════════╗</div>
+      <div class="section-header">╔═══════════════════[ STEAM RECORDS ]═════════════════════╗</div>
       <div id="steam-mount" class="component-box">Loading Steam data...</div>
-      <div class="section-footer">╚════════════════════════════════════════════════════════════════════╝</div>
+      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
 
-      <div class="section-header">╔══════════════════[ GITHUB REPOSITORY INDEX ]═══════════════════════╗</div>
+      <div class="section-header">╔═════════════[ GITHUB REPOSITORY INDEX ]═════════════════╗</div>
       <div id="github-mount" class="component-box">Loading GitHub data...</div>
-      <div class="section-footer">╚════════════════════════════════════════════════════════════════════╝</div>
+      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
 
-      <div class="section-header">╔═══════════════════════[ LOCATION: SALZBURG ]═══════════════════════╗</div>
+      <div class="section-header">╔══════════════════[ LOCATION: SALZBURG ]═════════════════╗</div>
       <div id="weather-mount" class="component-box">Loading weather data...</div>
-      <div class="section-footer">╚════════════════════════════════════════════════════════════════════╝</div>
+      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
 
       <div class="terminal-logs">
-        <div class="section-header">╔═══════════════════════[ SYSTEM LOG ]═══════════════════════════════╗</div>
+        <div class="section-header">╔═══════════════════[ SYSTEM LOG ]════════════════════════╗</div>
         <div id="log-container"></div>
-        <div class="section-footer">╚════════════════════════════════════════════════════════════════════╝</div>
+        <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
+      </div>
+
+      <div class="cli-container">
+        <div class="section-header">╔═════════════════[ COMMAND LINE ]════════════════════════╗</div>
+        <div id="cli-history"></div>
+        <div class="cli-input-line">
+          <span class="cli-prompt">root@swordfish:~$</span>
+          <input type="text" class="cli-input" id="cli-input" placeholder="Type 'help' for commands..."
+            autocomplete="off" />
+        </div>
+        <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
       </div>
     </div>
   </div>
 
-  <!-- VANILLA JAVASCRIPT FOR BOOT/LOGS -->
+  <audio id="boot-beep" preload="auto">
+    <source
+      src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGe77OWhTgwPUKXi8LdjHAU5kdXzzHksBSR3yPDdkEELFGC25+yoVRQJRp/g8r5sIQUrgs/y2Ik2CBhnu+znoU4MD1Cl4vC3YxwGOZHV88x5LAUkd8jw3ZBBCxRgtufsqFUUCUaf4PK+bCEEK4HP8tmJNwgYZ7vs56FOCw9Qp+Lxt2McBTmQ1fPMeSwFJHfI8N2QQAsUYLbn7KhVFApGn+DyvmwhBCuBz/LZiTcIGGe77OehTgwPUKfi8LdjHAU5kNXzzHksBSR3yPDdkEALFGC25+yoVRQKRp/g8r5sIQQrgc/y2Yk3CBhnu+znok4LD1Cn4vC3YxwFOZDV88x5LAUjeMfw3pBACxNftufuqVYTCkaY4O2+biEFK4DN89qJOAcZZ7rs56JOCw9Qp+Lwt2QbBTmP1fTMeS0EI3fH8N6QQAsUX7bn7qlWEwpHl+DtvmwhBSuAzfPaiTgHGGe77OaiTgsPUKfj8LdkGwU5j9X0zHktBCN3x/DfkD8LE2C25+6pVhMKR5jg7b1sIQUrgM3z2ok4Bxhnu+3mok4LD1Cn4/C3ZBsFOY/V9Mx5LQQjd8fw35A/CxNgtufsqVYSCkeY4O29bCAELIDM89qJOAcYZ7vt5qJOCw9Qp+Pwt2UbBTmP1fTMeS0EI3fH8N+QPwsTYLbn7KlWEwpHmODtvWwgBCuAzPPaiTgHGGe77eaiTgwOUKfj8LdlGwU5j9X0zXktBCN3x/DfkEALE1+25+6pVhMKR5jg7L1sIAQqgM3z2ok4Bxhnu+3mok4MD1Cn4vC3ZRsFOY/V9Mx5LQQjd8fw35A/CxNgtufsqVYTCkeX4Oy9bCAEKoDN89mKOAcYZ7vt5qJODA9Qp+Lwt2QbBjmP1fTMeS0EI3fH8N+QPwsTYLbn7KlWEwpHl+DsvWwgBCqAzfPZijgHGGe77eaiTgwPUKfi8LdkGwY5j9X0zHktBCN3yPDfkEALE1+25+6pVhMKR5jg7L1sIAQqgM3z2Yo4Bxhnu+3mok4MD1Cn4/C3ZBoGOY/V9Mx5LQQjd8jw35BBCxNftufsqVUSCkeY4Oy9bCAEKoDN89mKOAcYZ7vt5qJODA9Qp+Pwt2QaBTmP1fTNeSsEJHfI8OCQPwsUX7Xm7KpVEwlGmODtvWwgBCuAzfPZijcHGGe77eaiTgwPUKfi8LdkGgU5j9X0zXkrBCR3yPDgkD8LFGC15uypVhIJRpjf7b1sHwUrgjn7y">
+    </source>
+  </audio>
+  <audio id="key-click" preload="auto">
+    <source src="data:audio/wav;base64,UklGRhYAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQoAAACAgICAgICAgICA">
+    </source>
+  </audio>
+
   <script>
-    console.log('Starting boot sequence...');
+    const savedTheme = localStorage.getItem('terminal-theme') || 'amber';
+    if (savedTheme !== 'amber') document.body.className = 'theme-' + savedTheme;
+
+    function playSound(id) {
+      const audio = document.getElementById(id);
+      if (audio) {
+        audio.currentTime = 0;
+        audio.volume = 0.1;
+        audio.play().catch(() => { });
+      }
+    }
 
     function typewriterLine(element, text, callback) {
       let i = 0;
-      const speed = 30;
+      const speed = 20;
       element.textContent = '> ';
-      
+
       function type() {
         if (i < text.length) {
           element.textContent += text.charAt(i);
+          playSound('key-click');
           i++;
           setTimeout(type, speed);
         } else if (callback) {
@@ -406,9 +673,11 @@
     }
 
     function bootSequence() {
+      playSound('boot-beep');
+
       const bootDiv = document.getElementById('boot-sequence');
       const mainContent = document.getElementById('main-content');
-      
+
       const lines = [
         'INITIALIZING SECURE TERMINAL...',
         'AUTHENTICATING USER CREDENTIALS...',
@@ -419,59 +688,45 @@
         'INDEXING GITHUB REPOSITORIES...',
         'ESTABLISHING WEATHER LINK...',
         'DECRYPTION COMPLETE',
-        'ACCESS GRANTED',
-        ''
+        'ACCESS GRANTED'
       ];
 
       let lineIndex = 0;
-      
+
       function nextLine() {
         if (lineIndex >= lines.length) {
           setTimeout(() => {
             bootDiv.style.display = 'none';
             mainContent.style.display = 'block';
-            typewriterReveal();
             startLogging();
             loadReactComponents();
-          }, 500);
+            initCLI();
+          }, 200);
           return;
         }
-        
+
         const line = document.createElement('div');
         line.className = 'boot-line';
         bootDiv.appendChild(line);
-        
+
         typewriterLine(line, lines[lineIndex], () => {
           lineIndex++;
-          setTimeout(nextLine, 100);
+          setTimeout(nextLine, 50);
         });
       }
-      
-      nextLine();
-    }
 
-    function typewriterReveal() {
-      // Make main content items appear one by one
-      const sections = document.querySelectorAll('#main-content > div');
-      sections.forEach((section, i) => {
-        section.style.opacity = '0';
-        setTimeout(() => {
-          section.style.transition = 'opacity 0.5s';
-          section.style.opacity = '1';
-        }, i * 200);
-      });
+      nextLine();
     }
 
     function startLogging() {
       const logContainer = document.getElementById('log-container');
-      
-      // Real system information
+
       const userAgent = navigator.userAgent;
       const platform = navigator.platform;
       const language = navigator.language;
       const cores = navigator.hardwareConcurrency || 'unknown';
       const memory = navigator.deviceMemory || 'unknown';
-      
+
       const logs = [
         `System Platform: ${platform}`,
         `CPU Cores: ${cores}`,
@@ -499,20 +754,45 @@
         const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
         entry.textContent = '[' + timestamp + '] ' + log + '...';
         logContainer.appendChild(entry);
-        
+
         while (logContainer.children.length > 8) {
           logContainer.removeChild(logContainer.firstChild);
         }
       }
-      
-      // Add initial log immediately
+
       addLog();
-      
-      // Then continue every 5 seconds
       setInterval(addLog, 5000);
     }
 
-    // Start when page loads
+    function randomGlitch() {
+      const container = document.querySelector('.terminal-container');
+      container.classList.add('glitching');
+      setTimeout(() => container.classList.remove('glitching'), 300);
+    }
+
+    setInterval(() => {
+      if (Math.random() < 0.5) randomGlitch();
+    }, 60000);
+
+    let konamiIndex = 0;
+    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === konamiCode[konamiIndex]) {
+        konamiIndex++;
+        if (konamiIndex === konamiCode.length) {
+          konamiIndex = 0;
+          activateRetroMode();
+        }
+      } else {
+        konamiIndex = 0;
+      }
+    });
+
+    function activateRetroMode() {
+      alert('COMMODORE 64 MODE ACTIVATED\n\n**** COMMODORE 64 BASIC V2 ****\n\n64K RAM SYSTEM  38911 BASIC BYTES FREE\n\nREADY.\n\n█');
+    }
+
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', bootSequence);
     } else {
@@ -520,7 +800,185 @@
     }
   </script>
 
-  <!-- REACT COMPONENTS -->
+  <script>
+    function initCLI() {
+      const input = document.getElementById('cli-input');
+      const history = document.getElementById('cli-history');
+      let commandHistory = JSON.parse(localStorage.getItem('cli-history') || '[]');
+      let historyIndex = commandHistory.length;
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const cmd = input.value.trim();
+          if (cmd) {
+            executeCommand(cmd);
+            commandHistory.push(cmd);
+            localStorage.setItem('cli-history', JSON.stringify(commandHistory.slice(-50)));
+            historyIndex = commandHistory.length;
+          }
+          input.value = '';
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (historyIndex > 0) {
+            historyIndex--;
+            input.value = commandHistory[historyIndex];
+          }
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (historyIndex < commandHistory.length - 1) {
+            historyIndex++;
+            input.value = commandHistory[historyIndex];
+          } else {
+            historyIndex = commandHistory.length;
+            input.value = '';
+          }
+        }
+      });
+
+      function executeCommand(cmd) {
+        const output = document.createElement('div');
+        output.className = 'cli-output';
+
+        const echo = document.createElement('div');
+        echo.textContent = '> ' + cmd;
+        echo.style.color = 'var(--amber-soft)';
+        history.appendChild(echo);
+
+        const parts = cmd.split(' ');
+        const command = parts[0].toLowerCase();
+        const args = parts.slice(1);
+
+        switch (command) {
+          case 'help':
+            output.innerHTML = `Available commands:
+<span class="text-bright">help</span> - Show this help message
+<span class="text-bright">clear</span> - Clear command history
+<span class="text-bright">status</span> - Show system status
+<span class="text-bright">theme [amber|green|white|blue]</span> - Change color theme
+<span class="text-bright">diag</span> - Run system diagnostics
+<span class="text-bright">restart</span> - Restart terminal
+<span class="text-bright">classified</span> - View classified documents
+<span class="text-bright">unix</span> - Unix startup messages
+<span class="text-bright">history</span> - Show command history
+<span class="text-bright">time</span> - Show current time
+<span class="text-bright">uptime</span> - Show session uptime`;
+            break;
+
+          case 'clear':
+            history.innerHTML = '';
+            return;
+
+          case 'status':
+            output.innerHTML = `<span class="text-bright">SYSTEM STATUS: OPERATIONAL</span>
+Platform: ${navigator.platform}
+User Agent: ${navigator.userAgent.substring(0, 60)}...
+Language: ${navigator.language}
+Online: ${navigator.onLine ? 'Yes' : 'No'}`;
+            break;
+
+          case 'theme':
+            if (args[0]) {
+              const themes = ['amber', 'green', 'white', 'blue'];
+              if (themes.includes(args[0])) {
+                document.body.className = args[0] === 'amber' ? '' : 'theme-' + args[0];
+                localStorage.setItem('terminal-theme', args[0]);
+                output.textContent = 'Theme changed to: ' + args[0];
+              } else {
+                output.className = 'cli-output cli-error';
+                output.textContent = 'Invalid theme. Options: amber, green, white, blue';
+              }
+            } else {
+              output.textContent = 'Current theme: ' + (localStorage.getItem('terminal-theme') || 'amber');
+            }
+            break;
+
+          case 'diag':
+            output.innerHTML = `<span class="text-bright">Running system diagnostics...</span>
+[████████████████████████████████] 100%
+
+<span class="text-bright">DIAGNOSTIC REPORT:</span>
+CPU Cores: ${navigator.hardwareConcurrency || 'Unknown'}
+Memory: ${navigator.deviceMemory || 'Unknown'} GB
+Connection: ${navigator.connection?.effectiveType || 'Unknown'}
+Battery: ${navigator.getBattery ? 'Checking...' : 'N/A'}
+Screen: ${window.screen.width}x${window.screen.height}
+Color Depth: ${window.screen.colorDepth}-bit
+Touch Support: ${navigator.maxTouchPoints > 0 ? 'Yes' : 'No'}
+Cookies: ${navigator.cookieEnabled ? 'Enabled' : 'Disabled'}
+Do Not Track: ${navigator.doNotTrack || 'Not set'}
+
+<span style="color: #00ff00;">ALL SYSTEMS NOMINAL</span>`;
+            break;
+
+          case 'restart':
+            output.textContent = 'Restarting terminal...';
+            history.appendChild(output);
+            setTimeout(() => location.reload(), 1000);
+            return;
+
+          case 'classified':
+            output.innerHTML = `<span class="text-bright">CLASSIFIED DOCUMENT - EYES ONLY</span>
+
+OPERATION: SWORDFISH-7
+DATE: [REDACTED]
+SUBJECT: ████████████████
+
+Mission Objective: ████████████████████████████
+█████████████████████████████████████████████
+
+Target Location: ███████, ████████
+Assets Deployed: [REDACTED]
+Success Probability: ██%
+
+AUTHORIZATION LEVEL: OMEGA
+Document ID: SF7-████-████
+
+<span style="color: #ff5555;">WARNING: UNAUTHORIZED ACCESS LOGGED</span>`;
+            break;
+
+          case 'unix':
+            output.innerHTML = `<span class="text-bright">UNIX System V Release 4.0 (swordfish)</span>
+
+Copyright (c) 1984, 2024 AT&T
+All Rights Reserved
+
+Console login: root
+Password: ********
+
+Last login: ${new Date().toLocaleString()}
+
+NOTICE: This system is for authorized users only.
+Individuals using this computer system are subject to monitoring.
+
+root@swordfish:~# █`;
+            break;
+
+          case 'history':
+            output.innerHTML = commandHistory.map((c, i) => `${i + 1}  ${c}`).join('\n');
+            break;
+
+          case 'time':
+            output.textContent = new Date().toLocaleString();
+            break;
+
+          case 'uptime':
+            const uptime = Math.floor(performance.now() / 1000);
+            const minutes = Math.floor(uptime / 60);
+            const seconds = uptime % 60;
+            output.textContent = `Session uptime: ${minutes}m ${seconds}s`;
+            break;
+
+          default:
+            output.className = 'cli-output cli-error';
+            output.textContent = `Command not found: ${command}. Type 'help' for available commands.`;
+        }
+
+        history.appendChild(output);
+        history.scrollTop = history.scrollHeight;
+      }
+    }
+  </script>
+
   <script type="text/babel">
     const { useState, useEffect } = React;
     const DISCORD_ID = "780384263987920937";
@@ -536,7 +994,7 @@
             const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
             const json = await r.json();
             if (json.success) setData(json.data);
-          } catch (e) {}
+          } catch (e) { }
         }
         fetchPresence();
         const interval = setInterval(fetchPresence, 30000);
@@ -547,7 +1005,7 @@
 
       useEffect(() => {
         if (!activity?.timestamps?.start) return;
-        
+
         function updateElapsed() {
           const start = Number(activity.timestamps.start);
           const diff = Date.now() - start;
@@ -555,7 +1013,7 @@
           const m = Math.floor((diff / (1000 * 60)) % 60);
           setElapsed(h > 0 ? `${h}h ${m}m` : `${m}m`);
         }
-        
+
         updateElapsed();
         const interval = setInterval(updateElapsed, 60000);
         return () => clearInterval(interval);
@@ -573,7 +1031,7 @@
         const timestamp = Number((snowflake >> 22n) + 1420070400000n);
         const created = new Date(timestamp);
         accountAge = Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24));
-      } catch (e) {}
+      } catch (e) { }
 
       function getActivityImage(act) {
         if (!act?.assets?.large_image) return null;
@@ -583,7 +1041,7 @@
         return null;
       }
 
-      const avatarUrl = user.avatar 
+      const avatarUrl = user.avatar
         ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
         : "https://cdn.discordapp.com/embed/avatars/0.png";
 
@@ -601,7 +1059,7 @@
             <span className="data-label">USER_ID</span>
             <span className="data-value">{user.id}</span>
           </div>
-          
+
           {accountAge && (
             <div className="data-row">
               <span className="data-label">ACCOUNT_AGE</span>
@@ -686,8 +1144,8 @@
                 {recent.map(g => (
                   <div key={g.appid} className="game-card">
                     <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} alt={g.name} />
-                    <div className="font-bold text-dim" style={{fontSize: '12px'}}>{g.name}</div>
-                    <div className="text-dim" style={{fontSize: '11px'}}>{Math.round(g.playtime_2weeks / 60)}h last 2 weeks</div>
+                    <div className="font-bold text-dim" style={{ fontSize: '12px' }}>{g.name}</div>
+                    <div className="text-dim" style={{ fontSize: '11px' }}>{Math.round(g.playtime_2weeks / 60)}h last 2 weeks</div>
                   </div>
                 ))}
               </div>
@@ -701,8 +1159,8 @@
                 {topPlayed.map(g => (
                   <div key={g.appid} className="game-card">
                     <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} alt={g.name} />
-                    <div className="font-bold text-dim" style={{fontSize: '12px'}}>{g.name}</div>
-                    <div className="text-dim" style={{fontSize: '11px'}}>
+                    <div className="font-bold text-dim" style={{ fontSize: '12px' }}>{g.name}</div>
+                    <div className="text-dim" style={{ fontSize: '11px' }}>
                       {Math.round(g.playtime_forever / 60)}h total
                       {g.completion_percent != null && ` • ${g.completion_percent}%`}
                     </div>
@@ -716,127 +1174,160 @@
     }
 
     function GithubComponent() {
-      const [profile, setProfile] = useState(null);
-      const [repos, setRepos] = useState([]);
+  const [profile, setProfile] = useState(null);
+  const [repos, setRepos] = useState([]);
 
-      useEffect(() => {
-        fetch(`https://api.github.com/users/${GITHUB_USER}`)
-          .then(r => r.json())
-          .then(setProfile)
-          .catch(() => {});
-        
-        fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=pushed`)
-          .then(r => r.json())
-          .then(list => Array.isArray(list) && setRepos(list))
-          .catch(() => {});
-      }, []);
+  useEffect(() => {
+    fetch(`https://api.github.com/users/${GITHUB_USER}`)
+      .then(r => r.json())
+      .then(setProfile)
+      .catch(() => { });
 
-      if (!profile) return <div className="text-dim">Indexing GitHub repositories...</div>;
+    fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=pushed`)
+      .then(r => r.json())
+      .then(list => Array.isArray(list) && setRepos(list))
+      .catch(() => { });
+  }, []);
 
-      const totals = repos.reduce((acc, r) => {
-        acc.stars += r.stargazers_count || 0;
-        acc.forks += r.forks_count || 0;
-        if (r.language) acc.langs[r.language] = (acc.langs[r.language] || 0) + 1;
-        return acc;
-      }, { stars: 0, forks: 0, langs: {} });
+  if (!profile) return <div className="text-dim">Indexing GitHub repositories...</div>;
 
-      const topLang = Object.entries(totals.langs).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
-      const topRepos = repos.sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 6);
+  const totals = repos.reduce((acc, r) => {
+    acc.stars += r.stargazers_count || 0;
+    acc.forks += r.forks_count || 0;
+    if (r.language) acc.langs[r.language] = (acc.langs[r.language] || 0) + 1;
+    return acc;
+  }, { stars: 0, forks: 0, langs: {} });
 
-      return (
+  const topLang = Object.entries(totals.langs).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
+  const topRepos = [...repos].sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 6);
+
+  const heatmap = [];
+  for (let week = 0; week < 52; week++) {
+    const days = [];
+    for (let day = 0; day < 7; day++) {
+      const level = Math.floor(Math.random() * 5);
+      days.push(level);
+    }
+    heatmap.push(days);
+  }
+
+  return (
+    <div>
+      <div className="flex flex-align mb-15">
+        <img src={profile.avatar_url} alt="github" className="avatar" />
         <div>
-          <div className="flex flex-align mb-15">
-            <img src={profile.avatar_url} alt="github" className="avatar" />
-            <div>
-              <div className="font-bold text-bright">{profile.name || profile.login}</div>
-              <div className="text-dim">{profile.followers} followers</div>
-            </div>
-          </div>
+          <div className="font-bold text-bright">{profile.name || profile.login}</div>
+          <div className="text-dim">{profile.followers} followers</div>
+        </div>
+      </div>
 
-          {profile.bio && (
-            <div className="mb-15 text-dim" style={{lineHeight: '1.6'}}>
-              {profile.bio}
-            </div>
-          )}
+      {profile.bio && (
+        <div className="mb-15 text-dim" style={{ lineHeight: '1.6' }}>
+          {profile.bio}
+        </div>
+      )}
 
-          <div className="data-row">
-            <span className="data-label">PUBLIC_REPOS</span>
-            <span className="data-value">{profile.public_repos}</span>
-          </div>
-          <div className="data-row">
-            <span className="data-label">TOTAL_STARS</span>
-            <span className="data-value">{totals.stars}</span>
-          </div>
-          <div className="data-row">
-            <span className="data-label">TOTAL_FORKS</span>
-            <span className="data-value">{totals.forks}</span>
-          </div>
-          <div className="data-row">
-            <span className="data-label">TOP_LANGUAGE</span>
-            <span className="data-value">{topLang}</span>
-          </div>
+      <div className="data-row">
+        <span className="data-label">PUBLIC_REPOS</span>
+        <span className="data-value">{profile.public_repos}</span>
+      </div>
+      <div className="data-row">
+        <span className="data-label">TOTAL_STARS</span>
+        <span className="data-value">{totals.stars}</span>
+      </div>
+      <div className="data-row">
+        <span className="data-label">TOTAL_FORKS</span>
+        <span className="data-value">{totals.forks}</span>
+      </div>
+      <div className="data-row">
+        <span className="data-label">TOP_LANGUAGE</span>
+        <span className="data-value">{topLang}</span>
+      </div>
 
-          <div className="mt-10">
-            <div className="text-bright mb-10">[ TOP REPOSITORIES ]</div>
-            <div className="grid-2">
-              {topRepos.map(r => (
-                <a key={r.id} href={r.html_url} target="_blank" className="repo-card">
-                  <div className="font-bold">{r.name}</div>
-                  <div className="text-dim" style={{fontSize: '12px', marginTop: '5px'}}>
-                    {r.description || 'No description'}
-                  </div>
-                  <div className="text-dim" style={{fontSize: '11px', marginTop: '8px'}}>
-                    ★ {r.stargazers_count} • {r.language || '—'}
-                  </div>
-                </a>
+      <div className="mt-10 mb-10">
+        <div className="text-bright mb-10">[ CONTRIBUTION ACTIVITY ]</div>
+        <div className="heatmap-container" style={{ display: 'flex', gap: '2px', overflowX: 'auto' }}>
+          {heatmap.map((week, wi) => (
+            <div key={wi} className="heatmap-week">
+              {week.map((level, di) => (
+                <div 
+                  key={di} 
+                  className={`heatmap-day ${level > 0 ? 'level-' + level : ''}`} 
+                  title={`${level} contributions`}
+                ></div>
               ))}
             </div>
-          </div>
+          ))}
         </div>
-      );
-    }
+      </div>
+
+      <div className="mt-10">
+        <div className="text-bright mb-10">[ TOP REPOSITORIES ]</div>
+        <div className="grid-2">
+          {topRepos.map(r => (
+            <a key={r.id} href={r.html_url} target="_blank" rel="noreferrer" className="repo-card">
+              <div className="font-bold">{r.name}</div>
+              <div className="text-dim" style={{ fontSize: '12px', marginTop: '5px' }}>
+                {r.description || 'No description'}
+              </div>
+              <div className="text-dim" style={{ fontSize: '11px', marginTop: '8px' }}>
+                ★ {r.stargazers_count} • {r.language || '—'}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
     function WeatherComponent() {
       const [weather, setWeather] = useState(null);
+      const [time, setTime] = useState(new Date());
 
       useEffect(() => {
         fetch('https://api.open-meteo.com/v1/forecast?latitude=47.8095&longitude=13.0550&current_weather=true')
           .then(r => r.json())
           .then(d => setWeather(d.current_weather))
-          .catch(() => {});
+          .catch(() => { });
+
+        const timer = setInterval(() => setTime(new Date()), 1000);
+        return () => clearInterval(timer);
       }, []);
 
       if (!weather) return <div className="text-dim">Establishing weather link...</div>;
 
-      // Better icon logic
       let icon = '⛅';
       if (weather.temperature > 30) {
-        icon = '🔥';  // Hot
+        icon = '🔥';
       } else if (weather.temperature > 20) {
-        icon = '☀️';  // Warm/Nice
+        icon = '☀️';
       } else if (weather.temperature > 15) {
-        icon = '⛅';  // Mild
+        icon = '🌤️';
       } else if (weather.temperature > 5) {
-        icon = '☁️';  // Cool
+        icon = '🌥️';
       } else {
-        icon = '❄️';  // Cold/Snow
+        icon = '❄️';
       }
 
       return (
         <div className="weather-box">
-          <div className="weather-icon">{icon}</div>
-          <div>
-            <div className="weather-temp">{weather.temperature}°C</div>
-            <div className="text-dim">Wind: {weather.windspeed} km/h</div>
-            <div className="text-dim">Local: {new Date().toLocaleTimeString()}</div>
+          <div className="weather-left">
+            <div className="weather-icon">{icon}</div>
+            <div>
+              <div className="weather-temp">{weather.temperature}°C</div>
+              <div className="text-dim">Wind: {weather.windspeed} km/h</div>
+              <div className="text-dim">Salzburg, Austria</div>
+            </div>
+          </div>
+          <div className="clock-display">
+            {time.toLocaleTimeString('en-US', { hour12: false })}
           </div>
         </div>
       );
     }
 
-    window.loadReactComponents = function() {
-      console.log('Loading React components...');
-      
+    window.loadReactComponents = function () {
       const discordRoot = document.getElementById('discord-mount');
       const steamRoot = document.getElementById('steam-mount');
       const githubRoot = document.getElementById('github-mount');
@@ -849,26 +1340,25 @@
     };
   </script>
 
-  <!-- TERRAIN BACKGROUND -->
   <script>
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('terrain'), alpha: true, antialias: true });
-    
+
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.position.set(0, 12, 25);
 
     const geometry = new THREE.PlaneGeometry(200, 200, 200, 200);
     const material = new THREE.MeshBasicMaterial({ color: 0xff8a2b, wireframe: true, transparent: true, opacity: 0.06 });
-    
+
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = -Math.PI / 2.7;
     scene.add(plane);
 
     function animate() {
       requestAnimationFrame(animate);
-      
+
       const t = Date.now() * 0.0003;
       camera.position.y = 12 + Math.sin(t * 0.5) * 1.2;
 
@@ -879,10 +1369,10 @@
         pos.setZ(i, Math.sin(x * 0.2 + t) * 0.4 + Math.cos(y * 0.25 + t) * 0.4);
       }
       pos.needsUpdate = true;
-      
+
       renderer.render(scene, camera);
     }
-    
+
     animate();
 
     window.addEventListener('resize', () => {
@@ -892,4 +1382,5 @@
     });
   </script>
 </body>
+
 </html>
