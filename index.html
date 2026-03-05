@@ -1,14 +1,12 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>David Unterberger - Terminal Access</title>
-
+  
   <link rel="icon" type="image/png" href="titel_background.png">
-  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap" rel="stylesheet">
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -29,8 +27,7 @@
       box-sizing: border-box;
     }
 
-    html,
-    body {
+    html, body {
       background: var(--bg);
       color: var(--amber);
       font-family: "Source Code Pro", "Courier New", monospace;
@@ -59,7 +56,7 @@
       padding: 30px;
       background: rgba(5, 2, 0, 0.85);
       border: 2px solid var(--amber-dim);
-      box-shadow:
+      box-shadow: 
         0 0 60px rgba(255, 122, 26, 0.2),
         inset 0 0 100px rgba(255, 122, 26, 0.03);
       border-radius: 8px;
@@ -68,15 +65,8 @@
     }
 
     @keyframes subtleFlicker {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.98;
-      }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.98; }
     }
 
     .terminal-container::before {
@@ -103,13 +93,8 @@
     }
 
     @keyframes scan {
-      0% {
-        top: 0%;
-      }
-
-      100% {
-        top: 100%;
-      }
+      0% { top: 0%; }
+      100% { top: 100%; }
     }
 
     body::after {
@@ -123,58 +108,22 @@
     }
 
     @keyframes scanline {
-      0% {
-        transform: translateY(0);
-      }
-
-      100% {
-        transform: translateY(4px);
-      }
+      0% { transform: translateY(0); }
+      100% { transform: translateY(4px); }
     }
 
     .terminal-container {
-      text-shadow:
-        0 0 5px rgba(255, 122, 26, 0.5),
-        0 0 10px rgba(255, 122, 26, 0.3),
-        0 0 15px rgba(255, 122, 26, 0.2);
+      text-shadow: 
+        0 0 5px currentColor,
+        0 0 10px currentColor,
+        0 0 15px currentColor;
     }
 
-    .text-bright,
-    .section-header {
-      text-shadow:
-        0 0 8px rgba(255, 122, 26, 0.8),
-        0 0 15px rgba(255, 122, 26, 0.5),
-        0 0 20px rgba(255, 122, 26, 0.3);
-    }
-
-    @keyframes glitch {
-      0% {
-        transform: translate(0);
-      }
-
-      20% {
-        transform: translate(-2px, 2px);
-      }
-
-      40% {
-        transform: translate(-2px, -2px);
-      }
-
-      60% {
-        transform: translate(2px, 2px);
-      }
-
-      80% {
-        transform: translate(2px, -2px);
-      }
-
-      100% {
-        transform: translate(0);
-      }
-    }
-
-    .glitching {
-      animation: glitch 0.3s;
+    .text-bright, .section-header {
+      text-shadow: 
+        0 0 8px currentColor,
+        0 0 15px currentColor,
+        0 0 20px currentColor;
     }
 
     .ascii-header {
@@ -191,7 +140,7 @@
       color: var(--amber-soft);
       font-size: 4px;
       line-height: 1;
-      margin: 10px 0;
+      margin: 10px 0 20px 0;
       letter-spacing: 0;
       overflow: hidden;
       white-space: pre;
@@ -216,7 +165,7 @@
     }
 
     .section-footer {
-      color: var(--amber-dim);
+      color: var(--amber-soft);
       margin: 10px 0 5px 0;
       font-size: 12px;
     }
@@ -229,9 +178,7 @@
     }
 
     @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
+      to { opacity: 1; }
     }
 
     .component-box {
@@ -250,11 +197,12 @@
     }
 
     .activity-img {
-      width: 64px;
-      height: 64px;
+      width: 80px;
+      height: 80px;
       border: 1px solid var(--amber-dim);
       object-fit: cover;
       margin-right: 12px;
+      flex-shrink: 0;
     }
 
     .game-card {
@@ -350,8 +298,8 @@
     .terminal-logs {
       margin-top: 30px;
       padding-top: 15px;
-      min-height: 100px;
-      max-height: 150px;
+      min-height: 120px;
+      max-height: 180px;
       overflow: hidden;
     }
 
@@ -363,20 +311,13 @@
     }
 
     @keyframes logFade {
-      from {
-        opacity: 0;
-        transform: translateY(-5px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .cli-container {
       margin-top: 20px;
-      padding: 15px 5px;
+      padding: 15px 5px 5px 5px;
       border-top: 1px solid var(--amber-dim);
     }
 
@@ -389,6 +330,7 @@
     .cli-prompt {
       color: var(--amber-soft);
       margin-right: 8px;
+      white-space: nowrap;
     }
 
     .cli-input {
@@ -404,45 +346,32 @@
     .cli-output {
       margin: 5px 0;
       color: var(--amber);
+      white-space: pre-wrap;
     }
 
     .cli-error {
       color: #ff5555;
     }
 
-    .heatmap-container {
-      margin: 15px 0;
-      overflow-x: auto;
-    }
-
-    .heatmap-week {
-      display: flex;
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(52, 11px);
+      grid-template-rows: repeat(7, 11px);
       gap: 2px;
-      margin-bottom: 2px;
+      margin: 15px 0;
     }
 
     .heatmap-day {
-      width: 10px;
-      height: 10px;
+      width: 11px;
+      height: 11px;
       background: rgba(255, 122, 26, 0.1);
       border: 1px solid var(--amber-dim);
     }
 
-    .heatmap-day.level-1 {
-      background: rgba(255, 122, 26, 0.3);
-    }
-
-    .heatmap-day.level-2 {
-      background: rgba(255, 122, 26, 0.5);
-    }
-
-    .heatmap-day.level-3 {
-      background: rgba(255, 122, 26, 0.7);
-    }
-
-    .heatmap-day.level-4 {
-      background: rgba(255, 122, 26, 0.9);
-    }
+    .heatmap-day.level-1 { background: rgba(255, 122, 26, 0.3); }
+    .heatmap-day.level-2 { background: rgba(255, 122, 26, 0.5); }
+    .heatmap-day.level-3 { background: rgba(255, 122, 26, 0.7); }
+    .heatmap-day.level-4 { background: rgba(255, 122, 26, 0.9); }
 
     a {
       color: var(--amber-soft);
@@ -455,41 +384,29 @@
       border-bottom-color: var(--amber-soft);
     }
 
-    .text-dim {
-      color: rgba(255, 122, 26, 0.7);
-    }
+    .text-dim { color: rgba(255, 122, 26, 0.7); }
+    .text-bright { color: var(--amber-soft); }
+    .mb-10 { margin-bottom: 10px; }
+    .mb-15 { margin-bottom: 15px; }
+    .mt-10 { margin-top: 10px; }
+    .flex { display: flex; }
+    .flex-align { display: flex; align-items: center; }
+    .gap-10 { gap: 10px; }
+    .font-bold { font-weight: 700; }
 
-    .text-bright {
-      color: var(--amber-soft);
-    }
-
-    .mb-10 {
-      margin-bottom: 10px;
-    }
-
-    .mb-15 {
-      margin-bottom: 15px;
-    }
-
-    .mt-10 {
-      margin-top: 10px;
-    }
-
-    .flex {
-      display: flex;
-    }
-
-    .flex-align {
-      display: flex;
-      align-items: center;
-    }
-
-    .gap-10 {
-      gap: 10px;
-    }
-
-    .font-bold {
-      font-weight: 700;
+    #whale-animation {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.95);
+      padding: 40px;
+      border: 2px solid var(--amber);
+      z-index: 10000;
+      font-size: 8px;
+      line-height: 1;
+      white-space: pre;
     }
 
     @media (max-width: 768px) {
@@ -518,6 +435,20 @@
       .clock-display {
         text-align: left;
       }
+
+      .heatmap-grid {
+        grid-template-columns: repeat(26, 11px);
+        overflow-x: auto;
+      }
+
+      .cli-input-line {
+        flex-wrap: wrap;
+      }
+
+      .cli-prompt {
+        flex-basis: 100%;
+        margin-bottom: 5px;
+      }
     }
 
     body.theme-green {
@@ -537,20 +468,6 @@
       --amber-soft: #0088cc;
       --amber-dim: #005588;
     }
-
-    @keyframes loading {
-      0% {
-        width: 0%;
-      }
-
-      100% {
-        width: 100%;
-      }
-    }
-
-    .loading-bar {
-      animation: loading 2s ease-in-out;
-    }
   </style>
 </head>
 
@@ -558,99 +475,98 @@
   <canvas id="terrain"></canvas>
 
   <div class="terminal-container">
-    <pre class="ascii-header">
-╔═══════════════════════════════════════════════════════════════╗
-║                    SECURE TERMINAL ACCESS                     ║
-║                   OPERATOR: D.UNTERBERGER                     ║
-║                   CLEARANCE: SWORDFISH-7                      ║
-╚═══════════════════════════════════════════════════════════════╝
-    </pre>
-
-    <div id="boot-sequence"></div>
-
-    <div id="main-content" style="display: none;">
-      <div class="section-header">╔══════════════════[ OPERATOR PROFILE ]═══════════════════╗</div>
-      <pre class="ascii-name">______ ___  _   _ ___________   _   _ _   _ _____ ___________  ____________  _____ ___________
+    <pre class="ascii-name">______ ___  _   _ ___________   _   _ _   _ _____ ___________  ____________  _____ ___________
 |  _  \/ _ \| | | |_   _|  _  \ | | | | \ | |_   _|  ___| ___ \| ___ \ ___ \/ ____|  ___| ___ \
 | | | / /_\ \ | | | | | | | | | | | | |  \| | | | | |__ | |_/ /| |_/ / |_/ / |  __| |__ | |_/ /
 | | | |  _  | | | | | | | | | | | | | | . ` | | | |  __||    / | ___ \  __/| | |_ |  __||    / 
 | |/ /| | | \ \_/ /_| |_| |/ /  | |_| | |\  | | | | |___| |\ \ | |_/ / |   | |__| | |___| |\ \ 
 |___/ \_| |_/\___/ \___/|___/    \___/\_| \_/ \_/ \____/\_| \_|\____/\_|    \_____|____/\_| \_|</pre>
-      <div style="margin: 15px 0; padding-left: 4px;">
+
+    <div id="boot-sequence"></div>
+
+    <div id="main-content" style="display: none;">
+      <div class="section-header">╔═══════════════════════════════════════[ OPERATOR PROFILE ]════════════════════════════════════════╗</div>
+      <div class="component-box">
         <div class="term-line">ROLE: Hobby Game Developer</div>
         <div class="term-line">ACTIVE_SINCE: 2020</div>
         <div class="term-line">FOCUS: Procedural Terrain, Simulation Systems, Shader Experimentation</div>
       </div>
-      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
-
-      <div class="section-header">╔══════════════════[ CURRENT PROJECT ]════════════════════╗</div>
+      <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
+      
+      <div class="section-header">╔════════════════════════════════════════[ CURRENT PROJECT ]════════════════════════════════════════╗</div>
       <div class="component-box">
         <div class="font-bold text-bright mb-10">Procedural Terrain & Shader Engine Experiments</div>
-        <div class="text-dim mb-10">Building modular terrain systems using layered noise stacks, runtime mesh
-          deformation and custom shader pipelines.</div>
+        <div class="text-dim mb-10">Building modular terrain systems using layered noise stacks, runtime mesh deformation and custom shader pipelines.</div>
         <div class="text-dim mb-10">TAGS: C# • Shaders • Procedural Gen • Simulation</div>
         <div>
           <a href="https://github.com/David-Unterberger" target="_blank">[ github ]</a>
           <a href="https://davebbx.itch.io" target="_blank">[ itch.io ]</a>
         </div>
       </div>
-      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
+      <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
 
-      <div class="section-header">╔═════════════════[ DISCORD PRESENCE ]════════════════════╗</div>
+      <div class="section-header">╔══════════════════════════════════════[ DISCORD PRESENCE ]══════════════════════════════════════════╗</div>
       <div id="discord-mount" class="component-box">Loading Discord data...</div>
-      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
+      <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
 
-      <div class="section-header">╔═══════════════════[ STEAM RECORDS ]═════════════════════╗</div>
+      <div class="section-header">╔════════════════════════════════════════[ STEAM RECORDS ]═══════════════════════════════════════════╗</div>
       <div id="steam-mount" class="component-box">Loading Steam data...</div>
-      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
+      <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
 
-      <div class="section-header">╔═════════════[ GITHUB REPOSITORY INDEX ]═════════════════╗</div>
+      <div class="section-header">╔══════════════════════════════════[ GITHUB REPOSITORY INDEX ]═══════════════════════════════════════╗</div>
       <div id="github-mount" class="component-box">Loading GitHub data...</div>
-      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
+      <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
 
-      <div class="section-header">╔══════════════════[ LOCATION: SALZBURG ]═════════════════╗</div>
+      <div class="section-header">╔═══════════════════════════════════════════[ SALZBURG ]═════════════════════════════════════════════╗</div>
       <div id="weather-mount" class="component-box">Loading weather data...</div>
-      <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
+      <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
 
       <div class="terminal-logs">
-        <div class="section-header">╔═══════════════════[ SYSTEM LOG ]════════════════════════╗</div>
+        <div class="section-header">╔════════════════════════════════════════[ SYSTEM LOG ]══════════════════════════════════════════════╗</div>
         <div id="log-container"></div>
-        <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
+        <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
       </div>
 
       <div class="cli-container">
-        <div class="section-header">╔═════════════════[ COMMAND LINE ]════════════════════════╗</div>
+        <div class="section-header">╔══════════════════════════════════════[ COMMAND LINE ]══════════════════════════════════════════════╗</div>
         <div id="cli-history"></div>
         <div class="cli-input-line">
-          <span class="cli-prompt">root@swordfish:~$</span>
-          <input type="text" class="cli-input" id="cli-input" placeholder="Type 'help' for commands..."
-            autocomplete="off" />
+          <span class="cli-prompt" id="cli-prompt">root@david-unterberger:~$</span>
+          <input type="text" class="cli-input" id="cli-input" autocomplete="off" autofocus />
         </div>
-        <div class="section-footer">╚═════════════════════════════════════════════════════════════╝</div>
+        <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
       </div>
     </div>
   </div>
 
+  <div id="whale-animation"></div>
+
   <audio id="boot-beep" preload="auto">
-    <source
-      src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGe77OWhTgwPUKXi8LdjHAU5kdXzzHksBSR3yPDdkEELFGC25+yoVRQJRp/g8r5sIQUrgs/y2Ik2CBhnu+znoU4MD1Cl4vC3YxwGOZHV88x5LAUkd8jw3ZBBCxRgtufsqFUUCUaf4PK+bCEEK4HP8tmJNwgYZ7vs56FOCw9Qp+Lxt2McBTmQ1fPMeSwFJHfI8N2QQAsUYLbn7KhVFApGn+DyvmwhBCuBz/LZiTcIGGe77OehTgwPUKfi8LdjHAU5kNXzzHksBSR3yPDdkEALFGC25+yoVRQKRp/g8r5sIQQrgc/y2Yk3CBhnu+znok4LD1Cn4vC3YxwFOZDV88x5LAUjeMfw3pBACxNftufuqVYTCkaY4O2+biEFK4DN89qJOAcZZ7rs56JOCw9Qp+Lwt2QbBTmP1fTMeS0EI3fH8N6QQAsUX7bn7qlWEwpHl+DtvmwhBSuAzfPaiTgHGGe77OaiTgsPUKfj8LdkGwU5j9X0zHktBCN3x/DfkD8LE2C25+6pVhMKR5jg7b1sIQUrgM3z2ok4Bxhnu+3mok4LD1Cn4/C3ZBsFOY/V9Mx5LQQjd8fw35A/CxNgtufsqVYSCkeY4O29bCAELIDM89qJOAcYZ7vt5qJOCw9Qp+Pwt2UbBTmP1fTMeS0EI3fH8N+QPwsTYLbn7KlWEwpHmODtvWwgBCuAzPPaiTgHGGe77eaiTgwOUKfj8LdlGwU5j9X0zXktBCN3x/DfkEALE1+25+6pVhMKR5jg7L1sIAQqgM3z2ok4Bxhnu+3mok4MD1Cn4vC3ZRsFOY/V9Mx5LQQjd8fw35A/CxNgtufsqVYTCkeX4Oy9bCAEKoDN89mKOAcYZ7vt5qJODA9Qp+Lwt2QbBjmP1fTMeS0EI3fH8N+QPwsTYLbn7KlWEwpHl+DsvWwgBCqAzfPZijgHGGe77eaiTgwPUKfi8LdkGwY5j9X0zHktBCN3yPDfkEALE1+25+6pVhMKR5jg7L1sIAQqgM3z2Yo4Bxhnu+3mok4MD1Cn4/C3ZBoGOY/V9Mx5LQQjd8jw35BBCxNftufsqVUSCkeY4Oy9bCAEKoDN89mKOAcYZ7vt5qJODA9Qp+Pwt2QaBTmP1fTNeSsEJHfI8OCQPwsUX7Xm7KpVEwlGmODtvWwgBCuAzfPZijcHGGe77eaiTgwPUKfi8LdkGgU5j9X0zXkrBCR3yPDgkD8LFGC15uypVhIJRpjf7b1sHwUrgjn7y">
-    </source>
+    <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGe77OWhTgwPUKXi8LdjHAU5kdXzzHksBSR3yPDdkEELFGC25+yoVRQJRp/g8r5sIQUrgs/y2Ik2CBhnu+znoU4MD1Cl4vC3YxwGOZHV88x5LAUkd8jw3ZBBCxRgtufsqFUUCUaf4PK+bCEEK4HP8tmJNwgYZ7vs56FOCw9Qp+Lxt2McBTmQ1fPMeSwFJHfI8N2QQAsUYLbn7KhVFApGn+DyvmwhBCuBz/LZiTcIGGe77OehTgwPUKfi8LdjHAU5kNXzzHksBSR3yPDdkEALFGC25+yoVRQKRp/g8r5sIQQrgc/y2Yk3CBhnu+znok4LD1Cn4vC3YxwFOZDV88x5LAUjeMfw3pBACxNftufuqVYTCkaY4O2+biEFK4DN89qJOAcZZ7rs56JOCw9Qp+Lwt2QbBTmP1fTMeS0EI3fH8N6QQAsUX7bn7qlWEwpHl+DtvmwhBSuAzfPaiTgHGGe77OaiTgsPUKfj8LdkGwU5j9X0zHktBCN3x/DfkD8LE2C25+6pVhMKR5jg7b1sIQUrgM3z2ok4Bxhnu+3mok4LD1Cn4/C3ZBsFOY/V9Mx5LQQjd8fw35A/CxNgtufsqVYSCkeY4O29bCAELIDM89qJOAcYZ7vt5qJOCw9Qp+Pwt2UbBTmP1fTMeS0EI3fH8N+QPwsTYLbn7KlWEwpHmODtvWwgBCuAzPPaiTgHGGe77eaiTgwOUKfj8LdlGwU5j9X0zXktBCN3x/DfkEALE1+25+6pVhMKR5jg7L1sIAQqgM3z2ok4Bxhnu+3mok4MD1Cn4vC3ZRsFOY/V9Mx5LQQjd8fw35A/CxNgtufsqVYTCkeX4Oy9bCAEKoDN89mKOAcYZ7vt5qJODA9Qp+Lwt2QbBjmP1fTMeS0EI3fH8N+QPwsTYLbn7KlWEwpHl+DsvWwgBCqAzfPZijgHGGe77eaiTgwPUKfi8LdkGwY5j9X0zHktBCN3yPDfkEALE1+25+6pVhMKR5jg7L1sIAQqgM3z2Yo4Bxhnu+3mok4MD1Cn4/C3ZBoGOY/V9Mx5LQQjd8jw35BBCxNftufsqVUSCkeY4Oy9bCAEKoDN89mKOAcYZ7vt5qJODA9Qp+Pwt2QaBTmP1fTNeSsEJHfI8OCQPwsUX7Xm7KpVEwlGmODtvWwgBCuAzfPZijcHGGe77eaiTgwPUKfi8LdkGgU5j9X0zXkrBCR3yPDgkD8LFGC15uypVhIJRpjf7b1sHwUrgjn7y"></source>
   </audio>
   <audio id="key-click" preload="auto">
-    <source src="data:audio/wav;base64,UklGRhYAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQoAAACAgICAgICAgICA">
-    </source>
+    <source src="data:audio/wav;base64,UklGRhYAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQoAAACAgICAgICAgICA"></source>
   </audio>
 
   <script>
     const savedTheme = localStorage.getItem('terminal-theme') || 'amber';
     if (savedTheme !== 'amber') document.body.className = 'theme-' + savedTheme;
 
+    // Visitor tracking
+    let visitorCount = parseInt(localStorage.getItem('visitor-count') || '0');
+    const isNewVisitor = !sessionStorage.getItem('visited');
+    if (isNewVisitor) {
+      visitorCount++;
+      localStorage.setItem('visitor-count', visitorCount.toString());
+      sessionStorage.setItem('visited', '1');
+    }
+
     function playSound(id) {
       const audio = document.getElementById(id);
       if (audio) {
         audio.currentTime = 0;
         audio.volume = 0.1;
-        audio.play().catch(() => { });
+        audio.play().catch(() => {});
       }
     }
 
@@ -658,7 +574,7 @@
       let i = 0;
       const speed = 20;
       element.textContent = '> ';
-
+      
       function type() {
         if (i < text.length) {
           element.textContent += text.charAt(i);
@@ -672,61 +588,46 @@
       type();
     }
 
+    function showUnixBoot() {
+      const bootDiv = document.getElementById('boot-sequence');
+      bootDiv.innerHTML = `<pre class="text-bright" style="margin: 20px 0;">UNIX System V Release 4.0 (swordfish)
+
+Copyright (c) 1984, 2024 AT&T
+All Rights Reserved
+
+Console login: root
+Password: ********
+
+Last login: ${new Date().toLocaleString()}
+
+NOTICE: This system is for authorized users only.
+Individuals using this computer system are subject to monitoring.
+
+Initializing...</pre>`;
+      
+      setTimeout(() => {
+        bootDiv.style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        startLogging();
+        loadReactComponents();
+        initCLI();
+        document.getElementById('cli-prompt').textContent = `anonymous-user-${visitorCount}:~$`;
+      }, 2000);
+    }
+
     function bootSequence() {
       playSound('boot-beep');
-
-      const bootDiv = document.getElementById('boot-sequence');
-      const mainContent = document.getElementById('main-content');
-
-      const lines = [
-        'INITIALIZING SECURE TERMINAL...',
-        'AUTHENTICATING USER CREDENTIALS...',
-        'ACCESS LEVEL: SWORDFISH-7',
-        'LOADING OPERATOR PROFILE...',
-        'CONNECTING TO DISCORD PRESENCE API...',
-        'QUERYING STEAM DATABASE...',
-        'INDEXING GITHUB REPOSITORIES...',
-        'ESTABLISHING WEATHER LINK...',
-        'DECRYPTION COMPLETE',
-        'ACCESS GRANTED'
-      ];
-
-      let lineIndex = 0;
-
-      function nextLine() {
-        if (lineIndex >= lines.length) {
-          setTimeout(() => {
-            bootDiv.style.display = 'none';
-            mainContent.style.display = 'block';
-            startLogging();
-            loadReactComponents();
-            initCLI();
-          }, 200);
-          return;
-        }
-
-        const line = document.createElement('div');
-        line.className = 'boot-line';
-        bootDiv.appendChild(line);
-
-        typewriterLine(line, lines[lineIndex], () => {
-          lineIndex++;
-          setTimeout(nextLine, 50);
-        });
-      }
-
-      nextLine();
+      showUnixBoot();
     }
 
     function startLogging() {
       const logContainer = document.getElementById('log-container');
-
-      const userAgent = navigator.userAgent;
+      
       const platform = navigator.platform;
       const language = navigator.language;
       const cores = navigator.hardwareConcurrency || 'unknown';
       const memory = navigator.deviceMemory || 'unknown';
-
+      
       const logs = [
         `System Platform: ${platform}`,
         `CPU Cores: ${cores}`,
@@ -752,45 +653,85 @@
         const entry = document.createElement('div');
         entry.className = 'log-entry';
         const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
-        entry.textContent = '[' + timestamp + '] ' + log + '...';
+        entry.textContent = `[${timestamp}] ${log}...`;
         logContainer.appendChild(entry);
-
-        while (logContainer.children.length > 8) {
+        
+        while (logContainer.children.length > 9) {
           logContainer.removeChild(logContainer.firstChild);
         }
       }
-
+      
       addLog();
       setInterval(addLog, 5000);
     }
 
-    function randomGlitch() {
-      const container = document.querySelector('.terminal-container');
-      container.classList.add('glitching');
-      setTimeout(() => container.classList.remove('glitching'), 300);
-    }
-
-    setInterval(() => {
-      if (Math.random() < 0.5) randomGlitch();
-    }, 60000);
-
     let konamiIndex = 0;
     const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-
+    
     document.addEventListener('keydown', (e) => {
       if (e.key === konamiCode[konamiIndex]) {
         konamiIndex++;
         if (konamiIndex === konamiCode.length) {
           konamiIndex = 0;
-          activateRetroMode();
+          activateWhale();
         }
       } else {
         konamiIndex = 0;
       }
     });
 
-    function activateRetroMode() {
-      alert('COMMODORE 64 MODE ACTIVATED\n\n**** COMMODORE 64 BASIC V2 ****\n\n64K RAM SYSTEM  38911 BASIC BYTES FREE\n\nREADY.\n\n█');
+    function activateWhale() {
+      const whaleDiv = document.getElementById('whale-animation');
+      const frames = [
+        `
+                                  ___
+                              .-'   \`'.
+                             /         \\
+                             |         ;
+                             |         |           ___.--,
+                    _.._     |0) ~ (0) |    _.---'\`__.-( (_.
+             __.--'\`_.. '.__.\\    '--. \\_.-' ,.--'\`     \`""\`
+            ( ,.--'\`   ',__ /./;   ;, '.__.'\ \`
+            _\`) )  .---.__.' / |   |\\   \\__..\\
+           \`---' .'.''-._.-'\`_./  /\\ '.  \\ _.'
+                 | |  .' _.-' |  |  \\  \\  '.
+                  \\ \`-' /     |  /    \\  \\   \\
+                   \`.__/      |  \\     \\  '.__/
+                              \\_  \\     \`.__/
+                                \`--'
+`,
+        `
+                                  ___
+                              .-'   \`'.
+                             /         \\
+                             |         ;
+                             |         |           ___.--,
+                    _.._     |0) - (0) |    _.---'\`__.-( (_.
+             __.--'\`_.. '.__.\\    '--. \\_.-' ,.--'\`     \`""\`
+            ( ,.--'\`   ',__ /./;   ;, '.__.'\ \`
+            _\`) )  .---.__.' / |   |\\   \\__..\\
+           \`---' .'.''-._.-'\`_./  /\\ '.  \\ _.'
+                 | |  .' _.-' |  |  \\  \\  '.
+                  \\ \`-' /     |  /    \\  \\   \\
+                   \`.__/      |  \\     \\  '.__/
+                              \\_  \\     \`.__/
+                                \`--'
+`
+      ];
+
+      let frame = 0;
+      whaleDiv.style.display = 'block';
+      whaleDiv.textContent = frames[frame];
+      
+      const interval = setInterval(() => {
+        frame = (frame + 1) % frames.length;
+        whaleDiv.textContent = frames[frame];
+      }, 500);
+      
+      setTimeout(() => {
+        clearInterval(interval);
+        whaleDiv.style.display = 'none';
+      }, 5000);
     }
 
     if (document.readyState === 'loading') {
@@ -806,6 +747,8 @@
       const history = document.getElementById('cli-history');
       let commandHistory = JSON.parse(localStorage.getItem('cli-history') || '[]');
       let historyIndex = commandHistory.length;
+
+      input.focus();
 
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -838,7 +781,7 @@
       function executeCommand(cmd) {
         const output = document.createElement('div');
         output.className = 'cli-output';
-
+        
         const echo = document.createElement('div');
         echo.textContent = '> ' + cmd;
         echo.style.color = 'var(--amber-soft)';
@@ -848,34 +791,49 @@
         const command = parts[0].toLowerCase();
         const args = parts.slice(1);
 
-        switch (command) {
+        switch(command) {
           case 'help':
             output.innerHTML = `Available commands:
-<span class="text-bright">help</span> - Show this help message
-<span class="text-bright">clear</span> - Clear command history
-<span class="text-bright">status</span> - Show system status
-<span class="text-bright">theme [amber|green|white|blue]</span> - Change color theme
-<span class="text-bright">diag</span> - Run system diagnostics
-<span class="text-bright">restart</span> - Restart terminal
-<span class="text-bright">classified</span> - View classified documents
-<span class="text-bright">unix</span> - Unix startup messages
-<span class="text-bright">history</span> - Show command history
-<span class="text-bright">time</span> - Show current time
-<span class="text-bright">uptime</span> - Show session uptime`;
-            break;
 
+help
+  Show this help message
+
+clear
+  Clear command history
+
+status
+  Show system status
+
+theme [amber|green|white|blue]
+  Change color theme
+
+restart
+  Restart terminal
+
+history
+  Show command history
+
+time
+  Show current time
+
+uptime
+  Show session uptime`;
+            break;
+            
           case 'clear':
             history.innerHTML = '';
             return;
-
+            
           case 'status':
-            output.innerHTML = `<span class="text-bright">SYSTEM STATUS: OPERATIONAL</span>
+            output.innerHTML = `SYSTEM STATUS: OPERATIONAL
+
 Platform: ${navigator.platform}
 User Agent: ${navigator.userAgent.substring(0, 60)}...
 Language: ${navigator.language}
-Online: ${navigator.onLine ? 'Yes' : 'No'}`;
+Online: ${navigator.onLine ? 'Yes' : 'No'}
+Visitor Number: ${visitorCount}`;
             break;
-
+            
           case 'theme':
             if (args[0]) {
               const themes = ['amber', 'green', 'white', 'blue'];
@@ -891,90 +849,37 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
               output.textContent = 'Current theme: ' + (localStorage.getItem('terminal-theme') || 'amber');
             }
             break;
-
-          case 'diag':
-            output.innerHTML = `<span class="text-bright">Running system diagnostics...</span>
-[████████████████████████████████] 100%
-
-<span class="text-bright">DIAGNOSTIC REPORT:</span>
-CPU Cores: ${navigator.hardwareConcurrency || 'Unknown'}
-Memory: ${navigator.deviceMemory || 'Unknown'} GB
-Connection: ${navigator.connection?.effectiveType || 'Unknown'}
-Battery: ${navigator.getBattery ? 'Checking...' : 'N/A'}
-Screen: ${window.screen.width}x${window.screen.height}
-Color Depth: ${window.screen.colorDepth}-bit
-Touch Support: ${navigator.maxTouchPoints > 0 ? 'Yes' : 'No'}
-Cookies: ${navigator.cookieEnabled ? 'Enabled' : 'Disabled'}
-Do Not Track: ${navigator.doNotTrack || 'Not set'}
-
-<span style="color: #00ff00;">ALL SYSTEMS NOMINAL</span>`;
-            break;
-
+            
           case 'restart':
             output.textContent = 'Restarting terminal...';
             history.appendChild(output);
             setTimeout(() => location.reload(), 1000);
             return;
-
-          case 'classified':
-            output.innerHTML = `<span class="text-bright">CLASSIFIED DOCUMENT - EYES ONLY</span>
-
-OPERATION: SWORDFISH-7
-DATE: [REDACTED]
-SUBJECT: ████████████████
-
-Mission Objective: ████████████████████████████
-█████████████████████████████████████████████
-
-Target Location: ███████, ████████
-Assets Deployed: [REDACTED]
-Success Probability: ██%
-
-AUTHORIZATION LEVEL: OMEGA
-Document ID: SF7-████-████
-
-<span style="color: #ff5555;">WARNING: UNAUTHORIZED ACCESS LOGGED</span>`;
-            break;
-
-          case 'unix':
-            output.innerHTML = `<span class="text-bright">UNIX System V Release 4.0 (swordfish)</span>
-
-Copyright (c) 1984, 2024 AT&T
-All Rights Reserved
-
-Console login: root
-Password: ********
-
-Last login: ${new Date().toLocaleString()}
-
-NOTICE: This system is for authorized users only.
-Individuals using this computer system are subject to monitoring.
-
-root@swordfish:~# █`;
-            break;
-
+            
           case 'history':
             output.innerHTML = commandHistory.map((c, i) => `${i + 1}  ${c}`).join('\n');
             break;
-
+            
           case 'time':
             output.textContent = new Date().toLocaleString();
             break;
-
+            
           case 'uptime':
             const uptime = Math.floor(performance.now() / 1000);
             const minutes = Math.floor(uptime / 60);
             const seconds = uptime % 60;
             output.textContent = `Session uptime: ${minutes}m ${seconds}s`;
             break;
-
+            
           default:
             output.className = 'cli-output cli-error';
             output.textContent = `Command not found: ${command}. Type 'help' for available commands.`;
         }
 
         history.appendChild(output);
-        history.scrollTop = history.scrollHeight;
+        setTimeout(() => {
+          input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
       }
     }
   </script>
@@ -991,10 +896,10 @@ root@swordfish:~# █`;
       useEffect(() => {
         async function fetchPresence() {
           try {
-            const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+            const r = await fetch(`https://api.lanyard.rest/v1/users/\${DISCORD_ID}`);
             const json = await r.json();
             if (json.success) setData(json.data);
-          } catch (e) { }
+          } catch (e) {}
         }
         fetchPresence();
         const interval = setInterval(fetchPresence, 30000);
@@ -1005,15 +910,15 @@ root@swordfish:~# █`;
 
       useEffect(() => {
         if (!activity?.timestamps?.start) return;
-
+        
         function updateElapsed() {
           const start = Number(activity.timestamps.start);
           const diff = Date.now() - start;
           const h = Math.floor(diff / (1000 * 60 * 60));
           const m = Math.floor((diff / (1000 * 60)) % 60);
-          setElapsed(h > 0 ? `${h}h ${m}m` : `${m}m`);
+          setElapsed(h > 0 ? `\${h}h \${m}m\` : \`\${m}m`);
         }
-
+        
         updateElapsed();
         const interval = setInterval(updateElapsed, 60000);
         return () => clearInterval(interval);
@@ -1031,18 +936,18 @@ root@swordfish:~# █`;
         const timestamp = Number((snowflake >> 22n) + 1420070400000n);
         const created = new Date(timestamp);
         accountAge = Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24));
-      } catch (e) { }
+      } catch (e) {}
 
       function getActivityImage(act) {
         if (!act?.assets?.large_image) return null;
         const large = act.assets.large_image;
-        if (large.startsWith("mp:")) return `https://media.discordapp.net/${large.replace("mp:", "")}`;
-        if (act.application_id) return `https://cdn.discordapp.com/app-assets/${act.application_id}/${large}.png`;
+        if (large.startsWith("mp:")) return `https://media.discordapp.net/\${large.replace("mp:", "")}`;
+        if (act.application_id) return `https://cdn.discordapp.com/app-assets/\${act.application_id}/\${large}.png`;
         return null;
       }
 
-      const avatarUrl = user.avatar
-        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+      const avatarUrl = user.avatar 
+        ? `https://cdn.discordapp.com/avatars/\${user.id}/\${user.avatar}.png`
         : "https://cdn.discordapp.com/embed/avatars/0.png";
 
       return (
@@ -1059,7 +964,7 @@ root@swordfish:~# █`;
             <span className="data-label">USER_ID</span>
             <span className="data-value">{user.id}</span>
           </div>
-
+          
           {accountAge && (
             <div className="data-row">
               <span className="data-label">ACCOUNT_AGE</span>
@@ -1070,22 +975,25 @@ root@swordfish:~# █`;
           {customStatus?.state && (
             <div className="data-row">
               <span className="data-label">CUSTOM_STATUS</span>
-              <span className="data-value">{customStatus.emoji?.name} {customStatus.state}</span>
+              <span className="data-value">{customStatus.emoji?.name || ''} {customStatus.state}</span>
             </div>
           )}
 
           {activity && (
             <div className="mt-10">
               <div className="text-bright mb-10">[ CURRENT ACTIVITY ]</div>
-              <div className="flex gap-10">
+              <div className="flex gap-10" style={{alignItems: 'flex-start'}}>
                 {getActivityImage(activity) && (
                   <img src={getActivityImage(activity)} alt="activity" className="activity-img" />
                 )}
-                <div>
-                  <div className="font-bold">{activity.name}</div>
-                  {activity.details && <div className="text-dim">{activity.details}</div>}
+                <div style={{flex: 1}}>
+                  <div className="font-bold text-bright">{activity.name}</div>
+                  {activity.details && <div className="text-dim mt-10">{activity.details}</div>}
                   {activity.state && <div className="text-dim">{activity.state}</div>}
                   {elapsed && <div className="text-dim mt-10">Elapsed: {elapsed}</div>}
+                  {activity.party?.size && (
+                    <div className="text-dim">Party: {activity.party.size[0]} / {activity.party.size[1]}</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1143,9 +1051,9 @@ root@swordfish:~# █`;
               <div className="grid-3">
                 {recent.map(g => (
                   <div key={g.appid} className="game-card">
-                    <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} alt={g.name} />
-                    <div className="font-bold text-dim" style={{ fontSize: '12px' }}>{g.name}</div>
-                    <div className="text-dim" style={{ fontSize: '11px' }}>{Math.round(g.playtime_2weeks / 60)}h last 2 weeks</div>
+                    <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/\${g.appid}/header.jpg`} alt={g.name} />
+                    <div className="font-bold text-dim" style={{fontSize: '12px'}}>{g.name}</div>
+                    <div className="text-dim" style={{fontSize: '11px'}}>{Math.round(g.playtime_2weeks / 60)}h last 2 weeks</div>
                   </div>
                 ))}
               </div>
@@ -1158,11 +1066,11 @@ root@swordfish:~# █`;
               <div className="grid-3">
                 {topPlayed.map(g => (
                   <div key={g.appid} className="game-card">
-                    <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} alt={g.name} />
-                    <div className="font-bold text-dim" style={{ fontSize: '12px' }}>{g.name}</div>
-                    <div className="text-dim" style={{ fontSize: '11px' }}>
+                    <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/\${g.appid}/header.jpg`} alt={g.name} />
+                    <div className="font-bold text-dim" style={{fontSize: '12px'}}>{g.name}</div>
+                    <div className="text-dim" style={{fontSize: '11px'}}>
                       {Math.round(g.playtime_forever / 60)}h total
-                      {g.completion_percent != null && ` • ${g.completion_percent}%`}
+                      {g.completion_percent != null && ` • \${g.completion_percent}%`}
                     </div>
                   </div>
                 ))}
@@ -1174,112 +1082,108 @@ root@swordfish:~# █`;
     }
 
     function GithubComponent() {
-  const [profile, setProfile] = useState(null);
-  const [repos, setRepos] = useState([]);
+      const [profile, setProfile] = useState(null);
+      const [repos, setRepos] = useState([]);
 
-  useEffect(() => {
-    fetch(`https://api.github.com/users/${GITHUB_USER}`)
-      .then(r => r.json())
-      .then(setProfile)
-      .catch(() => { });
+      useEffect(() => {
+        fetch(`https://api.github.com/users/\${GITHUB_USER}`)
+          .then(r => r.json())
+          .then(setProfile)
+          .catch(() => {});
+        
+        fetch(`https://api.github.com/users/\${GITHUB_USER}/repos?per_page=100&sort=pushed`)
+          .then(r => r.json())
+          .then(list => Array.isArray(list) && setRepos(list))
+          .catch(() => {});
+      }, []);
 
-    fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=pushed`)
-      .then(r => r.json())
-      .then(list => Array.isArray(list) && setRepos(list))
-      .catch(() => { });
-  }, []);
+      if (!profile) return <div className="text-dim">Indexing GitHub repositories...</div>;
 
-  if (!profile) return <div className="text-dim">Indexing GitHub repositories...</div>;
+      const totals = repos.reduce((acc, r) => {
+        acc.stars += r.stargazers_count || 0;
+        acc.forks += r.forks_count || 0;
+        if (r.language) acc.langs[r.language] = (acc.langs[r.language] || 0) + 1;
+        return acc;
+      }, { stars: 0, forks: 0, langs: {} });
 
-  const totals = repos.reduce((acc, r) => {
-    acc.stars += r.stargazers_count || 0;
-    acc.forks += r.forks_count || 0;
-    if (r.language) acc.langs[r.language] = (acc.langs[r.language] || 0) + 1;
-    return acc;
-  }, { stars: 0, forks: 0, langs: {} });
+      const topLang = Object.entries(totals.langs).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
+      const topRepos = repos.sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 6);
 
-  const topLang = Object.entries(totals.langs).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
-  const topRepos = [...repos].sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 6);
+      // Generate heatmap: 7 rows (days) x 52 cols (weeks) = 364 days
+      const heatmapData = [];
+      for (let day = 0; day < 7; day++) {
+        for (let week = 0; week < 52; week++) {
+          const level = Math.floor(Math.random() * 5);
+          heatmapData.push({ day, week, level });
+        }
+      }
 
-  const heatmap = [];
-  for (let week = 0; week < 52; week++) {
-    const days = [];
-    for (let day = 0; day < 7; day++) {
-      const level = Math.floor(Math.random() * 5);
-      days.push(level);
-    }
-    heatmap.push(days);
-  }
-
-  return (
-    <div>
-      <div className="flex flex-align mb-15">
-        <img src={profile.avatar_url} alt="github" className="avatar" />
+      return (
         <div>
-          <div className="font-bold text-bright">{profile.name || profile.login}</div>
-          <div className="text-dim">{profile.followers} followers</div>
-        </div>
-      </div>
+          <div className="flex flex-align mb-15">
+            <img src={profile.avatar_url} alt="github" className="avatar" />
+            <div>
+              <div className="font-bold text-bright">{profile.name || profile.login}</div>
+              <div className="text-dim">{profile.followers} followers</div>
+            </div>
+          </div>
 
-      {profile.bio && (
-        <div className="mb-15 text-dim" style={{ lineHeight: '1.6' }}>
-          {profile.bio}
-        </div>
-      )}
+          {profile.bio && (
+            <div className="mb-15 text-dim" style={{lineHeight: '1.6', whiteSpace: 'pre-wrap'}}>
+              {profile.bio}
+            </div>
+          )}
 
-      <div className="data-row">
-        <span className="data-label">PUBLIC_REPOS</span>
-        <span className="data-value">{profile.public_repos}</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">TOTAL_STARS</span>
-        <span className="data-value">{totals.stars}</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">TOTAL_FORKS</span>
-        <span className="data-value">{totals.forks}</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">TOP_LANGUAGE</span>
-        <span className="data-value">{topLang}</span>
-      </div>
+          <div className="data-row">
+            <span className="data-label">PUBLIC_REPOS</span>
+            <span className="data-value">{profile.public_repos}</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label">TOTAL_STARS</span>
+            <span className="data-value">{totals.stars}</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label">TOTAL_FORKS</span>
+            <span className="data-value">{totals.forks}</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label">TOP_LANGUAGE</span>
+            <span className="data-value">{topLang}</span>
+          </div>
 
-      <div className="mt-10 mb-10">
-        <div className="text-bright mb-10">[ CONTRIBUTION ACTIVITY ]</div>
-        <div className="heatmap-container" style={{ display: 'flex', gap: '2px', overflowX: 'auto' }}>
-          {heatmap.map((week, wi) => (
-            <div key={wi} className="heatmap-week">
-              {week.map((level, di) => (
+          <div className="mt-10 mb-10">
+            <div className="text-bright mb-10">[ CONTRIBUTION ACTIVITY ]</div>
+            <div className="heatmap-grid">
+              {heatmapData.map((item, idx) => (
                 <div 
-                  key={di} 
-                  className={`heatmap-day ${level > 0 ? 'level-' + level : ''}`} 
-                  title={`${level} contributions`}
+                  key={idx} 
+                  className={`heatmap-day \${item.level > 0 ? 'level-' + item.level : ''}`}
+                  style={{gridRow: item.day + 1, gridColumn: item.week + 1}}
+                  title={`\${item.level} contributions`}
                 ></div>
               ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      <div className="mt-10">
-        <div className="text-bright mb-10">[ TOP REPOSITORIES ]</div>
-        <div className="grid-2">
-          {topRepos.map(r => (
-            <a key={r.id} href={r.html_url} target="_blank" rel="noreferrer" className="repo-card">
-              <div className="font-bold">{r.name}</div>
-              <div className="text-dim" style={{ fontSize: '12px', marginTop: '5px' }}>
-                {r.description || 'No description'}
-              </div>
-              <div className="text-dim" style={{ fontSize: '11px', marginTop: '8px' }}>
-                ★ {r.stargazers_count} • {r.language || '—'}
-              </div>
-            </a>
-          ))}
+          <div className="mt-10">
+            <div className="text-bright mb-10">[ TOP REPOSITORIES ]</div>
+            <div className="grid-2">
+              {topRepos.map(r => (
+                <a key={r.id} href={r.html_url} target="_blank" className="repo-card">
+                  <div className="font-bold">{r.name}</div>
+                  <div className="text-dim" style={{fontSize: '12px', marginTop: '5px'}}>
+                    {r.description || 'No description'}
+                  </div>
+                  <div className="text-dim" style={{fontSize: '11px', marginTop: '8px'}}>
+                    ★ {r.stargazers_count} • {r.language || '—'}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      );
+    }
 
     function WeatherComponent() {
       const [weather, setWeather] = useState(null);
@@ -1289,8 +1193,8 @@ root@swordfish:~# █`;
         fetch('https://api.open-meteo.com/v1/forecast?latitude=47.8095&longitude=13.0550&current_weather=true')
           .then(r => r.json())
           .then(d => setWeather(d.current_weather))
-          .catch(() => { });
-
+          .catch(() => {});
+        
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
       }, []);
@@ -1317,7 +1221,6 @@ root@swordfish:~# █`;
             <div>
               <div className="weather-temp">{weather.temperature}°C</div>
               <div className="text-dim">Wind: {weather.windspeed} km/h</div>
-              <div className="text-dim">Salzburg, Austria</div>
             </div>
           </div>
           <div className="clock-display">
@@ -1327,7 +1230,7 @@ root@swordfish:~# █`;
       );
     }
 
-    window.loadReactComponents = function () {
+    window.loadReactComponents = function() {
       const discordRoot = document.getElementById('discord-mount');
       const steamRoot = document.getElementById('steam-mount');
       const githubRoot = document.getElementById('github-mount');
@@ -1344,21 +1247,21 @@ root@swordfish:~# █`;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('terrain'), alpha: true, antialias: true });
-
+    
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.position.set(0, 12, 25);
 
     const geometry = new THREE.PlaneGeometry(200, 200, 200, 200);
     const material = new THREE.MeshBasicMaterial({ color: 0xff8a2b, wireframe: true, transparent: true, opacity: 0.06 });
-
+    
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = -Math.PI / 2.7;
     scene.add(plane);
 
     function animate() {
       requestAnimationFrame(animate);
-
+      
       const t = Date.now() * 0.0003;
       camera.position.y = 12 + Math.sin(t * 0.5) * 1.2;
 
@@ -1369,10 +1272,10 @@ root@swordfish:~# █`;
         pos.setZ(i, Math.sin(x * 0.2 + t) * 0.4 + Math.cos(y * 0.25 + t) * 0.4);
       }
       pos.needsUpdate = true;
-
+      
       renderer.render(scene, camera);
     }
-
+    
     animate();
 
     window.addEventListener('resize', () => {
@@ -1382,5 +1285,4 @@ root@swordfish:~# █`;
     });
   </script>
 </body>
-
 </html>
