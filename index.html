@@ -11,7 +11,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
 
   <style>
     :root {
@@ -896,7 +896,7 @@ Visitor Number: ${visitorCount}`;
       useEffect(() => {
         async function fetchPresence() {
           try {
-            const r = await fetch(`https://api.lanyard.rest/v1/users/\${DISCORD_ID}`);
+            const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
             const json = await r.json();
             if (json.success) setData(json.data);
           } catch (e) {}
@@ -916,7 +916,7 @@ Visitor Number: ${visitorCount}`;
           const diff = Date.now() - start;
           const h = Math.floor(diff / (1000 * 60 * 60));
           const m = Math.floor((diff / (1000 * 60)) % 60);
-          setElapsed(h > 0 ? `\${h}h \${m}m\` : \`\${m}m`);
+          setElapsed(h > 0 ? `\${h}h \${m}m` : `\${m}m`);
         }
         
         updateElapsed();
@@ -941,13 +941,13 @@ Visitor Number: ${visitorCount}`;
       function getActivityImage(act) {
         if (!act?.assets?.large_image) return null;
         const large = act.assets.large_image;
-        if (large.startsWith("mp:")) return `https://media.discordapp.net/\${large.replace("mp:", "")}`;
-        if (act.application_id) return `https://cdn.discordapp.com/app-assets/\${act.application_id}/\${large}.png`;
+        if (large.startsWith("mp:")) return `https://media.discordapp.net/${large.replace("mp:", "")}`;
+        if (act.application_id) return `https://cdn.discordapp.com/app-assets/${act.application_id}/${large}.png`;
         return null;
       }
 
       const avatarUrl = user.avatar 
-        ? `https://cdn.discordapp.com/avatars/\${user.id}/\${user.avatar}.png`
+        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
         : "https://cdn.discordapp.com/embed/avatars/0.png";
 
       return (
