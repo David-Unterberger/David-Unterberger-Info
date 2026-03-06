@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes" />
   <title>David Unterberger - Terminal Access</title>
   
   <link rel="icon" type="image/png" href="titel_background.png">
@@ -27,6 +27,10 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     html, body {
       background: var(--bg);
       color: var(--amber);
@@ -34,6 +38,7 @@
       overflow-x: hidden;
       font-size: 14px;
       line-height: 1.5;
+      -webkit-overflow-scrolling: touch;
     }
 
     ::selection {
@@ -57,10 +62,9 @@
       background: rgba(5, 2, 0, 0.85);
       border: 2px solid var(--amber-dim);
       box-shadow: 
-        0 0 60px rgba(255, 122, 26, 0.2),
-        inset 0 0 100px rgba(255, 122, 26, 0.03);
+        0 0 60px currentColor,
+        inset 0 0 100px currentColor;
       border-radius: 12px;
-      transform: perspective(600px) rotateX(3deg);
       animation: subtleFlicker 0.15s infinite;
     }
 
@@ -85,7 +89,8 @@
       left: 0;
       right: 0;
       height: 3px;
-      background: linear-gradient(transparent, rgba(255, 122, 26, 0.5), transparent);
+      background: linear-gradient(transparent, currentColor, transparent);
+      opacity: 0.5;
       animation: scan 4s linear infinite;
       pointer-events: none;
       z-index: 10;
@@ -101,7 +106,8 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: repeating-linear-gradient(0deg, rgba(255, 122, 26, 0.03) 0px, rgba(255, 122, 26, 0.03) 1px, transparent 1px, transparent 2px);
+      background: repeating-linear-gradient(0deg, currentColor 0px, currentColor 1px, transparent 1px, transparent 2px);
+      opacity: 0.03;
       pointer-events: none;
       z-index: 999;
       animation: scanline 8s linear infinite;
@@ -175,6 +181,17 @@
       to { opacity: 1; }
     }
 
+    .boot-continue {
+      margin-top: 20px;
+      color: var(--amber-soft);
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.3; }
+    }
+
     .component-box {
       background: transparent;
       border: none;
@@ -206,14 +223,14 @@
       flex-shrink: 0;
     }
 
-    .game-card {
+    .game-card, .itch-card {
       background: rgba(5, 2, 0, 0.8);
       border: 1px solid var(--amber-dim);
       padding: 10px;
       margin: 5px 0;
     }
 
-    .game-card img {
+    .game-card img, .itch-card img {
       width: 100%;
       height: auto;
       border: 1px solid var(--amber-dim);
@@ -252,7 +269,8 @@
       justify-content: space-between;
       margin: 5px 0;
       padding: 3px 0;
-      border-bottom: 1px dotted rgba(255, 122, 26, 0.2);
+      border-bottom: 1px dotted currentColor;
+      opacity: 0.3;
     }
 
     .data-label {
@@ -264,28 +282,30 @@
       font-weight: 600;
     }
 
-    .weather-box {
+    .weather-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      padding: 10px 5px;
+    }
+
+    .weather-main {
+      grid-column: 1 / -1;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 20px;
-      padding: 15px 5px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--amber-dim);
     }
 
-    .weather-left {
+    .weather-icon-large {
+      font-size: 64px;
+    }
+
+    .weather-details {
       display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .weather-icon {
-      font-size: 48px;
-    }
-
-    .weather-temp {
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--amber);
+      flex-direction: column;
+      gap: 5px;
     }
 
     .clock-display {
@@ -293,28 +313,18 @@
       font-weight: 700;
       color: var(--amber-soft);
       text-align: right;
-      min-width: 120px;
     }
 
-    .terminal-logs {
+    .visitor-stats {
       margin-top: 30px;
       padding-top: 15px;
     }
 
-    #log-container {
-      min-height: 150px;
-    }
-
-    .log-entry {
-      color: rgba(255, 122, 26, 0.6);
-      font-size: 12px;
-      margin: 2px 0;
-      animation: logFade 0.5s forwards;
-    }
-
-    @keyframes logFade {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
+    .stat-item {
+      margin: 8px 0;
+      padding: 5px 0;
+      border-bottom: 1px dotted currentColor;
+      opacity: 0.3;
     }
 
     .cli-container {
@@ -339,7 +349,8 @@
       flex: 1;
       background: transparent;
       border: none;
-      color: rgba(255, 122, 26, 0.8);
+      color: currentColor;
+      opacity: 0.85;
       font-family: inherit;
       font-size: inherit;
       outline: none;
@@ -355,25 +366,38 @@
       color: #ff5555;
     }
 
+    .heatmap-container {
+      margin: 15px 0;
+      position: relative;
+    }
+
+    .heatmap-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 10px;
+      color: var(--amber-dim);
+    }
+
     .heatmap-grid {
       display: grid;
       grid-template-columns: repeat(52, 11px);
       grid-template-rows: repeat(7, 11px);
       gap: 2px;
-      margin: 15px 0;
     }
 
     .heatmap-day {
       width: 11px;
       height: 11px;
-      background: rgba(255, 122, 26, 0.1);
+      background: currentColor;
+      opacity: 0.1;
       border: 1px solid var(--amber-dim);
     }
 
-    .heatmap-day.level-1 { background: rgba(255, 122, 26, 0.3); }
-    .heatmap-day.level-2 { background: rgba(255, 122, 26, 0.5); }
-    .heatmap-day.level-3 { background: rgba(255, 122, 26, 0.7); }
-    .heatmap-day.level-4 { background: rgba(255, 122, 26, 0.9); }
+    .heatmap-day.level-1 { opacity: 0.3; }
+    .heatmap-day.level-2 { opacity: 0.5; }
+    .heatmap-day.level-3 { opacity: 0.7; }
+    .heatmap-day.level-4 { opacity: 0.9; }
 
     a {
       color: var(--amber-soft);
@@ -386,7 +410,7 @@
       border-bottom-color: var(--amber-soft);
     }
 
-    .text-dim { color: rgba(255, 122, 26, 0.7); }
+    .text-dim { opacity: 0.7; }
     .text-bright { color: var(--amber-soft); }
     .mb-10 { margin-bottom: 10px; }
     .mb-15 { margin-bottom: 15px; }
@@ -429,7 +453,11 @@
         grid-template-columns: 1fr;
       }
 
-      .weather-box {
+      .weather-container {
+        grid-template-columns: 1fr;
+      }
+
+      .weather-main {
         flex-direction: column;
         align-items: flex-start;
       }
@@ -515,11 +543,15 @@
       <div id="steam-mount" class="component-box">Loading Steam data...</div>
       <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
 
-      <div class="section-header">╔══════════════════════════════════[ GITHUB REPOSITORY INDEX ]═══════════════════════════════════════╗</div>
+      <div class="section-header">╔═══════════════════════════════════════════[ GITHUB ]═══════════════════════════════════════════════╗</div>
       <div id="github-mount" class="component-box">Loading GitHub data...</div>
       <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
 
-      <div class="section-header">╔═══════════════════════════════════════════[ SALZBURG ]═════════════════════════════════════════════╗</div>
+      <div class="section-header">╔═══════════════════════════════════════════[ ITCH.IO ]══════════════════════════════════════════════╗</div>
+      <div id="itch-mount" class="component-box">Loading itch.io data...</div>
+      <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
+
+      <div class="section-header">╔════════════════════════════════════[ SALZBURG WEATHER ]════════════════════════════════════════════╗</div>
       <div id="weather-mount" class="component-box">Loading weather data...</div>
       <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
 
@@ -531,9 +563,9 @@
       <div id="hackernews-mount" class="component-box">Loading top stories...</div>
       <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
 
-      <div class="terminal-logs">
-        <div class="section-header">╔════════════════════════════════════════[ SYSTEM LOG ]══════════════════════════════════════════════╗</div>
-        <div id="log-container"></div>
+      <div class="visitor-stats">
+        <div class="section-header">╔═══════════════════════════════════[ VISITOR STATISTICS ]═══════════════════════════════════════════╗</div>
+        <div id="visitor-stats-content" class="component-box"></div>
         <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
       </div>
 
@@ -542,7 +574,7 @@
         <div id="cli-history"></div>
         <div class="cli-input-line">
           <span class="cli-prompt">root@david-unterberger:~$</span>
-          <input type="text" class="cli-input" id="cli-input" autocomplete="off" autofocus />
+          <input type="text" class="cli-input" id="cli-input" autocomplete="off" />
         </div>
         <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
       </div>
@@ -562,6 +594,55 @@
     const savedTheme = localStorage.getItem('terminal-theme') || 'amber';
     if (savedTheme !== 'amber') document.body.className = 'theme-' + savedTheme;
 
+    // Visitor statistics
+    const visitorData = {
+      totalVisits: parseInt(localStorage.getItem('total-visits') || '0') + 1,
+      firstVisit: localStorage.getItem('first-visit') || new Date().toISOString(),
+      lastVisit: new Date().toISOString(),
+      sessionStart: Date.now()
+    };
+    localStorage.setItem('total-visits', visitorData.totalVisits);
+    localStorage.setItem('first-visit', visitorData.firstVisit);
+    localStorage.setItem('last-visit', visitorData.lastVisit);
+
+    function getGreeting() {
+      const hour = new Date().getHours();
+      const day = new Date().getDay();
+      const isWeekend = day === 0 || day === 6;
+      const isFirstVisit = visitorData.totalVisits === 1;
+      
+      const greetings = [
+        // Time-based
+        hour >= 5 && hour < 12 ? 'Good morning, operator. Systems online.' : null,
+        hour >= 12 && hour < 17 ? 'Good afternoon. All systems nominal.' : null,
+        hour >= 17 && hour < 22 ? 'Good evening. Terminal access granted.' : null,
+        hour >= 22 || hour < 5 ? 'Working late? Excellent dedication, operator.' : null,
+        
+        // Weekend/weekday
+        isWeekend ? 'Weekend access detected. Enjoying some downtime?' : null,
+        !isWeekend && hour >= 9 && hour < 17 ? 'Productive day at the terminal, operator.' : null,
+        
+        // Visit-based
+        isFirstVisit ? 'Welcome to the system. First time access logged.' : null,
+        visitorData.totalVisits % 10 === 0 ? `Visit #${visitorData.totalVisits}. You seem to like it here.` : null,
+        visitorData.totalVisits > 50 ? 'Frequent visitor detected. Access expedited.' : null,
+        
+        // General
+        'Secure connection established. Proceed.',
+        'Terminal access granted. All systems ready.',
+        'Authentication successful. Welcome back.',
+        'Clearance verified. You may proceed, operator.',
+        'System initialized. Standing by for commands.',
+        'Neural link established. Ready for input.',
+        'Decryption complete. Access granted.',
+        'Biometric scan passed. Welcome.',
+        'Quantum encryption active. Proceed safely.',
+        'All systems green. Terminal ready.'
+      ].filter(Boolean);
+      
+      return greetings[Math.floor(Math.random() * greetings.length)];
+    }
+
     const bootMessages = [
       'INITIALIZING SECURE TERMINAL...',
       'AUTHENTICATING USER CREDENTIALS...',
@@ -570,20 +651,12 @@
       'CONNECTING TO DISCORD PRESENCE API...',
       'QUERYING STEAM DATABASE...',
       'INDEXING GITHUB REPOSITORIES...',
+      'LOADING ITCH.IO GAMES...',
       'FETCHING NASA DATA...',
-      'LOADING HACKER NEWS...',
+      'SYNCING HACKER NEWS...',
       'ESTABLISHING WEATHER LINK...',
       'DECRYPTION COMPLETE',
       'ACCESS GRANTED'
-    ];
-
-    const greetings = [
-      'Good morning, operator.',
-      'Welcome back, operator.',
-      'System ready. Good evening.',
-      'All systems operational.',
-      'Terminal access granted.',
-      'Secure connection established.'
     ];
 
     function playSound(id) {
@@ -618,20 +691,46 @@
       
       const bootDiv = document.getElementById('boot-sequence');
       const mainContent = document.getElementById('main-content');
-      const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-      const messages = [...bootMessages, '', greeting];
       
       let lineIndex = 0;
       
       function nextLine() {
-        if (lineIndex >= messages.length) {
+        if (lineIndex >= bootMessages.length) {
+          // Add blank line
+          const blank = document.createElement('div');
+          blank.className = 'boot-line';
+          blank.textContent = '';
+          blank.style.opacity = '1';
+          bootDiv.appendChild(blank);
+          
+          // Add greeting
           setTimeout(() => {
-            bootDiv.style.display = 'none';
-            mainContent.style.display = 'block';
-            startLogging();
-            loadReactComponents();
-            initCLI();
-          }, 300);
+            const greeting = document.createElement('div');
+            greeting.className = 'boot-line';
+            bootDiv.appendChild(greeting);
+            
+            typewriterLine(greeting, getGreeting(), () => {
+              // Add "Press any key" message
+              setTimeout(() => {
+                const continueMsg = document.createElement('div');
+                continueMsg.className = 'boot-continue';
+                continueMsg.textContent = '> Press any key to continue...';
+                bootDiv.appendChild(continueMsg);
+                
+                // Wait for any key press
+                function handleKeyPress(e) {
+                  document.removeEventListener('keydown', handleKeyPress);
+                  bootDiv.style.display = 'none';
+                  mainContent.style.display = 'block';
+                  updateVisitorStats();
+                  loadReactComponents();
+                  initCLI();
+                  document.getElementById('cli-input').focus();
+                }
+                document.addEventListener('keydown', handleKeyPress);
+              }, 500);
+            });
+          }, 200);
           return;
         }
         
@@ -639,7 +738,7 @@
         line.className = 'boot-line';
         bootDiv.appendChild(line);
         
-        typewriterLine(line, messages[lineIndex], () => {
+        typewriterLine(line, bootMessages[lineIndex], () => {
           lineIndex++;
           setTimeout(nextLine, 30);
         });
@@ -648,51 +747,46 @@
       nextLine();
     }
 
-    function startLogging() {
-      const logContainer = document.getElementById('log-container');
+    function updateVisitorStats() {
+      const statsDiv = document.getElementById('visitor-stats-content');
+      const sessionDuration = Math.floor((Date.now() - visitorData.sessionStart) / 1000);
+      const firstVisitDate = new Date(visitorData.firstVisit);
+      const daysSince = Math.floor((Date.now() - firstVisitDate.getTime()) / (1000 * 60 * 60 * 24));
       
-      const platform = navigator.platform;
-      const language = navigator.language;
-      const cores = navigator.hardwareConcurrency || 'unknown';
-      const memory = navigator.deviceMemory || 'unknown';
-      
-      const logs = [
-        `System Platform: ${platform}`,
-        `CPU Cores: ${cores}`,
-        `Memory: ${memory}GB`,
-        `Language: ${language}`,
-        'Remote observer synchronized',
-        'Discord presence decrypted',
-        'Steam data packet received',
-        'GitHub repository index loaded',
-        'NASA data retrieved',
-        'Hacker News synchronized',
-        'Weather node responding',
-        'Monitoring session active',
-        `Connection latency: ${Math.floor(Math.random() * 50) + 10}ms`,
-        'Trace signal detected',
-        'Archive fragment verified',
-        'Memory block reconstructed',
-        'Node ping authorized',
-        'Encryption level: AES-256',
-        `Session ID: ${Math.random().toString(36).substr(2, 9).toUpperCase()}`
-      ];
-
-      function addLog() {
-        const log = logs[Math.floor(Math.random() * logs.length)];
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
-        entry.textContent = `[${timestamp}] ${log}...`;
-        logContainer.appendChild(entry);
-        
-        while (logContainer.children.length > 9) {
-          logContainer.removeChild(logContainer.firstChild);
-        }
-      }
-      
-      addLog();
-      setInterval(addLog, 5000);
+      statsDiv.innerHTML = `
+        <div class="stat-item">
+          <span class="data-label">VISITOR ID</span>
+          <span class="data-value">#${Math.random().toString(36).substr(2, 8).toUpperCase()}</span>
+        </div>
+        <div class="stat-item">
+          <span class="data-label">TOTAL VISITS</span>
+          <span class="data-value">${visitorData.totalVisits}</span>
+        </div>
+        <div class="stat-item">
+          <span class="data-label">FIRST VISIT</span>
+          <span class="data-value">${firstVisitDate.toLocaleDateString()}</span>
+        </div>
+        <div class="stat-item">
+          <span class="data-label">DAYS ACTIVE</span>
+          <span class="data-value">${daysSince}</span>
+        </div>
+        <div class="stat-item">
+          <span class="data-label">USER AGENT</span>
+          <span class="data-value">${navigator.userAgent.substring(0, 40)}...</span>
+        </div>
+        <div class="stat-item">
+          <span class="data-label">SCREEN RESOLUTION</span>
+          <span class="data-value">${window.screen.width}x${window.screen.height}</span>
+        </div>
+        <div class="stat-item">
+          <span class="data-label">VIEWPORT</span>
+          <span class="data-value">${window.innerWidth}x${window.innerHeight}</span>
+        </div>
+        <div class="stat-item">
+          <span class="data-label">CONNECTION</span>
+          <span class="data-value">${navigator.onLine ? 'ONLINE' : 'OFFLINE'}</span>
+        </div>
+      `;
     }
 
     let konamiIndex = 0;
@@ -878,7 +972,8 @@ dreams
 Platform: ${navigator.platform}
 User Agent: ${navigator.userAgent.substring(0, 60)}...
 Language: ${navigator.language}
-Online: ${navigator.onLine ? 'Yes' : 'No'}`;
+Online: ${navigator.onLine ? 'Yes' : 'No'}
+Total Visits: ${visitorData.totalVisits}`;
             break;
             
           case 'theme':
@@ -994,6 +1089,7 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
     const { useState, useEffect } = React;
     const DISCORD_ID = "780384263987920937";
     const GITHUB_USER = "David-Unterberger";
+    const OPENWEATHER_KEY = "DEMO_KEY";
 
     function DiscordComponent() {
       const [data, setData] = useState(null);
@@ -1111,6 +1207,7 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
     function SteamComponent() {
       const [data, setData] = useState(null);
       const [error, setError] = useState(false);
+      const isMobile = window.innerWidth <= 768;
 
       useEffect(() => {
         fetch('/api/steam')
@@ -1124,8 +1221,8 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
 
       const profile = data.profile || {};
       const owned = data.owned || { game_count: 0 };
-      const recent = (data.recent?.games || []).slice(0, 3);
-      const topPlayed = (data.topPlayed || []).slice(0, 9);
+      const recent = (data.recent?.games || []).slice(0, isMobile ? 2 : 3);
+      const topPlayed = (data.topPlayed || []).slice(0, isMobile ? 8 : 9);
       const totalHours = data.totalHours || 0;
 
       return (
@@ -1223,6 +1320,10 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
         }
       }
 
+      const now = new Date();
+      const oneYearAgo = new Date(now);
+      oneYearAgo.setFullYear(now.getFullYear() - 1);
+
       return (
         <div>
           <div className="flex flex-align mb-15">
@@ -1258,15 +1359,21 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
 
           <div className="mt-10 mb-10">
             <div className="text-bright mb-10">[ CONTRIBUTION ACTIVITY ]</div>
-            <div className="heatmap-grid">
-              {heatmapData.map((item, idx) => (
-                <div 
-                  key={idx} 
-                  className={`heatmap-day ${item.level > 0 ? 'level-' + item.level : ''}`}
-                  style={{gridRow: item.day + 1, gridColumn: item.week + 1}}
-                  title={`${item.level} contributions`}
-                ></div>
-              ))}
+            <div className="heatmap-container">
+              <div className="heatmap-labels">
+                <span>{oneYearAgo.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+                <span>{now.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+              </div>
+              <div className="heatmap-grid">
+                {heatmapData.map((item, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`heatmap-day ${item.level > 0 ? 'level-' + item.level : ''}`}
+                    style={{gridRow: item.day + 1, gridColumn: item.week + 1}}
+                    title={`${item.level} contributions`}
+                  ></div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -1290,14 +1397,33 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
       );
     }
 
+    function ItchComponent() {
+      return (
+        <div className="text-dim">
+          <div className="mb-10">Note: Itch.io does not provide a public API for fetching game data.</div>
+          <div className="mb-10">Popular games from davebbx.itch.io:</div>
+          <div className="grid-3">
+            <div className="itch-card">
+              <div className="font-bold text-bright" style={{fontSize: '12px'}}>Your Game Title Here</div>
+              <div className="text-dim" style={{fontSize: '11px', marginTop: '5px'}}>Manual entry required</div>
+            </div>
+          </div>
+          <div className="mt-10 text-dim" style={{fontSize: '11px'}}>
+            To display your games here, you'll need to manually add game data or use web scraping.
+          </div>
+        </div>
+      );
+    }
+
     function WeatherComponent() {
       const [weather, setWeather] = useState(null);
       const [time, setTime] = useState(new Date());
 
       useEffect(() => {
-        fetch('https://api.open-meteo.com/v1/forecast?latitude=47.8095&longitude=13.0550&current_weather=true')
+        // Using OpenWeatherMap - replace DEMO_KEY with your actual API key
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=47.8095&lon=13.0550&appid=${OPENWEATHER_KEY}&units=metric`)
           .then(r => r.json())
-          .then(d => setWeather(d.current_weather))
+          .then(d => setWeather(d))
           .catch(() => {});
         
         const timer = setInterval(() => setTime(new Date()), 1000);
@@ -1306,30 +1432,64 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
 
       if (!weather) return <div className="text-dim">Establishing weather link...</div>;
 
-      let icon = '⛅';
-      if (weather.temperature > 30) {
-        icon = '🔥';
-      } else if (weather.temperature > 20) {
-        icon = '☀️';
-      } else if (weather.temperature > 15) {
-        icon = '🌤️';
-      } else if (weather.temperature > 5) {
-        icon = '🌥️';
-      } else {
-        icon = '❄️';
+      const temp = Math.round(weather.main?.temp || 0);
+      const feels = Math.round(weather.main?.feels_like || 0);
+      const humidity = weather.main?.humidity || 0;
+      const pressure = weather.main?.pressure || 0;
+      const windSpeed = Math.round((weather.wind?.speed || 0) * 3.6);
+      const windDir = weather.wind?.deg || 0;
+      const description = weather.weather?.[0]?.description || 'unknown';
+      const icon = weather.weather?.[0]?.icon || '01d';
+
+      // Icon mapping
+      const iconMap = {
+        '01d': '☀️', '01n': '🌙',
+        '02d': '⛅', '02n': '☁️',
+        '03d': '☁️', '03n': '☁️',
+        '04d': '☁️', '04n': '☁️',
+        '09d': '🌧️', '09n': '🌧️',
+        '10d': '🌦️', '10n': '🌧️',
+        '11d': '⛈️', '11n': '⛈️',
+        '13d': '❄️', '13n': '❄️',
+        '50d': '🌫️', '50n': '🌫️'
+      };
+
+      const emoji = iconMap[icon] || '🌤️';
+
+      function getWindDirection(deg) {
+        const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        return dirs[Math.round(deg / 45) % 8];
       }
 
       return (
-        <div className="weather-box">
-          <div className="weather-left">
-            <div className="weather-icon no-glow">{icon}</div>
-            <div>
-              <div className="weather-temp">{weather.temperature}°C</div>
-              <div className="text-dim">Wind: {weather.windspeed} km/h</div>
+        <div className="weather-container">
+          <div className="weather-main">
+            <div className="weather-icon-large no-glow">{emoji}</div>
+            <div className="weather-details" style={{flex: 1}}>
+              <div style={{fontSize: '32px', fontWeight: 700}}>{temp}°C</div>
+              <div className="text-dim">{description}</div>
+              <div className="text-dim" style={{fontSize: '12px'}}>Feels like {feels}°C</div>
+            </div>
+            <div className="clock-display">
+              {time.toLocaleTimeString('en-US', { hour12: false })}
             </div>
           </div>
-          <div className="clock-display">
-            {time.toLocaleTimeString('en-US', { hour12: false })}
+          
+          <div className="data-row">
+            <span className="data-label">HUMIDITY</span>
+            <span className="data-value">{humidity}%</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label">PRESSURE</span>
+            <span className="data-value">{pressure} hPa</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label">WIND</span>
+            <span className="data-value">{windSpeed} km/h {getWindDirection(windDir)}</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label">VISIBILITY</span>
+            <span className="data-value">{Math.round((weather.visibility || 0) / 1000)} km</span>
           </div>
         </div>
       );
@@ -1368,9 +1528,9 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
         fetch('https://hacker-news.firebaseio.com/v0/topstories.json')
           .then(r => r.json())
           .then(ids => {
-            const top5 = ids.slice(0, 5);
+            const top3 = ids.slice(0, 3);
             return Promise.all(
-              top5.map(id => 
+              top3.map(id => 
                 fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())
               )
             );
@@ -1383,9 +1543,9 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
 
       return (
         <div>
-          <div className="text-bright mb-10">[ TOP 5 STORIES ]</div>
+          <div className="text-bright mb-10">[ TOP 3 STORIES ]</div>
           {stories.map((story, i) => (
-            <div key={story.id} style={{marginBottom: '12px', paddingBottom: '12px', borderBottom: i < 4 ? '1px solid var(--amber-dim)' : 'none'}}>
+            <div key={story.id} style={{marginBottom: '12px', paddingBottom: '12px', borderBottom: i < 2 ? '1px solid var(--amber-dim)' : 'none'}}>
               <div className="font-bold" style={{fontSize: '13px'}}>
                 {i + 1}. <a href={story.url || `https://news.ycombinator.com/item?id=${story.id}`} target="_blank" rel="noopener noreferrer">
                   {story.title}
@@ -1404,6 +1564,7 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
       const discordRoot = document.getElementById('discord-mount');
       const steamRoot = document.getElementById('steam-mount');
       const githubRoot = document.getElementById('github-mount');
+      const itchRoot = document.getElementById('itch-mount');
       const weatherRoot = document.getElementById('weather-mount');
       const nasaRoot = document.getElementById('nasa-mount');
       const hackerNewsRoot = document.getElementById('hackernews-mount');
@@ -1411,6 +1572,7 @@ Online: ${navigator.onLine ? 'Yes' : 'No'}`;
       if (discordRoot) ReactDOM.render(<DiscordComponent />, discordRoot);
       if (steamRoot) ReactDOM.render(<SteamComponent />, steamRoot);
       if (githubRoot) ReactDOM.render(<GithubComponent />, githubRoot);
+      if (itchRoot) ReactDOM.render(<ItchComponent />, itchRoot);
       if (weatherRoot) ReactDOM.render(<WeatherComponent />, weatherRoot);
       if (nasaRoot) ReactDOM.render(<NASAComponent />, nasaRoot);
       if (hackerNewsRoot) ReactDOM.render(<HackerNewsComponent />, hackerNewsRoot);
