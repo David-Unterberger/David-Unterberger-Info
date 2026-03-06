@@ -62,8 +62,8 @@
       background: rgba(5, 2, 0, 0.85);
       border: 2px solid var(--amber-dim);
       box-shadow: 
-        0 0 60px currentColor,
-        inset 0 0 100px currentColor;
+        0 0 20px currentColor,
+        inset 0 0 60px currentColor;
       border-radius: 12px;
       animation: subtleFlicker 0.15s infinite;
     }
@@ -120,16 +120,14 @@
 
     .terminal-container {
       text-shadow: 
-        0 0 5px currentColor,
-        0 0 10px currentColor,
-        0 0 15px currentColor;
+        0 0 3px currentColor,
+        0 0 6px currentColor;
     }
 
     .text-bright, .section-header {
       text-shadow: 
-        0 0 8px currentColor,
-        0 0 15px currentColor,
-        0 0 20px currentColor;
+        0 0 5px currentColor,
+        0 0 10px currentColor;
     }
 
     .no-glow {
@@ -179,6 +177,17 @@
 
     @keyframes fadeIn {
       to { opacity: 1; }
+    }
+
+    .boot-greeting {
+      margin: 15px 0;
+      padding: 10px;
+      border-left: 3px solid var(--amber-soft);
+      background: rgba(255, 122, 26, 0.05);
+      color: var(--amber-soft);
+      font-weight: 600;
+      opacity: 0;
+      animation: fadeIn 0.3s forwards;
     }
 
     .boot-continue {
@@ -315,18 +324,6 @@
       text-align: right;
     }
 
-    .visitor-stats {
-      margin-top: 30px;
-      padding-top: 15px;
-    }
-
-    .stat-item {
-      margin: 8px 0;
-      padding: 5px 0;
-      border-bottom: 1px dotted currentColor;
-      opacity: 0.3;
-    }
-
     .cli-container {
       margin-top: 20px;
       padding: 15px 5px 5px 5px;
@@ -343,6 +340,18 @@
       color: var(--amber-soft);
       margin-right: 8px;
       white-space: nowrap;
+    }
+
+    .cli-prompt::after {
+      content: '';
+      animation: dots 2s infinite;
+    }
+
+    @keyframes dots {
+      0%, 100% { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
     }
 
     .cli-input {
@@ -366,6 +375,10 @@
       color: #ff5555;
     }
 
+    .cli-success {
+      color: #00ff00;
+    }
+
     .heatmap-container {
       margin: 15px 0;
       position: relative;
@@ -381,14 +394,14 @@
 
     .heatmap-grid {
       display: grid;
-      grid-template-columns: repeat(52, 11px);
-      grid-template-rows: repeat(7, 11px);
+      grid-template-columns: repeat(52, 12px);
+      grid-template-rows: repeat(7, 12px);
       gap: 2px;
     }
 
     .heatmap-day {
-      width: 11px;
-      height: 11px;
+      width: 12px;
+      height: 12px;
       background: currentColor;
       opacity: 0.1;
       border: 1px solid var(--amber-dim);
@@ -467,7 +480,7 @@
       }
 
       .heatmap-grid {
-        grid-template-columns: repeat(26, 11px);
+        grid-template-columns: repeat(26, 12px);
         overflow-x: auto;
       }
 
@@ -497,6 +510,12 @@
       --amber: #00aaff;
       --amber-soft: #0088cc;
       --amber-dim: #005588;
+    }
+
+    body.theme-magenta {
+      --amber: #ff1a7a;
+      --amber-soft: #ff4d9d;
+      --amber-dim: #cc1562;
     }
   </style>
 </head>
@@ -563,12 +582,6 @@
       <div id="hackernews-mount" class="component-box">Loading top stories...</div>
       <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
 
-      <div class="visitor-stats">
-        <div class="section-header">╔═══════════════════════════════════[ VISITOR STATISTICS ]═══════════════════════════════════════════╗</div>
-        <div id="visitor-stats-content" class="component-box"></div>
-        <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
-      </div>
-
       <div class="cli-container">
         <div class="section-header">╔══════════════════════════════════════[ COMMAND LINE ]══════════════════════════════════════════════╗</div>
         <div id="cli-history"></div>
@@ -594,7 +607,6 @@
     const savedTheme = localStorage.getItem('terminal-theme') || 'amber';
     if (savedTheme !== 'amber') document.body.className = 'theme-' + savedTheme;
 
-    // Visitor statistics
     const visitorData = {
       totalVisits: parseInt(localStorage.getItem('total-visits') || '0') + 1,
       firstVisit: localStorage.getItem('first-visit') || new Date().toISOString(),
@@ -608,39 +620,52 @@
     function getGreeting() {
       const hour = new Date().getHours();
       const day = new Date().getDay();
+      const month = new Date().getMonth();
       const isWeekend = day === 0 || day === 6;
       const isFirstVisit = visitorData.totalVisits === 1;
       
-      const greetings = [
-        // Time-based
-        hour >= 5 && hour < 12 ? 'Good morning, operator. Systems online.' : null,
-        hour >= 12 && hour < 17 ? 'Good afternoon. All systems nominal.' : null,
-        hour >= 17 && hour < 22 ? 'Good evening. Terminal access granted.' : null,
-        hour >= 22 || hour < 5 ? 'Working late? Excellent dedication, operator.' : null,
-        
-        // Weekend/weekday
-        isWeekend ? 'Weekend access detected. Enjoying some downtime?' : null,
-        !isWeekend && hour >= 9 && hour < 17 ? 'Productive day at the terminal, operator.' : null,
-        
-        // Visit-based
-        isFirstVisit ? 'Welcome to the system. First time access logged.' : null,
-        visitorData.totalVisits % 10 === 0 ? `Visit #${visitorData.totalVisits}. You seem to like it here.` : null,
-        visitorData.totalVisits > 50 ? 'Frequent visitor detected. Access expedited.' : null,
-        
-        // General
-        'Secure connection established. Proceed.',
-        'Terminal access granted. All systems ready.',
-        'Authentication successful. Welcome back.',
-        'Clearance verified. You may proceed, operator.',
-        'System initialized. Standing by for commands.',
-        'Neural link established. Ready for input.',
-        'Decryption complete. Access granted.',
-        'Biometric scan passed. Welcome.',
-        'Quantum encryption active. Proceed safely.',
-        'All systems green. Terminal ready.'
-      ].filter(Boolean);
+      const greetings = [];
       
-      return greetings[Math.floor(Math.random() * greetings.length)];
+      // Time-based (very specific)
+      if (hour >= 5 && hour < 8) greetings.push('Early bird catches the code. Good morning, operator.');
+      else if (hour >= 8 && hour < 10) greetings.push('Morning coffee and terminal access. Perfect start.');
+      else if (hour >= 10 && hour < 12) greetings.push('Mid-morning productivity detected. Systems ready.');
+      else if (hour >= 12 && hour < 14) greetings.push('Lunch break coding session? Dedication appreciated.');
+      else if (hour >= 14 && hour < 17) greetings.push('Afternoon operations commence. All systems nominal.');
+      else if (hour >= 17 && hour < 20) greetings.push('Evening terminal access granted. Welcome back.');
+      else if (hour >= 20 && hour < 23) greetings.push('Night owl detected. The best code happens after dark.');
+      else if (hour >= 23 || hour < 2) greetings.push('Midnight coding session initiated. True dedication.');
+      else if (hour >= 2 && hour < 5) greetings.push('3 AM thoughts require terminal access. Understood.');
+      
+      // Weekend-specific
+      if (isWeekend && hour >= 10 && hour < 14) {
+        greetings.push('Weekend project time? This is the way.');
+      }
+      if (isWeekend && hour >= 20) {
+        greetings.push('Saturday night terminal session. Respect.');
+      }
+      
+      // Seasonal
+      if (month === 11 || month === 0) greetings.push('Winter coding season. Hot beverage recommended.');
+      if (month >= 5 && month <= 7) greetings.push('Summer development continues. Stay hydrated, operator.');
+      
+      // Visit-based
+      if (isFirstVisit) greetings.push('First contact established. Welcome to the system.');
+      if (visitorData.totalVisits === 5) greetings.push('Fifth visit logged. You seem interested in this terminal.');
+      if (visitorData.totalVisits === 10) greetings.push('Visit #10. Regular access pattern detected.');
+      if (visitorData.totalVisits === 25) greetings.push('Twenty-five visits. You are now a frequent operator.');
+      if (visitorData.totalVisits === 50) greetings.push('Half-century achievement. Welcome back, regular.');
+      if (visitorData.totalVisits === 100) greetings.push('Visit #100. Legendary status achieved.');
+      if (visitorData.totalVisits > 100 && visitorData.totalVisits % 50 === 0) {
+        greetings.push(`Visit #${visitorData.totalVisits}. Exceptional dedication to the terminal.`);
+      }
+      
+      // Work patterns
+      if (!isWeekend && hour >= 9 && hour < 17) {
+        greetings.push('Business hours terminal access. Productivity mode engaged.');
+      }
+      
+      return greetings[Math.floor(Math.random() * greetings.length)] || 'Terminal access granted. Proceed.';
     }
 
     const bootMessages = [
@@ -696,40 +721,28 @@
       
       function nextLine() {
         if (lineIndex >= bootMessages.length) {
-          // Add blank line
-          const blank = document.createElement('div');
-          blank.className = 'boot-line';
-          blank.textContent = '';
-          blank.style.opacity = '1';
-          bootDiv.appendChild(blank);
-          
-          // Add greeting
           setTimeout(() => {
-            const greeting = document.createElement('div');
-            greeting.className = 'boot-line';
-            bootDiv.appendChild(greeting);
+            const greetingBox = document.createElement('div');
+            greetingBox.className = 'boot-greeting';
+            greetingBox.textContent = '◆ ' + getGreeting();
+            bootDiv.appendChild(greetingBox);
             
-            typewriterLine(greeting, getGreeting(), () => {
-              // Add "Press any key" message
-              setTimeout(() => {
-                const continueMsg = document.createElement('div');
-                continueMsg.className = 'boot-continue';
-                continueMsg.textContent = '> Press any key to continue...';
-                bootDiv.appendChild(continueMsg);
-                
-                // Wait for any key press
-                function handleKeyPress(e) {
-                  document.removeEventListener('keydown', handleKeyPress);
-                  bootDiv.style.display = 'none';
-                  mainContent.style.display = 'block';
-                  updateVisitorStats();
-                  loadReactComponents();
-                  initCLI();
-                  document.getElementById('cli-input').focus();
-                }
-                document.addEventListener('keydown', handleKeyPress);
-              }, 500);
-            });
+            setTimeout(() => {
+              const continueMsg = document.createElement('div');
+              continueMsg.className = 'boot-continue';
+              continueMsg.textContent = '> Press any key to continue...';
+              bootDiv.appendChild(continueMsg);
+              
+              function handleKeyPress(e) {
+                document.removeEventListener('keydown', handleKeyPress);
+                bootDiv.style.display = 'none';
+                mainContent.style.display = 'block';
+                loadReactComponents();
+                initCLI();
+                document.getElementById('cli-input').focus();
+              }
+              document.addEventListener('keydown', handleKeyPress);
+            }, 500);
           }, 200);
           return;
         }
@@ -745,48 +758,6 @@
       }
       
       nextLine();
-    }
-
-    function updateVisitorStats() {
-      const statsDiv = document.getElementById('visitor-stats-content');
-      const sessionDuration = Math.floor((Date.now() - visitorData.sessionStart) / 1000);
-      const firstVisitDate = new Date(visitorData.firstVisit);
-      const daysSince = Math.floor((Date.now() - firstVisitDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      statsDiv.innerHTML = `
-        <div class="stat-item">
-          <span class="data-label">VISITOR ID</span>
-          <span class="data-value">#${Math.random().toString(36).substr(2, 8).toUpperCase()}</span>
-        </div>
-        <div class="stat-item">
-          <span class="data-label">TOTAL VISITS</span>
-          <span class="data-value">${visitorData.totalVisits}</span>
-        </div>
-        <div class="stat-item">
-          <span class="data-label">FIRST VISIT</span>
-          <span class="data-value">${firstVisitDate.toLocaleDateString()}</span>
-        </div>
-        <div class="stat-item">
-          <span class="data-label">DAYS ACTIVE</span>
-          <span class="data-value">${daysSince}</span>
-        </div>
-        <div class="stat-item">
-          <span class="data-label">USER AGENT</span>
-          <span class="data-value">${navigator.userAgent.substring(0, 40)}...</span>
-        </div>
-        <div class="stat-item">
-          <span class="data-label">SCREEN RESOLUTION</span>
-          <span class="data-value">${window.screen.width}x${window.screen.height}</span>
-        </div>
-        <div class="stat-item">
-          <span class="data-label">VIEWPORT</span>
-          <span class="data-value">${window.innerWidth}x${window.innerHeight}</span>
-        </div>
-        <div class="stat-item">
-          <span class="data-label">CONNECTION</span>
-          <span class="data-value">${navigator.onLine ? 'ONLINE' : 'OFFLINE'}</span>
-        </div>
-      `;
     }
 
     let konamiIndex = 0;
@@ -917,9 +888,35 @@
         const command = parts[0].toLowerCase();
         const args = parts.slice(1).join(' ');
 
-        switch(command) {
-          case 'help':
-            output.innerHTML = `Available commands:
+        // Hidden commands
+        if (command === 'carlos') {
+          output.className = 'cli-output cli-success';
+          output.textContent = 'User carlos deleted!';
+        } else if (command === 'admin') {
+          output.className = 'cli-output cli-error';
+          output.textContent = 'ACCESS DENIED!';
+        } else if (cmd.toLowerCase() === 'markus kargl') {
+          output.textContent = 'IT and Electrics-expert currently not available.';
+        } else if (cmd.toLowerCase() === 'ben bliem') {
+          output.textContent = 'Opening Ben Bliem\'s website...';
+          setTimeout(() => window.open('https://benedecushtl.github.io/Ben-Bliem-Website/', '_blank'), 500);
+        } else if (cmd.toLowerCase() === 'siemens lufthaken') {
+          output.textContent = 'Siemens Lufthaken out of stock. Try again next year.';
+        } else if (command === 'cowsay') {
+          const message = args || 'Moo!';
+          const border = '_'.repeat(message.length + 2);
+          output.innerHTML = ` ${border}
+< ${message} >
+ ${'-'.repeat(message.length + 2)}
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
+                ||----w |
+                ||     ||`;
+        } else {
+          switch(command) {
+            case 'help':
+              output.innerHTML = `Available commands:
 
 help
   Show this help message
@@ -930,7 +927,10 @@ clear
 status
   Show system status
 
-theme [amber|green|white|blue]
+visitor
+  Show visitor statistics
+
+theme [amber|green|white|blue|magenta]
   Change color theme
 
 restart
@@ -955,121 +955,143 @@ dream [text]
   Save a dream to your journal
 
 dreams
-  View all saved dreams`;
-            break;
-            
-          case 'clear':
-            history.innerHTML = '';
-            setTimeout(() => {
-              const inputLine = document.querySelector('.cli-input-line');
-              inputLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 50);
-            return;
-            
-          case 'status':
-            output.innerHTML = `SYSTEM STATUS: OPERATIONAL
+  View all saved dreams
+
+cowsay [text]
+  Cow says your message`;
+              break;
+              
+            case 'clear':
+              history.innerHTML = '';
+              setTimeout(() => {
+                const inputLine = document.querySelector('.cli-input-line');
+                inputLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }, 50);
+              return;
+              
+            case 'status':
+              output.innerHTML = `SYSTEM STATUS: OPERATIONAL
 
 Platform: ${navigator.platform}
 User Agent: ${navigator.userAgent.substring(0, 60)}...
 Language: ${navigator.language}
 Online: ${navigator.onLine ? 'Yes' : 'No'}
 Total Visits: ${visitorData.totalVisits}`;
-            break;
-            
-          case 'theme':
-            if (parts[1]) {
-              const themes = ['amber', 'green', 'white', 'blue'];
-              if (themes.includes(parts[1])) {
-                document.body.className = parts[1] === 'amber' ? '' : 'theme-' + parts[1];
-                localStorage.setItem('terminal-theme', parts[1]);
-                output.textContent = 'Theme changed to: ' + parts[1];
+              break;
+
+            case 'visitor':
+              const sessionDuration = Math.floor((Date.now() - visitorData.sessionStart) / 1000);
+              const firstVisitDate = new Date(visitorData.firstVisit);
+              const daysSince = Math.floor((Date.now() - firstVisitDate.getTime()) / (1000 * 60 * 60 * 24));
+              
+              output.innerHTML = `VISITOR STATISTICS
+
+Visitor ID: #${Math.random().toString(36).substr(2, 8).toUpperCase()}
+Total Visits: ${visitorData.totalVisits}
+First Visit: ${firstVisitDate.toLocaleDateString()}
+Days Active: ${daysSince}
+User Agent: ${navigator.userAgent.substring(0, 50)}...
+Screen: ${window.screen.width}x${window.screen.height}
+Viewport: ${window.innerWidth}x${window.innerHeight}
+Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
+              break;
+              
+            case 'theme':
+              if (parts[1]) {
+                const themes = ['amber', 'green', 'white', 'blue', 'magenta'];
+                if (themes.includes(parts[1])) {
+                  document.body.className = parts[1] === 'amber' ? '' : 'theme-' + parts[1];
+                  localStorage.setItem('terminal-theme', parts[1]);
+                  output.textContent = 'Theme changed to: ' + parts[1];
+                } else {
+                  output.className = 'cli-output cli-error';
+                  output.textContent = 'Invalid theme. Options: amber, green, white, blue, magenta';
+                }
+              } else {
+                output.textContent = 'Current theme: ' + (localStorage.getItem('terminal-theme') || 'amber');
+              }
+              break;
+              
+            case 'restart':
+              output.textContent = 'Restarting terminal...';
+              history.appendChild(output);
+              setTimeout(() => location.reload(), 1000);
+              return;
+              
+            case 'history':
+              output.innerHTML = commandHistory.map((c, i) => `${i + 1}  ${c}`).join('\n');
+              break;
+              
+            case 'time':
+              output.textContent = new Date().toLocaleString();
+              break;
+              
+            case 'uptime':
+              const uptime = Math.floor(performance.now() / 1000);
+              const minutes = Math.floor(uptime / 60);
+              const seconds = uptime % 60;
+              output.textContent = `Session uptime: ${minutes}m ${seconds}s`;
+              break;
+
+            case 'joke':
+              fetch('https://official-joke-api.appspot.com/random_joke')
+                .then(r => r.json())
+                .then(j => {
+                  output.textContent = `${j.setup}\n\n${j.punchline}`;
+                  history.appendChild(output);
+                  scrollToInput();
+                })
+                .catch(() => {
+                  output.textContent = 'Failed to fetch joke. Try again later.';
+                  history.appendChild(output);
+                  scrollToInput();
+                });
+              return;
+
+            case 'quote':
+              fetch('https://api.quotable.io/quotes/random')
+                .then(r => r.json())
+                .then(data => {
+                  const q = data[0];
+                  output.textContent = `"${q.content}"\n\n— ${q.author}`;
+                  history.appendChild(output);
+                  scrollToInput();
+                })
+                .catch(() => {
+                  output.textContent = 'Failed to fetch quote. Try again later.';
+                  history.appendChild(output);
+                  scrollToInput();
+                });
+              return;
+
+            case 'dream':
+              if (args) {
+                dreamJournal.push({
+                  date: new Date().toISOString(),
+                  text: args
+                });
+                localStorage.setItem('dream-journal', JSON.stringify(dreamJournal));
+                output.textContent = `Dream saved. Total dreams: ${dreamJournal.length}`;
               } else {
                 output.className = 'cli-output cli-error';
-                output.textContent = 'Invalid theme. Options: amber, green, white, blue';
+                output.textContent = 'Usage: dream [your dream text]';
               }
-            } else {
-              output.textContent = 'Current theme: ' + (localStorage.getItem('terminal-theme') || 'amber');
-            }
-            break;
-            
-          case 'restart':
-            output.textContent = 'Restarting terminal...';
-            history.appendChild(output);
-            setTimeout(() => location.reload(), 1000);
-            return;
-            
-          case 'history':
-            output.innerHTML = commandHistory.map((c, i) => `${i + 1}  ${c}`).join('\n');
-            break;
-            
-          case 'time':
-            output.textContent = new Date().toLocaleString();
-            break;
-            
-          case 'uptime':
-            const uptime = Math.floor(performance.now() / 1000);
-            const minutes = Math.floor(uptime / 60);
-            const seconds = uptime % 60;
-            output.textContent = `Session uptime: ${minutes}m ${seconds}s`;
-            break;
+              break;
 
-          case 'joke':
-            fetch('https://official-joke-api.appspot.com/random_joke')
-              .then(r => r.json())
-              .then(j => {
-                output.textContent = `${j.setup}\n\n${j.punchline}`;
-                history.appendChild(output);
-                scrollToInput();
-              })
-              .catch(() => {
-                output.textContent = 'Failed to fetch joke. Try again later.';
-                history.appendChild(output);
-                scrollToInput();
-              });
-            return;
-
-          case 'quote':
-            fetch('https://api.quotable.io/random')
-              .then(r => r.json())
-              .then(q => {
-                output.textContent = `"${q.content}"\n\n— ${q.author}`;
-                history.appendChild(output);
-                scrollToInput();
-              })
-              .catch(() => {
-                output.textContent = 'Failed to fetch quote. Try again later.';
-                history.appendChild(output);
-                scrollToInput();
-              });
-            return;
-
-          case 'dream':
-            if (args) {
-              dreamJournal.push({
-                date: new Date().toISOString(),
-                text: args
-              });
-              localStorage.setItem('dream-journal', JSON.stringify(dreamJournal));
-              output.textContent = `Dream saved. Total dreams: ${dreamJournal.length}`;
-            } else {
+            case 'dreams':
+              if (dreamJournal.length === 0) {
+                output.textContent = 'No dreams saved yet. Use: dream [text]';
+              } else {
+                output.innerHTML = dreamJournal.map((d, i) => 
+                  `${i + 1}. [${new Date(d.date).toLocaleDateString()}] ${d.text}`
+                ).join('\n\n');
+              }
+              break;
+              
+            default:
               output.className = 'cli-output cli-error';
-              output.textContent = 'Usage: dream [your dream text]';
-            }
-            break;
-
-          case 'dreams':
-            if (dreamJournal.length === 0) {
-              output.textContent = 'No dreams saved yet. Use: dream [text]';
-            } else {
-              output.innerHTML = dreamJournal.map((d, i) => 
-                `${i + 1}. [${new Date(d.date).toLocaleDateString()}] ${d.text}`
-              ).join('\n\n');
-            }
-            break;
-            
-          default:
-            output.className = 'cli-output cli-error';
-            output.textContent = `Command not found: ${command}. Type 'help' for available commands.`;
+              output.textContent = `Command not found: ${command}. Type 'help' for available commands.`;
+          }
         }
 
         history.appendChild(output);
@@ -1089,7 +1111,7 @@ Total Visits: ${visitorData.totalVisits}`;
     const { useState, useEffect } = React;
     const DISCORD_ID = "780384263987920937";
     const GITHUB_USER = "David-Unterberger";
-    const OPENWEATHER_KEY = "DEMO_KEY";
+    const OPENWEATHER_KEY = "7a20d5201e0a2ef6781a2fc4ca4602c5";
 
     function DiscordComponent() {
       const [data, setData] = useState(null);
@@ -1420,7 +1442,6 @@ Total Visits: ${visitorData.totalVisits}`;
       const [time, setTime] = useState(new Date());
 
       useEffect(() => {
-        // Using OpenWeatherMap - replace DEMO_KEY with your actual API key
         fetch(`https://api.openweathermap.org/data/2.5/weather?lat=47.8095&lon=13.0550&appid=${OPENWEATHER_KEY}&units=metric`)
           .then(r => r.json())
           .then(d => setWeather(d))
@@ -1441,7 +1462,6 @@ Total Visits: ${visitorData.totalVisits}`;
       const description = weather.weather?.[0]?.description || 'unknown';
       const icon = weather.weather?.[0]?.icon || '01d';
 
-      // Icon mapping
       const iconMap = {
         '01d': '☀️', '01n': '🌙',
         '02d': '⛅', '02n': '☁️',
