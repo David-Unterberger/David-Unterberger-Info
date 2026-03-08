@@ -7,6 +7,7 @@ const { useState, useEffect } = React;
 const DISCORD_ID = "780384263987920937";
 const GITHUB_USER = "David-Unterberger";
 const OPENWEATHER_KEY = "7a20d5201e0a2ef6781a2fc4ca4602c5";
+const NASA_KEY = "fES0tLsjrdYLZNwmJM1U6lQXilxpHGM63KpJpgb7";
 
 // ===== DISCORD COMPONENT =====
 function DiscordComponent() {
@@ -14,15 +15,16 @@ function DiscordComponent() {
   const [elapsed, setElapsed] = useState("");
 
   useEffect(() => {
+    let interval;
     async function fetchPresence() {
       try {
         const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
         const json = await r.json();
         if (json.success) setData(json.data);
-      } catch (e) { }
+      } catch (e) { console.warn("Discord fetch failed", e); }
     }
     fetchPresence();
-    const interval = setInterval(fetchPresence, 30000);
+    interval = setInterval(fetchPresence, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -30,7 +32,7 @@ function DiscordComponent() {
 
   useEffect(() => {
     if (!activity?.timestamps?.start) return;
-
+    let interval;
     function updateElapsed() {
       const start = Number(activity.timestamps.start);
       const diff = Date.now() - start;
@@ -38,9 +40,8 @@ function DiscordComponent() {
       const m = Math.floor((diff / (1000 * 60)) % 60);
       setElapsed(h > 0 ? `${h}h ${m}m` : `${m}m`);
     }
-
     updateElapsed();
-    const interval = setInterval(updateElapsed, 60000);
+    interval = setInterval(updateElapsed, 60000);
     return () => clearInterval(interval);
   }, [activity]);
 
@@ -212,12 +213,12 @@ function GithubComponent() {
     fetch(`https://api.github.com/users/${GITHUB_USER}`)
       .then(r => r.json())
       .then(setProfile)
-      .catch(() => { });
+      .catch(() => {});
 
     fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=pushed`)
       .then(r => r.json())
       .then(list => Array.isArray(list) && setRepos(list))
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   if (!profile) return <div className="text-dim">Indexing GitHub repositories...</div>;
@@ -301,7 +302,7 @@ function GithubComponent() {
         <div className="text-bright mb-10">[ TOP REPOSITORIES ]</div>
         <div className="grid-2">
           {topRepos.map(r => (
-            <a key={r.id} href={r.html_url} target="_blank" className="repo-card">
+            <a key={r.id} href={r.html_url} target="_blank" className="repo-card" rel="noopener noreferrer">
               <div className="font-bold">{r.name}</div>
               <div className="text-dim" style={{ fontSize: '12px', marginTop: '5px' }}>
                 {r.description || 'No description'}
@@ -334,13 +335,7 @@ function ItchComponent() {
 
   if (loading) return <div className="text-dim">Loading itch.io games...</div>;
 
-  if (games.length === 0) {
-    return (
-      <div className="text-dim">
-        <div>No games loaded. Add ITCH_API_KEY to Vercel environment variables.</div>
-      </div>
-    );
-  }
+  if (games.length === 0) return <div className="text-dim">No games loaded. Add ITCH_API_KEY to environment variables.</div>;
 
   return (
     <div>
@@ -351,23 +346,11 @@ function ItchComponent() {
             <a href={g.link} target="_blank" rel="noopener noreferrer">
               <img src={g.image} alt={g.title} />
             </a>
-            <div className="font-bold text-dim" style={{ fontSize: '12px' }}>
-              {g.title}
-            </div>
-            <div className="text-dim" style={{ fontSize: '11px' }}>
-              👁 {g.views} views
-            </div>
-            <div className="text-dim" style={{ fontSize: '11px' }}>
-              ⬇ {g.downloads} downloads
-            </div>
-            <div className="text-dim" style={{ fontSize: '11px' }}>
-              💰 {g.purchases} purchases
-            </div>
-            {g.tags?.length > 0 && (
-              <div className="text-dim" style={{ fontSize: '10px' }}>
-                {g.tags.slice(0, 3).join(" • ")}
-              </div>
-            )}
+            <div className="font-bold text-dim" style={{ fontSize: '12px' }}>{g.title}</div>
+            <div className="text-dim" style={{ fontSize: '11px' }}>👁 {g.views} views</div>
+            <div className="text-dim" style={{ fontSize: '11px' }}>⬇ {g.downloads} downloads</div>
+            <div className="text-dim" style={{ fontSize: '11px' }}>💰 {g.purchases} purchases</div>
+            {g.tags?.length > 0 && <div className="text-dim" style={{ fontSize: '10px' }}>{g.tags.slice(0, 3).join(" • ")}</div>}
           </div>
         ))}
       </div>
@@ -429,27 +412,13 @@ function WeatherComponent() {
           <div className="text-dim">{description}</div>
           <div className="text-dim" style={{ fontSize: '12px' }}>Feels like {feels}°C</div>
         </div>
-        <div className="clock-display">
-          {time.toLocaleTimeString('en-US', { hour12: false })}
-        </div>
+        <div className="clock-display">{time.toLocaleTimeString('en-US', { hour12: false })}</div>
       </div>
 
-      <div className="data-row">
-        <span className="data-label">HUMIDITY</span>
-        <span className="data-value">{humidity}%</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">PRESSURE</span>
-        <span className="data-value">{pressure} hPa</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">WIND</span>
-        <span className="data-value">{windSpeed} km/h {getWindDirection(windDir)}</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">VISIBILITY</span>
-        <span className="data-value">{Math.round((weather.visibility || 0) / 1000)} km</span>
-      </div>
+      <div className="data-row"><span className="data-label">HUMIDITY</span><span className="data-value">{humidity}%</span></div>
+      <div className="data-row"><span className="data-label">PRESSURE</span><span className="data-value">{pressure} hPa</span></div>
+      <div className="data-row"><span className="data-label">WIND</span><span className="data-value">{windSpeed} km/h {getWindDirection(windDir)}</span></div>
+      <div className="data-row"><span className="data-label">VISIBILITY</span><span className="data-value">{Math.round((weather.visibility || 0) / 1000)} km</span></div>
     </div>
   );
 }
@@ -459,10 +428,10 @@ function NASAComponent() {
   const [apod, setApod] = useState(null);
 
   useEffect(() => {
-    fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY')
+    fetch(`https://api.nasa.gov/planetary/apod?api_key=${NASA_KEY}`)
       .then(r => r.json())
       .then(d => setApod(d))
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   if (!apod) return <div className="text-dim">Loading NASA image...</div>;
@@ -474,9 +443,10 @@ function NASAComponent() {
       {apod.media_type === 'image' && (
         <img src={apod.url} alt={apod.title} style={{ width: '100%', border: '1px solid var(--amber-dim)', marginBottom: '10px' }} />
       )}
-      <div className="text-dim" style={{ fontSize: '12px', lineHeight: '1.5' }}>
-        {apod.explanation}
-      </div>
+      {apod.media_type === 'video' && (
+        <iframe src={apod.url} style={{ width: '100%', height: '300px', marginBottom: '10px' }} title="NASA Video" frameBorder="0" allowFullScreen />
+      )}
+      <div className="text-dim" style={{ fontSize: '12px', lineHeight: '1.5' }}>{apod.explanation}</div>
     </div>
   );
 }
@@ -490,14 +460,10 @@ function HackerNewsComponent() {
       .then(r => r.json())
       .then(ids => {
         const top3 = ids.slice(0, 3);
-        return Promise.all(
-          top3.map(id =>
-            fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())
-          )
-        );
+        return Promise.all(top3.map(id => fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())));
       })
       .then(items => setStories(items))
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   if (stories.length === 0) return <div className="text-dim">Loading top stories...</div>;
@@ -508,9 +474,7 @@ function HackerNewsComponent() {
       {stories.map((story, i) => (
         <div key={story.id} style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: i < 2 ? '1px solid var(--amber-dim)' : 'none' }}>
           <div className="font-bold" style={{ fontSize: '13px' }}>
-            {i + 1}. <a href={story.url || `https://news.ycombinator.com/item?id=${story.id}`} target="_blank" rel="noopener noreferrer">
-              {story.title}
-            </a>
+            {i + 1}. <a href={story.url || `https://news.ycombinator.com/item?id=${story.id}`} target="_blank" rel="noopener noreferrer">{story.title}</a>
           </div>
           <div className="text-dim" style={{ fontSize: '11px', marginTop: '4px' }}>
             {story.score} points • {story.by} • {story.descendants || 0} comments
@@ -523,19 +487,21 @@ function HackerNewsComponent() {
 
 // ===== LOAD ALL COMPONENTS =====
 window.loadReactComponents = function () {
-  const discordRoot = document.getElementById('discord-mount');
-  const steamRoot = document.getElementById('steam-mount');
-  const githubRoot = document.getElementById('github-mount');
-  const itchRoot = document.getElementById('itch-mount');
-  const weatherRoot = document.getElementById('weather-mount');
-  const nasaRoot = document.getElementById('nasa-mount');
-  const hackerNewsRoot = document.getElementById('hackernews-mount');
+  const mapping = [
+    { id: 'discord-mount', comp: <DiscordComponent /> },
+    { id: 'steam-mount', comp: <SteamComponent /> },
+    { id: 'github-mount', comp: <GithubComponent /> },
+    { id: 'itch-mount', comp: <ItchComponent /> },
+    { id: 'weather-mount', comp: <WeatherComponent /> },
+    { id: 'nasa-mount', comp: <NASAComponent /> },
+    { id: 'hackernews-mount', comp: <HackerNewsComponent /> }
+  ];
 
-  if (discordRoot) ReactDOM.render(<DiscordComponent />, discordRoot);
-  if (steamRoot) ReactDOM.render(<SteamComponent />, steamRoot);
-  if (githubRoot) ReactDOM.render(<GithubComponent />, githubRoot);
-  if (itchRoot) ReactDOM.render(<ItchComponent />, itchRoot);
-  if (weatherRoot) ReactDOM.render(<WeatherComponent />, weatherRoot);
-  if (nasaRoot) ReactDOM.render(<NASAComponent />, nasaRoot);
-  if (hackerNewsRoot) ReactDOM.render(<HackerNewsComponent />, hackerNewsRoot);
+  mapping.forEach(({ id, comp }) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const root = ReactDOM.createRoot(el);
+      root.render(comp);
+    }
+  });
 };
