@@ -19,7 +19,7 @@ function DiscordComponent() {
         const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
         const json = await r.json();
         if (json.success) setData(json.data);
-      } catch (e) {}
+      } catch (e) { }
     }
     fetchPresence();
     const interval = setInterval(fetchPresence, 30000);
@@ -30,7 +30,7 @@ function DiscordComponent() {
 
   useEffect(() => {
     if (!activity?.timestamps?.start) return;
-    
+
     function updateElapsed() {
       const start = Number(activity.timestamps.start);
       const diff = Date.now() - start;
@@ -38,7 +38,7 @@ function DiscordComponent() {
       const m = Math.floor((diff / (1000 * 60)) % 60);
       setElapsed(h > 0 ? `${h}h ${m}m` : `${m}m`);
     }
-    
+
     updateElapsed();
     const interval = setInterval(updateElapsed, 60000);
     return () => clearInterval(interval);
@@ -56,7 +56,7 @@ function DiscordComponent() {
     const timestamp = Number((snowflake >> 22n) + 1420070400000n);
     const created = new Date(timestamp);
     accountAge = Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24));
-  } catch (e) {}
+  } catch (e) { }
 
   function getActivityImage(act) {
     if (!act?.assets?.large_image) return null;
@@ -66,7 +66,7 @@ function DiscordComponent() {
     return null;
   }
 
-  const avatarUrl = user.avatar 
+  const avatarUrl = user.avatar
     ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
     : "https://cdn.discordapp.com/embed/avatars/0.png";
 
@@ -84,7 +84,7 @@ function DiscordComponent() {
         <span className="data-label">USER_ID</span>
         <span className="data-value">{user.id}</span>
       </div>
-      
+
       {accountAge && (
         <div className="data-row">
           <span className="data-label">ACCOUNT_AGE</span>
@@ -102,11 +102,11 @@ function DiscordComponent() {
       {activity && (
         <div className="activity-container">
           <div className="text-bright mb-10">[ CURRENT ACTIVITY ]</div>
-          <div className="flex gap-10" style={{alignItems: 'flex-start'}}>
+          <div className="flex gap-10" style={{ alignItems: 'flex-start' }}>
             {getActivityImage(activity) && (
               <img src={getActivityImage(activity)} alt="activity" className="activity-img" />
             )}
-            <div style={{flex: 1}}>
+            <div style={{ flex: 1 }}>
               <div className="font-bold text-bright">{activity.name}</div>
               {activity.details && <div className="text-dim mt-10">{activity.details}</div>}
               {activity.state && <div className="text-dim">{activity.state}</div>}
@@ -174,8 +174,8 @@ function SteamComponent() {
             {recent.map(g => (
               <div key={g.appid} className="game-card">
                 <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} alt={g.name} />
-                <div className="font-bold text-dim" style={{fontSize: '12px'}}>{g.name}</div>
-                <div className="text-dim" style={{fontSize: '11px'}}>{Math.round(g.playtime_2weeks / 60)}h last 2 weeks</div>
+                <div className="font-bold text-dim" style={{ fontSize: '12px' }}>{g.name}</div>
+                <div className="text-dim" style={{ fontSize: '11px' }}>{Math.round(g.playtime_2weeks / 60)}h last 2 weeks</div>
               </div>
             ))}
           </div>
@@ -189,8 +189,8 @@ function SteamComponent() {
             {topPlayed.map(g => (
               <div key={g.appid} className="game-card">
                 <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} alt={g.name} />
-                <div className="font-bold text-dim" style={{fontSize: '12px'}}>{g.name}</div>
-                <div className="text-dim" style={{fontSize: '11px'}}>
+                <div className="font-bold text-dim" style={{ fontSize: '12px' }}>{g.name}</div>
+                <div className="text-dim" style={{ fontSize: '11px' }}>
                   {Math.round(g.playtime_forever / 60)}h total
                   {g.completion_percent != null && ` • ${g.completion_percent}%`}
                 </div>
@@ -212,12 +212,12 @@ function GithubComponent() {
     fetch(`https://api.github.com/users/${GITHUB_USER}`)
       .then(r => r.json())
       .then(setProfile)
-      .catch(() => {});
-    
+      .catch(() => { });
+
     fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=pushed`)
       .then(r => r.json())
       .then(list => Array.isArray(list) && setRepos(list))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   if (!profile) return <div className="text-dim">Indexing GitHub repositories...</div>;
@@ -255,7 +255,7 @@ function GithubComponent() {
       </div>
 
       {profile.bio && (
-        <div className="mb-15 text-dim" style={{lineHeight: '1.6', whiteSpace: 'pre-wrap'}}>
+        <div className="mb-15 text-dim" style={{ lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
           {profile.bio}
         </div>
       )}
@@ -286,10 +286,10 @@ function GithubComponent() {
           </div>
           <div className="heatmap-grid">
             {heatmapData.map((item, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className={`heatmap-day ${item.level > 0 ? 'level-' + item.level : ''}`}
-                style={{gridRow: item.day + 1, gridColumn: item.week + 1}}
+                style={{ gridRow: item.day + 1, gridColumn: item.week + 1 }}
                 title={`${item.level} contributions`}
               ></div>
             ))}
@@ -303,10 +303,10 @@ function GithubComponent() {
           {topRepos.map(r => (
             <a key={r.id} href={r.html_url} target="_blank" className="repo-card">
               <div className="font-bold">{r.name}</div>
-              <div className="text-dim" style={{fontSize: '12px', marginTop: '5px'}}>
+              <div className="text-dim" style={{ fontSize: '12px', marginTop: '5px' }}>
                 {r.description || 'No description'}
               </div>
-              <div className="text-dim" style={{fontSize: '11px', marginTop: '8px'}}>
+              <div className="text-dim" style={{ fontSize: '11px', marginTop: '8px' }}>
                 ★ {r.stargazers_count} • {r.language || '—'}
               </div>
             </a>
@@ -326,14 +326,14 @@ function ItchComponent() {
     fetch('/api/itch')
       .then(r => r.json())
       .then(data => {
-        if (data.success && data.games) setGames(data.games);
+        if (data.games) setGames(data.games);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
   if (loading) return <div className="text-dim">Loading itch.io games...</div>;
-  
+
   if (games.length === 0) {
     return (
       <div className="text-dim">
@@ -351,21 +351,21 @@ function ItchComponent() {
             <a href={g.link} target="_blank" rel="noopener noreferrer">
               <img src={g.image} alt={g.title} />
             </a>
-            <div className="font-bold text-dim" style={{fontSize:'12px'}}>
+            <div className="font-bold text-dim" style={{ fontSize: '12px' }}>
               {g.title}
             </div>
-            <div className="text-dim" style={{fontSize:'11px'}}>
+            <div className="text-dim" style={{ fontSize: '11px' }}>
               👁 {g.views} views
             </div>
-            <div className="text-dim" style={{fontSize:'11px'}}>
+            <div className="text-dim" style={{ fontSize: '11px' }}>
               ⬇ {g.downloads} downloads
             </div>
-            <div className="text-dim" style={{fontSize:'11px'}}>
+            <div className="text-dim" style={{ fontSize: '11px' }}>
               💰 {g.purchases} purchases
             </div>
             {g.tags?.length > 0 && (
-              <div className="text-dim" style={{fontSize:'10px'}}>
-                {g.tags.slice(0,3).join(" • ")}
+              <div className="text-dim" style={{ fontSize: '10px' }}>
+                {g.tags.slice(0, 3).join(" • ")}
               </div>
             )}
           </div>
@@ -384,8 +384,8 @@ function WeatherComponent() {
     fetch(`https://api.openweathermap.org/data/2.5/weather?lat=47.8095&lon=13.0550&appid=${OPENWEATHER_KEY}&units=metric`)
       .then(r => r.json())
       .then(d => setWeather(d))
-      .catch(() => {});
-    
+      .catch(() => { });
+
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -424,16 +424,16 @@ function WeatherComponent() {
     <div className="weather-container">
       <div className="weather-main">
         <div className="weather-icon-large no-glow">{emoji}</div>
-        <div className="weather-details" style={{flex: 1}}>
-          <div style={{fontSize: '32px', fontWeight: 700}}>{temp}°C</div>
+        <div className="weather-details" style={{ flex: 1 }}>
+          <div style={{ fontSize: '32px', fontWeight: 700 }}>{temp}°C</div>
           <div className="text-dim">{description}</div>
-          <div className="text-dim" style={{fontSize: '12px'}}>Feels like {feels}°C</div>
+          <div className="text-dim" style={{ fontSize: '12px' }}>Feels like {feels}°C</div>
         </div>
         <div className="clock-display">
           {time.toLocaleTimeString('en-US', { hour12: false })}
         </div>
       </div>
-      
+
       <div className="data-row">
         <span className="data-label">HUMIDITY</span>
         <span className="data-value">{humidity}%</span>
@@ -462,7 +462,7 @@ function NASAComponent() {
     fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY')
       .then(r => r.json())
       .then(d => setApod(d))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   if (!apod) return <div className="text-dim">Loading NASA image...</div>;
@@ -470,11 +470,11 @@ function NASAComponent() {
   return (
     <div>
       <div className="text-bright mb-10">{apod.title}</div>
-      <div className="text-dim mb-10" style={{fontSize: '11px'}}>{apod.date}</div>
+      <div className="text-dim mb-10" style={{ fontSize: '11px' }}>{apod.date}</div>
       {apod.media_type === 'image' && (
-        <img src={apod.url} alt={apod.title} style={{width: '100%', border: '1px solid var(--amber-dim)', marginBottom: '10px'}} />
+        <img src={apod.url} alt={apod.title} style={{ width: '100%', border: '1px solid var(--amber-dim)', marginBottom: '10px' }} />
       )}
-      <div className="text-dim" style={{fontSize: '12px', lineHeight: '1.5'}}>
+      <div className="text-dim" style={{ fontSize: '12px', lineHeight: '1.5' }}>
         {apod.explanation}
       </div>
     </div>
@@ -491,13 +491,13 @@ function HackerNewsComponent() {
       .then(ids => {
         const top3 = ids.slice(0, 3);
         return Promise.all(
-          top3.map(id => 
+          top3.map(id =>
             fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())
           )
         );
       })
       .then(items => setStories(items))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   if (stories.length === 0) return <div className="text-dim">Loading top stories...</div>;
@@ -506,13 +506,13 @@ function HackerNewsComponent() {
     <div>
       <div className="text-bright mb-10">[ TOP 3 STORIES ]</div>
       {stories.map((story, i) => (
-        <div key={story.id} style={{marginBottom: '12px', paddingBottom: '12px', borderBottom: i < 2 ? '1px solid var(--amber-dim)' : 'none'}}>
-          <div className="font-bold" style={{fontSize: '13px'}}>
+        <div key={story.id} style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: i < 2 ? '1px solid var(--amber-dim)' : 'none' }}>
+          <div className="font-bold" style={{ fontSize: '13px' }}>
             {i + 1}. <a href={story.url || `https://news.ycombinator.com/item?id=${story.id}`} target="_blank" rel="noopener noreferrer">
               {story.title}
             </a>
           </div>
-          <div className="text-dim" style={{fontSize: '11px', marginTop: '4px'}}>
+          <div className="text-dim" style={{ fontSize: '11px', marginTop: '4px' }}>
             {story.score} points • {story.by} • {story.descendants || 0} comments
           </div>
         </div>
@@ -522,7 +522,7 @@ function HackerNewsComponent() {
 }
 
 // ===== LOAD ALL COMPONENTS =====
-window.loadReactComponents = function() {
+window.loadReactComponents = function () {
   const discordRoot = document.getElementById('discord-mount');
   const steamRoot = document.getElementById('steam-mount');
   const githubRoot = document.getElementById('github-mount');
