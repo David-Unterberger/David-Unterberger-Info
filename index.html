@@ -1,12 +1,14 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes" />
-  <title>David Unterberger - Terminal Access</title>
-  
-  <link rel="icon" type="image/png" href="titel_background.png">
-  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <title>David Unterberger</title>
+
+  <link rel="icon" href="/titel_background.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;600;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -22,13 +24,13 @@
     <div class="crt-glass">
       <div class="scan-beam"></div>
       <div class="terminal-container">
-        <pre class="ascii-name">______ ___  _   _ ___________   _   _ _   _ _____ ___________  ____________  _____ ___________
-|  _  \/ _ \| | | |_   _|  _  \ | | | | \ | |_   _|  ___| ___ \| ___ \ ___ \/ ____|  ___| ___ \
-| | | / /_\ \ | | | | | | | | | | | | |  \| | | | | |__ | |_/ /| |_/ / |_/ / |  __| |__ | |_/ /
-| | | |  _  | | | | | | | | | | | | | | . ` | | | |  __||    / | ___ \  __/| | |_ |  __||    / 
-| |/ /| | | \ \_/ /_| |_| |/ /  | |_| | |\  | | | | |___| |\ \ | |_/ / |   | |__| | |___| |\ \ 
-|___/ \_| |_/\___/ \___/|___/    \___/\_| \_/ \_/ \____/\_| \_|\____/\_|    \_____|____/\_| \_|</pre>
-
+        <pre class="ascii-name">
+_____     ______     __   __   __     _____        __  __     __   __     ______   ______     ______     ______     ______     ______     ______     ______     ______    
+/\  __-.  /\  __ \   /\ \ / /  /\ \   /\  __-.     /\ \/\ \   /\ "-.\ \   /\__  _\ /\  ___\   /\  == \   /\  == \   /\  ___\   /\  == \   /\  ___\   /\  ___\   /\  == \   
+\ \ \/\ \ \ \  __ \  \ \ \'/   \ \ \  \ \ \/\ \    \ \ \_\ \  \ \ \-.  \  \/_/\ \/ \ \  __\   \ \  __<   \ \  __<   \ \  __\   \ \  __<   \ \ \__ \  \ \  __\   \ \  __<   
+ \ \____-  \ \_\ \_\  \ \__|    \ \_\  \ \____-     \ \_____\  \ \_\\"\_\    \ \_\  \ \_____\  \ \_\ \_\  \ \_____\  \ \_____\  \ \_\ \_\  \ \_____\  \ \_____\  \ \_\ \_\ 
+  \/____/   \/_/\/_/   \/_/      \/_/   \/____/      \/_____/   \/_/ \/_/     \/_/   \/_____/   \/_/ /_/   \/_____/   \/_____/   \/_/ /_/   \/_____/   \/_____/   \/_/ /_/ 
+</pre>
         <div id="boot-sequence"></div>
         <div id="main-content" style="display: none;"></div>
       </div>
@@ -38,14 +40,18 @@
   <div id="whale-animation"></div>
 
   <audio id="boot-beep" preload="auto">
-    <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGe77OWhTgwPUKXi8LdjHAU5kdXzzHksBSR3yPDdkEELFGC25+yoVRQJRp/g8r5sIQUrgs/y2Ik2CBhnu+znoU4MD1Cl4vC3YxwGOZHV88x5LAUkd8jw3ZBBCxRgtufsqFUUCUaf4PK+bCEEK4HP8tmJNwgYZ7vs56FOCw9Qp+Lxt2McBTmQ1fPMeSwFJHfI8N2QQAsUYLbn7KhVFApGn+DyvmwhBCuBz/LZiTcIGGe77OehTgwPUKfi8LdjHAU5kNXzzHksBSR3yPDdkEALFGC25+yoVRQKRp/g8r5sIQQrgc/y2Yk3CBhnu+znok4LD1Cn4vC3YxwFOZDV88x5LAUjeMfw3pBACxNftufuqVYTCkaY4O2+biEFK4DN89qJOAcZZ7rs56JOCw9Qp+Lwt2QbBTmP1fTMeS0EI3fH8N6QQAsUX7bn7qlWEwpHl+DtvmwhBSuAzfPaiTgHGGe77OaiTgsPUKfj8LdkGwU5j9X0zHktBCN3x/DfkD8LE2C25+6pVhMKR5jg7b1sIQUrgM3z2ok4Bxhnu+3mok4LD1Cn4/C3ZBsFOY/V9Mx5LQQjd8fw35A/CxNgtufsqVYSCkeY4O29bCAELIDM89qJOAcYZ7vt5qJOCw9Qp+Pwt2UbBTmP1fTMeS0EI3fH8N+QPwsTYLbn7KlWEwpHmODtvWwgBCuAzPPaiTgHGGe77eaiTgwOUKfj8LdlGwU5j9X0zXktBCN3x/DfkEALE1+25+6pVhMKR5jg7L1sIAQqgM3z2ok4Bxhnu+3mok4MD1Cn4vC3ZRsFOY/V9Mx5LQQjd8fw35A/CxNgtufsqVYTCkeX4Oy9bCAEKoDN89mKOAcYZ7vt5qJODA9Qp+Lwt2QbBjmP1fTMeS0EI3fH8N+QPwsTYLbn7KlWEwpHl+DsvWwgBCqAzfPZijgHGGe77eaiTgwPUKfi8LdkGwY5j9X0zHktBCN3yPDfkEALE1+25+6pVhMKR5jg7L1sIAQqgM3z2Yo4Bxhnu+3mok4MD1Cn4/C3ZBoGOY/V9Mx5LQQjd8jw35BBCxNftufsqVUSCkeY4Oy9bCAEKoDN89mKOAcYZ7vt5qJODA9Qp+Pwt2QaBTmP1fTNeSsEJHfI8OCQPwsUX7Xm7KpVEwlGmODtvWwgBCuAzfPZijcHGGe77eaiTgwPUKfi8LdkGgU5j9X0zXkrBCR3yPDgkD8LFGC15uypVhIJRpjf7b1sHwUrgjn7y"></source>
+    <source
+      src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGe77OWhTgwPUKXi8LdjHAU5kdXzzHksBSR3yPDdkEELFGC25+yoVRQJRp/g8r5sIQUrgs/y2Ik2CBhnu+znoU4MD1Cl4vC3YxwGOZHV88x5LAUkd8jw3ZBBCxRgtufsqFUUCUaf4PK+bCEEK4HP8tmJNwgYZ7vs56FOCw9Qp+Lxt2McBTmQ1fPMeSwFJHfI8N2QQAsUYLbn7KhVFApGn+DyvmwhBCuBz/LZiTcIGGe77OehTgwPUKfi8LdjHAU5kNXzzHksBSR3yPDdkEALFGC25+yoVRQKRp/g8r5sIQQrgc/y2Yk3CBhnu+znok4LD1Cn4vC3YxwFOZDV88x5LAUjeMfw3pBACxNftufuqVYTCkaY4O2+biEFK4DN89qJOAcZZ7rs56JOCw9Qp+Lwt2QbBTmP1fTMeS0EI3fH8N6QQAsUX7bn7qlWEwpHl+DtvmwhBSuAzfPaiTgHGGe77OaiTgsPUKfj8LdkGwU5j9X0zHktBCN3x/DfkD8LE2C25+6pVhMKR5jg7b1sIQUrgM3z2ok4Bxhnu+3mok4LD1Cn4/C3ZBsFOY/V9Mx5LQQjd8fw35A/CxNgtufsqVYSCkeY4O29bCAELIDM89qJOAcYZ7vt5qJOCw9Qp+Pwt2UbBTmP1fTMeS0EI3fH8N+QPwsTYLbn7KlWEwpHmODtvWwgBCuAzPPaiTgHGGe77eaiTgwOUKfj8LdlGwU5j9X0zXktBCN3x/DfkEALE1+25+6pVhMKR5jg7L1sIAQqgM3z2ok4Bxhnu+3mok4MD1Cn4vC3ZRsFOY/V9Mx5LQQjd8fw35A/CxNgtufsqVYTCkeX4Oy9bCAEKoDN89mKOAcYZ7vt5qJODA9Qp+Lwt2QbBjmP1fTMeS0EI3fH8N+QPwsTYLbn7KlWEwpHl+DsvWwgBCqAzfPZijgHGGe77eaiTgwPUKfi8LdkGwY5j9X0zHktBCN3yPDfkEALE1+25+6pVhMKR5jg7L1sIAQqgM3z2Yo4Bxhnu+3mok4MD1Cn4/C3ZBoGOY/V9Mx5LQQjd8jw35BBCxNftufsqVUSCkeY4Oy9bCAEKoDN89mKOAcYZ7vt5qJODA9Qp+Pwt2QaBTmP1fTNeSsEJHfI8OCQPwsUX7Xm7KpVEwlGmODtvWwgBCuAzfPZijcHGGe77eaiTgwPUKfi8LdkGgU5j9X0zXkrBCR3yPDgkD8LFGC15uypVhIJRpjf7b1sHwUrgjn7y">
+    </source>
   </audio>
   <audio id="key-click" preload="auto">
-    <source src="data:audio/wav;base64,UklGRhYAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQoAAACAgICAgICAgICA"></source>
+    <source src="data:audio/wav;base64,UklGRhYAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQoAAACAgICAgICAgICA">
+    </source>
   </audio>
 
   <script src="terminal.js"></script>
   <script src="terrain.js"></script>
   <script type="text/babel" src="components.jsx"></script>
 </body>
+
 </html>
