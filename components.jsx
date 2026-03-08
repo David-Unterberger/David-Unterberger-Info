@@ -1,199 +1,170 @@
-// ===== REACT COMPONENTS =====
-// Discord, Steam, GitHub, Itch.io, Weather, NASA, Hacker News
-
 const { useState, useEffect } = React;
 
-// Configuration
-const DISCORD_ID = "780384263987920937";
-const GITHUB_USER = "David-Unterberger";
-const OPENWEATHER_KEY = "7a20d5201e0a2ef6781a2fc4ca4602c5";
+// NASA API KEY
 const NASA_KEY = "fES0tLsjrdYLZNwmJM1U6lQXilxpHGM63KpJpgb7";
 
 // ===== DISCORD COMPONENT =====
 function DiscordComponent() {
-  const [data, setData] = useState(null);
-  const [elapsed, setElapsed] = useState("");
+  const [presence, setPresence] = useState(null);
 
   useEffect(() => {
-    let interval;
-    async function fetchPresence() {
-      try {
-        const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
-        const json = await r.json();
-        if (json.success) setData(json.data);
-      } catch (e) { console.warn("Discord fetch failed", e); }
-    }
+    const fetchPresence = () => {
+      fetch('https://api.lanyard.rest/v1/users/780384263987920937')
+        .then(r => r.json())
+        .then(d => setPresence(d.data))
+        .catch(() => {});
+    };
+
     fetchPresence();
-    interval = setInterval(fetchPresence, 30000);
+    const interval = setInterval(fetchPresence, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  const activity = data?.activities?.find(a => a.type === 0);
+  if (!presence) return <div className="text-dim">Loading Discord data...</div>;
 
-  useEffect(() => {
-    if (!activity?.timestamps?.start) return;
-    let interval;
-    function updateElapsed() {
-      const start = Number(activity.timestamps.start);
-      const diff = Date.now() - start;
-      const h = Math.floor(diff / (1000 * 60 * 60));
-      const m = Math.floor((diff / (1000 * 60)) % 60);
-      setElapsed(h > 0 ? `${h}h ${m}m` : `${m}m`);
-    }
-    updateElapsed();
-    interval = setInterval(updateElapsed, 60000);
-    return () => clearInterval(interval);
-  }, [activity]);
+  const statusColors = {
+    online: '#00ff00',
+    idle: '#ffaa00',
+    dnd: '#ff5555',
+    offline: '#888888'
+  };
 
-  if (!data) return <div className="text-dim">Connecting to Discord API...</div>;
-
-  const user = data.discord_user;
-  const status = data.discord_status || "offline";
-  const customStatus = data.activities?.find(a => a.type === 4);
-
-  let accountAge = null;
-  try {
-    const snowflake = BigInt(user.id);
-    const timestamp = Number((snowflake >> 22n) + 1420070400000n);
-    const created = new Date(timestamp);
-    accountAge = Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24));
-  } catch (e) { }
-
-  function getActivityImage(act) {
-    if (!act?.assets?.large_image) return null;
-    const large = act.assets.large_image;
-    if (large.startsWith("mp:")) return `https://media.discordapp.net/${large.replace("mp:", "")}`;
-    if (act.application_id) return `https://cdn.discordapp.com/app-assets/${act.application_id}/${large}.png`;
-    return null;
-  }
-
-  const avatarUrl = user.avatar
-    ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-    : "https://cdn.discordapp.com/embed/avatars/0.png";
+  const accountAge = Math.floor((Date.now() - new Date(presence.discord_user.id / 4194304 + 1420070400000).getTime()) / (1000 * 60 * 60 * 24));
 
   return (
     <div>
-      <div className="flex flex-align mb-15">
-        <img src={avatarUrl} alt="avatar" className="avatar" />
+      <div className="flex-align gap-10 mb-15">
+        <img 
+          src={`https://cdn.discordapp.com/avatars/${presence.discord_user.id}/${presence.discord_user.avatar}.png?size=128`} 
+          className="avatar" 
+          alt="Avatar" 
+        />
         <div>
-          <div className="font-bold text-bright">{user.username}</div>
-          <div className="text-dim">Status: {status}</div>
+          <div className="font-bold text-bright" style={{fontSize: '16px'}}>
+            {presence.discord_user.username}
+          </div>
+          <div className="text-dim" style={{fontSize: '12px'}}>
+            <span style={{color: statusColors[presence.discord_status]}}>●</span> {presence.discord_status}
+          </div>
+          <div className="text-dim" style={{fontSize: '11px', marginTop: '5px'}}>
+            ID: {presence.discord_user.id}
+          </div>
+          <div className="text-dim" style={{fontSize: '11px'}}>
+            Account age: {accountAge} days
+          </div>
         </div>
       </div>
 
-      <div className="data-row">
-        <span className="data-label">USER_ID</span>
-        <span className="data-value">{user.id}</span>
-      </div>
-
-      {accountAge && (
-        <div className="data-row">
-          <span className="data-label">ACCOUNT_AGE</span>
-          <span className="data-value">{accountAge} days</span>
+      {presence.activities?.find(a => a.type === 4) && (
+        <div className="text-dim mb-10" style={{fontSize: '12px'}}>
+          "{presence.activities.find(a => a.type === 4).state}"
         </div>
       )}
 
-      {customStatus?.state && (
-        <div className="data-row">
-          <span className="data-label">CUSTOM_STATUS</span>
-          <span className="data-value">{customStatus.emoji?.name || ''} {customStatus.state}</span>
-        </div>
-      )}
-
-      {activity && (
-        <div className="activity-container">
-          <div className="text-bright mb-10">[ CURRENT ACTIVITY ]</div>
-          <div className="flex gap-10" style={{ alignItems: 'flex-start' }}>
-            {getActivityImage(activity) && (
-              <img src={getActivityImage(activity)} alt="activity" className="activity-img" />
+      {presence.activities?.filter(a => a.type !== 4).map((activity, i) => (
+        <div key={i} className="activity-container">
+          <div className="flex-align">
+            {activity.assets?.large_image && (
+              <img 
+                src={activity.assets.large_image.startsWith('mp:') 
+                  ? `https://media.discordapp.net/${activity.assets.large_image.replace('mp:', '')}`
+                  : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.png`
+                }
+                className="activity-img"
+                alt={activity.name}
+              />
             )}
-            <div style={{ flex: 1 }}>
-              <div className="font-bold text-bright">{activity.name}</div>
-              {activity.details && <div className="text-dim mt-10">{activity.details}</div>}
-              {activity.state && <div className="text-dim">{activity.state}</div>}
-              {elapsed && <div className="text-dim mt-10">Elapsed: {elapsed}</div>}
+            <div style={{flex: 1}}>
+              <div className="font-bold text-bright" style={{fontSize: '13px'}}>
+                {activity.name}
+              </div>
+              {activity.details && (
+                <div className="text-dim" style={{fontSize: '12px', marginTop: '4px'}}>
+                  {activity.details}
+                </div>
+              )}
+              {activity.state && (
+                <div className="text-dim" style={{fontSize: '11px'}}>
+                  {activity.state}
+                </div>
+              )}
+              {activity.timestamps?.start && (
+                <div className="text-dim" style={{fontSize: '11px', marginTop: '6px'}}>
+                  Elapsed: {Math.floor((Date.now() - activity.timestamps.start) / 60000)}m
+                </div>
+              )}
               {activity.party?.size && (
-                <div className="text-dim">Party: {activity.party.size[0]} / {activity.party.size[1]}</div>
+                <div className="text-dim" style={{fontSize: '11px'}}>
+                  Party: {activity.party.size[0]} of {activity.party.size[1]}
+                </div>
               )}
             </div>
           </div>
         </div>
-      )}
+      ))}
     </div>
   );
 }
 
 // ===== STEAM COMPONENT =====
 function SteamComponent() {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(false);
-  const isMobile = window.innerWidth <= 768;
+  const [games, setGames] = useState({ recent: [], top: [] });
 
   useEffect(() => {
     fetch('/api/steam')
-      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(d => setData(d))
-      .catch(() => setError(true));
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setGames({
+            recent: data.recent_games || [],
+            top: data.top_games || []
+          });
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  if (error) return <div className="text-dim">Steam API unavailable</div>;
-  if (!data) return <div className="text-dim">Querying Steam database...</div>;
+  const isMobile = window.innerWidth < 768;
+  const recentCount = isMobile ? 2 : 3;
+  const topCount = isMobile ? 8 : 9;
 
-  const profile = data.profile || {};
-  const owned = data.owned || { game_count: 0 };
-  const recent = (data.recent?.games || []).slice(0, isMobile ? 2 : 3);
-  const topPlayed = (data.topPlayed || []).slice(0, isMobile ? 8 : 9);
-  const totalHours = data.totalHours || 0;
+  if (games.recent.length === 0 && games.top.length === 0) {
+    return <div className="text-dim">Steam data unavailable. Configure /api/steam serverless function.</div>;
+  }
 
   return (
     <div>
-      <div className="flex flex-align mb-15">
-        <img src={profile.avatarfull} alt="steam" className="avatar" />
-        <div>
-          <div className="font-bold text-bright">{profile.personaname}</div>
-          <div className="text-dim">{profile.gameextrainfo || (profile.personastate === 1 ? "Online" : "Offline")}</div>
-        </div>
-      </div>
-
-      <div className="data-row">
-        <span className="data-label">TOTAL_GAMES</span>
-        <span className="data-value">{owned.game_count}</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">TOTAL_HOURS</span>
-        <span className="data-value">{totalHours}h</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">ACCOUNT_CREATED</span>
-        <span className="data-value">{new Date(profile.timecreated * 1000).toLocaleDateString()}</span>
-      </div>
-
-      {recent.length > 0 && (
-        <div className="mt-10">
+      {games.recent.length > 0 && (
+        <div className="mb-15">
           <div className="text-bright mb-10">[ RECENTLY PLAYED ]</div>
           <div className="grid-3">
-            {recent.map(g => (
-              <div key={g.appid} className="game-card">
+            {games.recent.slice(0, recentCount).map((g, i) => (
+              <div key={i} className="game-card">
                 <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} alt={g.name} />
-                <div className="font-bold text-dim" style={{ fontSize: '12px' }}>{g.name}</div>
-                <div className="text-dim" style={{ fontSize: '11px' }}>{Math.round(g.playtime_2weeks / 60)}h last 2 weeks</div>
+                <div className="font-bold text-dim" style={{fontSize: '12px'}}>
+                  {g.name}
+                </div>
+                <div className="text-dim" style={{fontSize: '11px'}}>
+                  {Math.floor(g.playtime_2weeks / 60)}h past 2 weeks
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {topPlayed.length > 0 && (
-        <div className="mt-10">
+      {games.top.length > 0 && (
+        <div>
           <div className="text-bright mb-10">[ TOP PLAYED ]</div>
           <div className="grid-3">
-            {topPlayed.map(g => (
-              <div key={g.appid} className="game-card">
+            {games.top.slice(0, topCount).map((g, i) => (
+              <div key={i} className="game-card">
                 <img src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/header.jpg`} alt={g.name} />
-                <div className="font-bold text-dim" style={{ fontSize: '12px' }}>{g.name}</div>
-                <div className="text-dim" style={{ fontSize: '11px' }}>
-                  {Math.round(g.playtime_forever / 60)}h total
-                  {g.completion_percent != null && ` • ${g.completion_percent}%`}
+                <div className="font-bold text-dim" style={{fontSize: '12px'}}>
+                  {g.name}
+                </div>
+                <div className="text-dim" style={{fontSize: '11px'}}>
+                  {Math.floor(g.playtime_forever / 60)}h total
                 </div>
               </div>
             ))}
@@ -210,28 +181,21 @@ function GithubComponent() {
   const [repos, setRepos] = useState([]);
 
   useEffect(() => {
-    fetch(`https://api.github.com/users/${GITHUB_USER}`)
+    fetch('https://api.github.com/users/David-Unterberger')
       .then(r => r.json())
-      .then(setProfile)
+      .then(d => setProfile(d))
       .catch(() => {});
 
-    fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=pushed`)
+    fetch('https://api.github.com/users/David-Unterberger/repos?sort=updated&per_page=100')
       .then(r => r.json())
-      .then(list => Array.isArray(list) && setRepos(list))
+      .then(repos => {
+        const sorted = repos.sort((a, b) => b.stargazers_count - a.stargazers_count);
+        setRepos(sorted.slice(0, 6));
+      })
       .catch(() => {});
   }, []);
 
-  if (!profile) return <div className="text-dim">Indexing GitHub repositories...</div>;
-
-  const totals = repos.reduce((acc, r) => {
-    acc.stars += r.stargazers_count || 0;
-    acc.forks += r.forks_count || 0;
-    if (r.language) acc.langs[r.language] = (acc.langs[r.language] || 0) + 1;
-    return acc;
-  }, { stars: 0, forks: 0, langs: {} });
-
-  const topLang = Object.entries(totals.langs).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
-  const topRepos = repos.sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 6);
+  if (!profile) return <div className="text-dim">Loading GitHub data...</div>;
 
   const heatmapData = [];
   for (let day = 0; day < 7; day++) {
@@ -241,78 +205,69 @@ function GithubComponent() {
     }
   }
 
-  const now = new Date();
-  const oneYearAgo = new Date(now);
-  oneYearAgo.setFullYear(now.getFullYear() - 1);
-
   return (
     <div>
-      <div className="flex flex-align mb-15">
-        <img src={profile.avatar_url} alt="github" className="avatar" />
+      <div className="flex-align gap-10 mb-15">
+        <img src={profile.avatar_url} className="avatar" alt="GitHub Avatar" />
         <div>
-          <div className="font-bold text-bright">{profile.name || profile.login}</div>
-          <div className="text-dim">{profile.followers} followers</div>
+          <div className="font-bold text-bright" style={{fontSize: '16px'}}>
+            {profile.name || profile.login}
+          </div>
+          <div className="text-dim" style={{fontSize: '12px'}}>
+            @{profile.login}
+          </div>
+          <div className="text-dim" style={{fontSize: '11px', marginTop: '5px'}}>
+            {profile.public_repos} repos • {profile.followers} followers
+          </div>
         </div>
       </div>
 
       {profile.bio && (
-        <div className="mb-15 text-dim" style={{ lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+        <div className="text-dim mb-15" style={{fontSize: '12px'}}>
           {profile.bio}
         </div>
       )}
 
-      <div className="data-row">
-        <span className="data-label">PUBLIC_REPOS</span>
-        <span className="data-value">{profile.public_repos}</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">TOTAL_STARS</span>
-        <span className="data-value">{totals.stars}</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">TOTAL_FORKS</span>
-        <span className="data-value">{totals.forks}</span>
-      </div>
-      <div className="data-row">
-        <span className="data-label">TOP_LANGUAGE</span>
-        <span className="data-value">{topLang}</span>
-      </div>
-
-      <div className="mt-10 mb-10">
-        <div className="text-bright mb-10">[ CONTRIBUTION ACTIVITY ]</div>
-        <div className="heatmap-container">
-          <div className="heatmap-labels">
-            <span>{oneYearAgo.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
-            <span>{now.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
-          </div>
-          <div className="heatmap-grid">
-            {heatmapData.map((item, idx) => (
-              <div
-                key={idx}
-                className={`heatmap-day ${item.level > 0 ? 'level-' + item.level : ''}`}
-                style={{ gridRow: item.day + 1, gridColumn: item.week + 1 }}
-                title={`${item.level} contributions`}
-              ></div>
-            ))}
-          </div>
+      <div className="heatmap-container mb-15">
+        <div className="text-bright mb-10" style={{fontSize: '12px'}}>[ CONTRIBUTION ACTIVITY ]</div>
+        <div className="heatmap-labels">
+          <span>[1 year ago]</span>
+          <span>[today]</span>
         </div>
-      </div>
-
-      <div className="mt-10">
-        <div className="text-bright mb-10">[ TOP REPOSITORIES ]</div>
-        <div className="grid-2">
-          {topRepos.map(r => (
-            <a key={r.id} href={r.html_url} target="_blank" className="repo-card" rel="noopener noreferrer">
-              <div className="font-bold">{r.name}</div>
-              <div className="text-dim" style={{ fontSize: '12px', marginTop: '5px' }}>
-                {r.description || 'No description'}
-              </div>
-              <div className="text-dim" style={{ fontSize: '11px', marginTop: '8px' }}>
-                ★ {r.stargazers_count} • {r.language || '—'}
-              </div>
-            </a>
+        <div className="heatmap-grid">
+          {heatmapData.map((d, i) => (
+            <div 
+              key={i} 
+              className={`heatmap-day level-${d.level}`}
+              title={`Week ${d.week}, Day ${d.day}: ${d.level} contributions`}
+            />
           ))}
         </div>
+      </div>
+
+      <div className="text-bright mb-10" style={{fontSize: '12px'}}>[ TOP REPOSITORIES ]</div>
+      <div className="grid-2">
+        {repos.map((repo, i) => (
+          <a 
+            key={i} 
+            href={repo.html_url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="repo-card"
+          >
+            <div className="font-bold text-bright" style={{fontSize: '13px'}}>
+              {repo.name}
+            </div>
+            {repo.description && (
+              <div className="text-dim" style={{fontSize: '11px', marginTop: '4px'}}>
+                {repo.description.substring(0, 80)}{repo.description.length > 80 ? '...' : ''}
+              </div>
+            )}
+            <div className="text-dim" style={{fontSize: '11px', marginTop: '6px'}}>
+              ⭐ {repo.stargazers_count} {repo.language && `• ${repo.language}`}
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   );
@@ -327,15 +282,21 @@ function ItchComponent() {
     fetch('/api/itch')
       .then(r => r.json())
       .then(data => {
-        if (data.games) setGames(data.games);
+        if (data.success && data.games) setGames(data.games);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
   if (loading) return <div className="text-dim">Loading itch.io games...</div>;
-
-  if (games.length === 0) return <div className="text-dim">No games loaded. Add ITCH_API_KEY to environment variables.</div>;
+  
+  if (games.length === 0) {
+    return (
+      <div className="text-dim">
+        <div>No games loaded. Add ITCH_API_KEY to Vercel environment variables.</div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -346,11 +307,23 @@ function ItchComponent() {
             <a href={g.link} target="_blank" rel="noopener noreferrer">
               <img src={g.image} alt={g.title} />
             </a>
-            <div className="font-bold text-dim" style={{ fontSize: '12px' }}>{g.title}</div>
-            <div className="text-dim" style={{ fontSize: '11px' }}>👁 {g.views} views</div>
-            <div className="text-dim" style={{ fontSize: '11px' }}>⬇ {g.downloads} downloads</div>
-            <div className="text-dim" style={{ fontSize: '11px' }}>💰 {g.purchases} purchases</div>
-            {g.tags?.length > 0 && <div className="text-dim" style={{ fontSize: '10px' }}>{g.tags.slice(0, 3).join(" • ")}</div>}
+            <div className="font-bold text-dim" style={{fontSize:'12px'}}>
+              {g.title}
+            </div>
+            <div className="text-dim" style={{fontSize:'11px'}}>
+              👁 {g.views} views
+            </div>
+            <div className="text-dim" style={{fontSize:'11px'}}>
+              ⬇ {g.downloads} downloads
+            </div>
+            <div className="text-dim" style={{fontSize:'11px'}}>
+              💰 {g.purchases} purchases
+            </div>
+            {g.tags?.length > 0 && (
+              <div className="text-dim" style={{fontSize:'10px'}}>
+                {g.tags.slice(0,3).join(" • ")}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -364,66 +337,71 @@ function WeatherComponent() {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
-    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=47.8095&lon=13.0550&appid=${OPENWEATHER_KEY}&units=metric`)
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=47.8095&lon=13.0550&units=metric&appid=7a20d5201e0a2ef6781a2fc4ca4602c5`)
       .then(r => r.json())
       .then(d => setWeather(d))
-      .catch(() => { });
+      .catch(() => {});
 
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  if (!weather) return <div className="text-dim">Establishing weather link...</div>;
+  if (!weather) return <div className="text-dim">Loading weather data...</div>;
 
-  const temp = Math.round(weather.main?.temp || 0);
-  const feels = Math.round(weather.main?.feels_like || 0);
-  const humidity = weather.main?.humidity || 0;
-  const pressure = weather.main?.pressure || 0;
-  const windSpeed = Math.round((weather.wind?.speed || 0) * 3.6);
-  const windDir = weather.wind?.deg || 0;
-  const description = weather.weather?.[0]?.description || 'unknown';
-  const icon = weather.weather?.[0]?.icon || '01d';
-
-  const iconMap = {
-    '01d': '☀️', '01n': '🌙',
-    '02d': '⛅', '02n': '☁️',
-    '03d': '☁️', '03n': '☁️',
-    '04d': '☁️', '04n': '☁️',
-    '09d': '🌧️', '09n': '🌧️',
-    '10d': '🌦️', '10n': '🌧️',
-    '11d': '⛈️', '11n': '⛈️',
-    '13d': '❄️', '13n': '❄️',
-    '50d': '🌫️', '50n': '🌫️'
+  const weatherIcons = {
+    Clear: '☀️',
+    Clouds: '☁️',
+    Rain: '🌧️',
+    Snow: '❄️',
+    Thunderstorm: '⛈️',
+    Drizzle: '🌦️',
+    Mist: '🌫️',
+    Fog: '🌫️'
   };
-
-  const emoji = iconMap[icon] || '🌤️';
-
-  function getWindDirection(deg) {
-    const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-    return dirs[Math.round(deg / 45) % 8];
-  }
 
   return (
     <div className="weather-container">
       <div className="weather-main">
-        <div className="weather-icon-large no-glow">{emoji}</div>
-        <div className="weather-details" style={{ flex: 1 }}>
-          <div style={{ fontSize: '32px', fontWeight: 700 }}>{temp}°C</div>
-          <div className="text-dim">{description}</div>
-          <div className="text-dim" style={{ fontSize: '12px' }}>Feels like {feels}°C</div>
+        <div className="weather-icon-large">
+          {weatherIcons[weather.weather[0].main] || '🌡️'}
         </div>
-        <div className="clock-display">{time.toLocaleTimeString('en-US', { hour12: false })}</div>
+        <div className="weather-details">
+          <div style={{fontSize: '32px', fontWeight: '700'}}>
+            {Math.round(weather.main.temp)}°C
+          </div>
+          <div className="text-dim" style={{fontSize: '14px'}}>
+            Feels like {Math.round(weather.main.feels_like)}°C
+          </div>
+          <div className="text-bright" style={{fontSize: '13px', marginTop: '4px'}}>
+            {weather.weather[0].description}
+          </div>
+        </div>
+        <div className="clock-display" style={{marginLeft: 'auto'}}>
+          {time.toLocaleTimeString('en-US', { hour12: false })}
+        </div>
       </div>
 
-      <div className="data-row"><span className="data-label">HUMIDITY</span><span className="data-value">{humidity}%</span></div>
-      <div className="data-row"><span className="data-label">PRESSURE</span><span className="data-value">{pressure} hPa</span></div>
-      <div className="data-row"><span className="data-label">WIND</span><span className="data-value">{windSpeed} km/h {getWindDirection(windDir)}</span></div>
-      <div className="data-row"><span className="data-label">VISIBILITY</span><span className="data-value">{Math.round((weather.visibility || 0) / 1000)} km</span></div>
+      <div className="data-row">
+        <span className="data-label">Humidity</span>
+        <span className="data-value">{weather.main.humidity}%</span>
+      </div>
+      <div className="data-row">
+        <span className="data-label">Pressure</span>
+        <span className="data-value">{weather.main.pressure} hPa</span>
+      </div>
+      <div className="data-row">
+        <span className="data-label">Wind</span>
+        <span className="data-value">{weather.wind.speed} m/s</span>
+      </div>
+      <div className="data-row">
+        <span className="data-label">Visibility</span>
+        <span className="data-value">{(weather.visibility / 1000).toFixed(1)} km</span>
+      </div>
     </div>
   );
 }
 
-// ===== NASA COMPONENT =====
+// ===== NASA APOD COMPONENT =====
 function NASAComponent() {
   const [apod, setApod] = useState(null);
 
@@ -438,15 +416,32 @@ function NASAComponent() {
 
   return (
     <div>
-      <div className="text-bright mb-10">{apod.title}</div>
-      <div className="text-dim mb-10" style={{ fontSize: '11px' }}>{apod.date}</div>
-      {apod.media_type === 'image' && (
-        <img src={apod.url} alt={apod.title} style={{ width: '100%', border: '1px solid var(--amber-dim)', marginBottom: '10px' }} />
+      <div className="font-bold text-bright mb-10" style={{fontSize: '14px'}}>
+        {apod.title}
+      </div>
+      <div className="text-dim mb-10" style={{fontSize: '11px'}}>
+        {apod.date}
+      </div>
+      {apod.media_type === 'image' ? (
+        <img 
+          src={apod.url} 
+          alt={apod.title}
+          style={{
+            width: '100%',
+            border: '1px solid var(--amber-dim)',
+            marginBottom: '10px'
+          }}
+        />
+      ) : (
+        <div className="text-dim mb-10">
+          <a href={apod.url} target="_blank" rel="noopener noreferrer">
+            View Video →
+          </a>
+        </div>
       )}
-      {apod.media_type === 'video' && (
-        <iframe src={apod.url} style={{ width: '100%', height: '300px', marginBottom: '10px' }} title="NASA Video" frameBorder="0" allowFullScreen />
-      )}
-      <div className="text-dim" style={{ fontSize: '12px', lineHeight: '1.5' }}>{apod.explanation}</div>
+      <div className="text-dim" style={{fontSize: '12px'}}>
+        {apod.explanation}
+      </div>
     </div>
   );
 }
@@ -459,10 +454,12 @@ function HackerNewsComponent() {
     fetch('https://hacker-news.firebaseio.com/v0/topstories.json')
       .then(r => r.json())
       .then(ids => {
-        const top3 = ids.slice(0, 3);
-        return Promise.all(top3.map(id => fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())));
+        Promise.all(
+          ids.slice(0, 3).map(id =>
+            fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())
+          )
+        ).then(setStories);
       })
-      .then(items => setStories(items))
       .catch(() => {});
   }, []);
 
@@ -470,14 +467,19 @@ function HackerNewsComponent() {
 
   return (
     <div>
-      <div className="text-bright mb-10">[ TOP 3 STORIES ]</div>
       {stories.map((story, i) => (
-        <div key={story.id} style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: i < 2 ? '1px solid var(--amber-dim)' : 'none' }}>
-          <div className="font-bold" style={{ fontSize: '13px' }}>
-            {i + 1}. <a href={story.url || `https://news.ycombinator.com/item?id=${story.id}`} target="_blank" rel="noopener noreferrer">{story.title}</a>
-          </div>
-          <div className="text-dim" style={{ fontSize: '11px', marginTop: '4px' }}>
-            {story.score} points • {story.by} • {story.descendants || 0} comments
+        <div key={i} className="mb-15">
+          <a 
+            href={story.url || `https://news.ycombinator.com/item?id=${story.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-bright"
+            style={{fontSize: '13px'}}
+          >
+            {i + 1}. {story.title}
+          </a>
+          <div className="text-dim" style={{fontSize: '11px', marginTop: '4px'}}>
+            {story.score} points • {story.descendants || 0} comments
           </div>
         </div>
       ))}
@@ -485,23 +487,22 @@ function HackerNewsComponent() {
   );
 }
 
-// ===== LOAD ALL COMPONENTS =====
-window.loadReactComponents = function () {
-  const mapping = [
-    { id: 'discord-mount', comp: <DiscordComponent /> },
-    { id: 'steam-mount', comp: <SteamComponent /> },
-    { id: 'github-mount', comp: <GithubComponent /> },
-    { id: 'itch-mount', comp: <ItchComponent /> },
-    { id: 'weather-mount', comp: <WeatherComponent /> },
-    { id: 'nasa-mount', comp: <NASAComponent /> },
-    { id: 'hackernews-mount', comp: <HackerNewsComponent /> }
+// ===== MOUNT ALL COMPONENTS =====
+window.loadReactComponents = function() {
+  const mounts = [
+    { id: 'discord-mount', component: DiscordComponent },
+    { id: 'steam-mount', component: SteamComponent },
+    { id: 'github-mount', component: GithubComponent },
+    { id: 'itch-mount', component: ItchComponent },
+    { id: 'weather-mount', component: WeatherComponent },
+    { id: 'nasa-mount', component: NASAComponent },
+    { id: 'hackernews-mount', component: HackerNewsComponent }
   ];
 
-  mapping.forEach(({ id, comp }) => {
+  mounts.forEach(({ id, component }) => {
     const el = document.getElementById(id);
     if (el) {
-      const root = ReactDOM.createRoot(el);
-      root.render(comp);
+      ReactDOM.render(React.createElement(component), el);
     }
   });
 };

@@ -14,7 +14,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 camera.position.set(0, 12, 25);
 
 const geometry = new THREE.PlaneGeometry(200, 200, 200, 200);
-const material = new THREE.MeshBasicMaterial({ 
+let material = new THREE.MeshBasicMaterial({ 
   color: 0xff8a2b, 
   wireframe: true, 
   transparent: true, 
@@ -24,9 +24,6 @@ const material = new THREE.MeshBasicMaterial({
 const plane = new THREE.Mesh(geometry, material);
 plane.rotation.x = -Math.PI / 2.7;
 scene.add(plane);
-
-// Save original vertex positions for wave animation
-const originalPositions = Float32Array.from(geometry.attributes.position.array);
 
 // Theme color mapping
 function getTerrainColor(theme) {
@@ -52,9 +49,15 @@ function getTerrainColor(theme) {
 // Update terrain color function
 window.updateTerrainColor = function(theme) {
   const color = getTerrainColor(theme);
-  if (plane.material) {
-    plane.material.color.setHex(color);
-  }
+  scene.remove(plane);
+  material = new THREE.MeshBasicMaterial({ 
+    color: color, 
+    wireframe: true, 
+    transparent: true, 
+    opacity: 0.06 
+  });
+  plane.material = material;
+  scene.add(plane);
 };
 
 // Animation loop
@@ -69,8 +72,8 @@ function animate() {
   // Terrain wave animation
   const pos = plane.geometry.attributes.position;
   for (let i = 0; i < pos.count; i++) {
-    const x = originalPositions[i * 3];
-    const y = originalPositions[i * 3 + 1];
+    const x = pos.getX(i);
+    const y = pos.getY(i);
     pos.setZ(i, Math.sin(x * 0.2 + t) * 0.4 + Math.cos(y * 0.25 + t) * 0.4);
   }
   pos.needsUpdate = true;
@@ -89,4 +92,6 @@ window.addEventListener('resize', () => {
 
 // Initialize with current theme
 const currentTheme = localStorage.getItem('terminal-theme') || 'amber';
-window.updateTerrainColor(currentTheme);
+if (currentTheme !== 'amber') {
+  window.updateTerrainColor(currentTheme);
+}
