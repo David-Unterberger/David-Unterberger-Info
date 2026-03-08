@@ -75,10 +75,10 @@ html, body {
 }
 
 .terminal-container {
-   position: relative;
+  position: relative;
   z-index: 1;
   padding: 30px;
-  background: rgba(0, 0, 0, var(--terminal-opacity, 1));
+  background: #000;
   min-height: 400px;
   
   /* Phosphor glow */
@@ -363,9 +363,8 @@ body::before {
 
 .cli-input-wrapper {
   flex: 1;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  position: relative;
 }
 
 .cli-input {
@@ -378,66 +377,36 @@ body::before {
   caret-color: transparent;
   padding: 0;
   margin: 0;
-  width: 100%;
+  min-width: 0;
+  flex: 1;
 }
 
 .cli-input::placeholder {
-  opacity: 0;
-}
-
-/* Animated three dots - only show when not focused/typing */
-.cli-placeholder {
-  position: absolute;
-  left: 0;
-  color: var(--amber);
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-.cli-placeholder::after {
-  content: '';
   animation: dots 1.5s infinite;
 }
 
 @keyframes dots {
-  0%, 24% { content: ''; }
-  25%, 49% { content: '.'; }
-  50%, 74% { content: '..'; }
-  75%, 100% { content: '...'; }
+  0% { content: ''; opacity: 0.2; }
+  33% { content: '.'; opacity: 0.3; }
+  66% { content: '..'; opacity: 0.4; }
+  100% { content: '...'; opacity: 0.5; }
 }
 
-.cli-input:focus ~ .cli-placeholder,
-.cli-input-wrapper.typing .cli-placeholder {
-  display: none;
-}
+.cli-input:focus::placeholder { opacity: 0; }
 
-@keyframes dotsAnim {
-  0%, 24% { content: ''; }
-  25%, 49% { content: '.'; }
-  50%, 74% { content: '..'; }
-  75%, 100% { content: '...'; }
-}
-
-/* Block cursor - positioned after text */
+/* Block cursor */
 .cli-cursor {
-  display: none;
+  display: inline-block;
   width: 10px;
   height: 1.2em;
   background: var(--amber);
-  margin-left: 0;
+  margin-left: 2px;
   animation: blink-cursor 1s infinite;
   vertical-align: text-bottom;
   flex-shrink: 0;
-  position: absolute;
-  left: 0;
-}
-
-.cli-input:focus ~ .cli-cursor {
-  display: inline-block;
 }
 
 .cli-input-wrapper.typing .cli-cursor {
-  display: inline-block;
   animation: none;
   opacity: 0.8;
 }

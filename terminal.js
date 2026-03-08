@@ -1,14 +1,13 @@
 // ===== DAVID UNTERBERGER TERMINAL - COMPLETE AND FIXED =====
 
 // ===== URL REDIRECT =====
-if (window.location.hostname !== 'david-unterberger-info.vercel.app' &&
-  window.location.hostname !== 'localhost' &&
-  window.location.hostname !== '127.0.0.1') {
+if (window.location.hostname !== 'david-unterberger-info.vercel.app' && 
+    window.location.hostname !== 'localhost' && 
+    window.location.hostname !== '127.0.0.1') {
   window.location.href = 'https://david-unterberger-info.vercel.app';
 }
 
 // ===== CONFIGURATION =====
-let terminalOpacity = 1;
 const savedTheme = localStorage.getItem('terminal-theme') || 'amber';
 if (savedTheme !== 'amber') {
   if (savedTheme.startsWith('#')) {
@@ -17,11 +16,9 @@ if (savedTheme !== 'amber') {
     document.body.className = 'theme-' + savedTheme;
   }
 }
-document.documentElement.style.setProperty('--terminal-opacity', terminalOpacity);
 
-// Visitor tracking
 const visitorData = {
-  totalVisits: parseInt(localStorage.getItem('total-visits') || '0', 10) + 1,
+  totalVisits: parseInt(localStorage.getItem('total-visits') || '0') + 1,
   firstVisit: localStorage.getItem('first-visit') || new Date().toISOString(),
   lastVisit: new Date().toISOString(),
   sessionStart: Date.now()
@@ -117,9 +114,7 @@ const aliases = {
   'ls': 'help',
   'cd': 'status',
   'pwd': 'visitor',
-  'cat': 'dreams',
-  '?': 'help',
-  'quit': 'exit'
+  'cat': 'dreams'
 };
 
 // ===== UTILITY FUNCTIONS =====
@@ -128,53 +123,27 @@ function playSound(id) {
   if (audio) {
     audio.currentTime = 0;
     audio.volume = 0.1;
-    audio.play().catch(() => { });
+    audio.play().catch(() => {});
   }
 }
 
 function applyCustomTheme(color) {
   document.documentElement.style.setProperty('--amber', color);
-  const r = parseInt(color.slice(1, 3), 16);
-  const g = parseInt(color.slice(3, 5), 16);
-  const b = parseInt(color.slice(5, 7), 16);
-  const soft = `#${Math.min(255, r + 40).toString(16).padStart(2, '0')}${Math.min(255, g + 40).toString(16).padStart(2, '0')}${Math.min(255, b + 40).toString(16).padStart(2, '0')}`;
-  const dim = `#${Math.max(0, r - 40).toString(16).padStart(2, '0')}${Math.max(0, g - 40).toString(16).padStart(2, '0')}${Math.max(0, b - 40).toString(16).padStart(2, '0')}`;
+  const r = parseInt(color.slice(1,3), 16);
+  const g = parseInt(color.slice(3,5), 16);
+  const b = parseInt(color.slice(5,7), 16);
+  const soft = `#${Math.min(255, r+40).toString(16).padStart(2,'0')}${Math.min(255, g+40).toString(16).padStart(2,'0')}${Math.min(255, b+40).toString(16).padStart(2,'0')}`;
+  const dim = `#${Math.max(0, r-40).toString(16).padStart(2,'0')}${Math.max(0, g-40).toString(16).padStart(2,'0')}${Math.max(0, b-40).toString(16).padStart(2,'0')}`;
   document.documentElement.style.setProperty('--amber-soft', soft);
   document.documentElement.style.setProperty('--amber-dim', dim);
   localStorage.setItem('terminal-theme', color);
 }
 
-// Glitch effect
 function triggerGlitch() {
-  const terminal = document.querySelector('.terminal-container');
-  if (!terminal) return;
   const overlay = document.createElement('div');
   overlay.className = 'glitch-overlay';
   document.body.appendChild(overlay);
-
-  terminal.style.transition = 'none';
-  terminal.style.transform = 'scale(1.05)';
-  terminal.style.filter = 'brightness(1.5) contrast(1.5)';
-  terminal.style.textShadow = `-3px 0 red, 3px 0 cyan, 0 0 10px currentColor`;
-
-  setTimeout(() => {
-    terminal.style.transform = 'scale(0.98) skew(-2deg)';
-    terminal.style.filter = 'brightness(0.8) contrast(1.8) saturate(2)';
-  }, 80);
-
-  setTimeout(() => {
-    terminal.style.transform = 'scale(1.02) skew(1deg)';
-    terminal.style.textShadow = `-2px 0 red, 2px 0 cyan`;
-  }, 160);
-
-  setTimeout(() => {
-    terminal.style.transform = 'scale(1)';
-    terminal.style.filter = '';
-    terminal.style.textShadow = '';
-    terminal.style.transition = '';
-  }, 400);
-
-  setTimeout(() => overlay.remove(), 400);
+  setTimeout(() => overlay.remove(), 100);
 }
 
 function getGreeting() {
@@ -183,9 +152,9 @@ function getGreeting() {
   const month = new Date().getMonth();
   const isWeekend = day === 0 || day === 6;
   const isFirstVisit = visitorData.totalVisits === 1;
-
+  
   const greetings = [];
-
+  
   if (hour >= 5 && hour < 8) greetings.push('Early bird catches the code. Good morning, operator.');
   else if (hour >= 8 && hour < 10) greetings.push('Morning coffee and terminal access. Perfect start.');
   else if (hour >= 10 && hour < 12) greetings.push('Mid-morning productivity detected. Systems ready.');
@@ -195,12 +164,12 @@ function getGreeting() {
   else if (hour >= 20 && hour < 23) greetings.push('Night owl detected. The best code happens after dark.');
   else if (hour >= 23 || hour < 2) greetings.push('Midnight coding session initiated. True dedication.');
   else if (hour >= 2 && hour < 5) greetings.push('3 AM thoughts require terminal access. Understood.');
-
+  
   if (isWeekend && hour >= 10 && hour < 14) greetings.push('Weekend project time? This is the way.');
   if (isWeekend && hour >= 20) greetings.push('Saturday night terminal session. Respect.');
   if (month === 11 || month === 0) greetings.push('Winter coding season. Hot beverage recommended.');
   if (month >= 5 && month <= 7) greetings.push('Summer development continues. Stay hydrated, operator.');
-
+  
   if (isFirstVisit) greetings.push('First contact established. Welcome to the system.');
   if (visitorData.totalVisits === 5) greetings.push('Fifth visit logged. You seem interested in this terminal.');
   if (visitorData.totalVisits === 10) greetings.push('Visit #10. Regular access pattern detected.');
@@ -210,9 +179,9 @@ function getGreeting() {
   if (visitorData.totalVisits > 100 && visitorData.totalVisits % 50 === 0) {
     greetings.push(`Visit #${visitorData.totalVisits}. Exceptional dedication to the terminal.`);
   }
-
+  
   if (!isWeekend && hour >= 9 && hour < 17) greetings.push('Business hours terminal access. Productivity mode engaged.');
-
+  
   return greetings[Math.floor(Math.random() * greetings.length)] || 'Terminal access granted. Proceed.';
 }
 
@@ -220,7 +189,7 @@ function typewriterLine(element, text, callback) {
   let i = 0;
   const speed = 15;
   element.textContent = '> ';
-
+  
   function type() {
     if (i < text.length) {
       element.textContent += text.charAt(i);
@@ -253,12 +222,12 @@ const bootMessages = [
 
 function bootSequence() {
   playSound('boot-beep');
-
+  
   const bootDiv = document.getElementById('boot-sequence');
   const mainContent = document.getElementById('main-content');
-
+  
   let lineIndex = 0;
-
+  
   function nextLine() {
     if (lineIndex >= bootMessages.length) {
       setTimeout(() => {
@@ -266,13 +235,13 @@ function bootSequence() {
         greetingBox.className = 'boot-greeting';
         greetingBox.textContent = '◆ ' + getGreeting();
         bootDiv.appendChild(greetingBox);
-
+        
         setTimeout(() => {
           const continueMsg = document.createElement('div');
           continueMsg.className = 'boot-continue';
           continueMsg.textContent = '> Press any key to continue...';
           bootDiv.appendChild(continueMsg);
-
+          
           function handleContinue(e) {
             e.preventDefault();
             document.removeEventListener('keydown', handleContinue);
@@ -282,7 +251,7 @@ function bootSequence() {
             mainContent.style.display = 'block';
             revealTerminalContent();
           }
-
+          
           document.addEventListener('keydown', handleContinue);
           document.addEventListener('touchstart', handleContinue);
           document.addEventListener('click', handleContinue);
@@ -290,17 +259,17 @@ function bootSequence() {
       }, 200);
       return;
     }
-
+    
     const line = document.createElement('div');
     line.className = 'boot-line';
     bootDiv.appendChild(line);
-
+    
     typewriterLine(line, bootMessages[lineIndex], () => {
       lineIndex++;
       setTimeout(nextLine, 10);
     });
   }
-
+  
   nextLine();
 }
 
@@ -371,11 +340,11 @@ function revealTerminalContent() {
 
   const mainContent = document.getElementById('main-content');
   mainContent.innerHTML = content;
-
+  
   window.loadReactComponents();
   initCLI();
   setupGlobalTyping();
-
+  
   const input = document.getElementById('cli-input');
   if (input) input.focus();
 }
@@ -385,13 +354,13 @@ function setupGlobalTyping() {
   document.addEventListener('keydown', (e) => {
     const input = document.getElementById('cli-input');
     if (!input) return;
-
+    
     if (document.activeElement === input) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === 'Tab' || e.key === 'Escape') return;
-
+    
     // Ctrl+Shift+6 Easter Egg
-    if (e.ctrlKey && e.shiftKey && (e.key === '6' || e.code === 'Digit6')) {
+    if (e.ctrlKey && e.shiftKey && e.key === '^') {
       e.preventDefault();
       const output = document.createElement('div');
       output.className = 'cli-output';
@@ -400,7 +369,7 @@ function setupGlobalTyping() {
       scrollToInput();
       return;
     }
-
+    
     input.focus();
   });
 }
@@ -421,14 +390,6 @@ function initCLI() {
 
   input.addEventListener('input', () => {
     if (input.value.length > 0) {
-      wrapper.classList.add('has-text');
-    } else {
-      wrapper.classList.remove('has-text');
-    }
-  });
-
-  input.addEventListener('input', () => {
-    if (input.value.length > 0) {
       wrapper.classList.add('typing');
     } else {
       wrapper.classList.remove('typing');
@@ -443,16 +404,9 @@ function initCLI() {
         commandHistory.push(cmd);
         localStorage.setItem('cli-history', JSON.stringify(commandHistory.slice(-50)));
         historyIndex = commandHistory.length;
-      } else {
-        // Empty enter - reprint prompt
-        const echo = document.createElement('div');
-        echo.textContent = '> ';
-        echo.style.color = 'var(--amber-soft)';
-        history.appendChild(echo);
       }
       input.value = '';
-      wrapper.classList.remove('has-text');
-      scrollToInput();
+      wrapper.classList.remove('typing');
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (historyIndex > 0) {
@@ -485,9 +439,9 @@ function initCLI() {
       'animals', 'fish', 'skull', 'hidden', 'memory', 'network', 'fortune',
       'quiz', 'riddle', 'fact', 'challenge', 'glitch', 'ls', 'cd', 'pwd', 'cat'
     ];
-
+    
     const matches = allCommands.filter(cmd => cmd.startsWith(value));
-
+    
     if (matches.length === 1) {
       input.value = matches[0] + ' ';
       wrapper.classList.add('typing');
@@ -495,10 +449,10 @@ function initCLI() {
       const output = document.createElement('div');
       output.className = 'cli-output tab-complete';
       output.textContent = matches.join('  ');
-
+      
       const existingComplete = document.querySelector('.tab-complete');
       if (existingComplete) existingComplete.remove();
-
+      
       document.querySelector('.cli-input-line').appendChild(output);
       setTimeout(() => output.remove(), 2000);
     }
@@ -507,7 +461,7 @@ function initCLI() {
   function executeCommand(cmd) {
     const output = document.createElement('div');
     output.className = 'cli-output';
-
+    
     const echo = document.createElement('div');
     echo.textContent = '> ' + cmd;
     echo.style.color = 'var(--amber-soft)';
@@ -540,11 +494,7 @@ function initCLI() {
     }
 
     if (currentQuiz) {
-      const answer = cmd.trim();
-      const correctIndex = currentQuiz.options.indexOf(currentQuiz.a) + 1;
-      const isCorrect = answer === currentQuiz.a || answer === correctIndex.toString();
-
-      if (isCorrect) {
+      if (cmd === currentQuiz.a) {
         output.className = 'cli-output cli-success';
         output.textContent = 'Correct! 🎉';
       } else {
@@ -575,13 +525,13 @@ function initCLI() {
       output.textContent = 'Siemens Lufthaken out of stock. Try again next year.';
     } else if (command === '42') {
       output.textContent = 'The Answer to the Ultimate Question of Life, the Universe, and Everything.';
-    } else if (cmd === 'rm -rf ' || cmd === 'rm -rf *') {
+    } else if (cmd === 'rm -rf /' || cmd === 'rm -rf /*') {
       output.className = 'cli-output cli-error';
       output.textContent = 'Error: This is a read-only filesystem. Nice try though.';
     } else if (command === ':wq' || command === ':wq!') {
       output.textContent = 'This isn\'t vim... or is it? 🤔';
     } else if (command === 'exit') {
-      output.textContent = 'There is no escape. You\'re here forever.';
+      output.textContent = 'There is no escape. You\'re here forever. 😈';
     } else if (command === 'teapot') {
       output.textContent = 'HTTP 418: I\'m a teapot ☕\n\nShort and stout.';
     } else if (command === 'hidden') {
@@ -597,6 +547,7 @@ rm -rf /        - Try to delete everything
 :wq             - Exit vim (?)
 exit            - Try to leave
 teapot          - HTTP 418
+glitch          - Trigger screen glitch
 Ctrl+Shift+6    - Cisco easter egg
 ↑↑↓↓←→←→BA      - Konami code`;
     } else if (command === 'glitch') {
@@ -626,9 +577,9 @@ Ctrl+Shift+6    - Cisco easter egg
 
 Total:    ${navigator.deviceMemory || 8}GB
 Used:     ${used}%
-Free:     ${100 - used}%
+Free:     ${100-used}%
 
-[${('█'.repeat(used / 2))}${('░'.repeat((100 - used) / 2))}]`;
+[${('█'.repeat(used/2))}${('░'.repeat((100-used)/2))}]`;
     } else if (command === 'network') {
       const latency = Math.floor(Math.random() * 50) + 10;
       const speed = (Math.random() * 100 + 50).toFixed(1);
@@ -645,7 +596,7 @@ Encryption:   TLS 1.3`;
       currentQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
       prompt.textContent = '>';
       prompt.classList.add('simple');
-      output.innerHTML = `${currentQuiz.q}\n\n${currentQuiz.options.map((o, i) => `${i + 1}. ${o}`).join('\n')}\n\nType your answer:`;
+      output.innerHTML = `${currentQuiz.q}\n\n${currentQuiz.options.map((o, i) => `${i+1}. ${o}`).join('\n')}\n\nType your answer:`;
     } else if (command === 'riddle') {
       currentRiddle = riddles[Math.floor(Math.random() * riddles.length)];
       prompt.textContent = '>';
@@ -655,145 +606,8 @@ Encryption:   TLS 1.3`;
       output.textContent = facts[Math.floor(Math.random() * facts.length)];
     } else if (command === 'challenge') {
       output.textContent = 'CODING CHALLENGE:\n\n' + challenges[Math.floor(Math.random() * challenges.length)];
-    }
-    else if (command === 'meep') {
-      output.textContent = 'meep';
-
-    } else if (cmd.toLowerCase() === 'banküberfall' || cmd.toLowerCase() === 'ba ba banküberfall') {
-      output.innerHTML = `🏦 Ba-Ba-Banküberfall! 🎵
-
-Der Kühlschrank ist leer, das Sparschwein auch,
-ich habe seit Wochen kein Schnitzel mehr im Bauch.
-Der letzte Scheck ist weg, ich bin nicht liquid,
-auf der Bank krieg‘ ich sowieso keinen Kredit!
-
-Gestern enterbt mich auch noch meine Mutter
-und vor der Tür steht der Exekutor.
-Mit einem Wort: Die Lage ist fatal.
-Da hilft nur eins: ein Banküberfall!
-
-Ref:
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
-Ba-Ba-Banküberfall …
-Das Böse ist immer und überall!
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
-Ba-Ba-Banküberfall …
-Das Böse ist immer und überall!
-
-
-Auf meinem Kopf einen Strumpf von Palmers
-steh ich vor der Bank und sage: „Überfall ma’s!“
-Mit dem Finger im Mantel, statt einer Puff’n.
-Ich kann kein Blut sehen, darum muß ich bluff’n!
-
-Ich schrei‘: „Hände hoch! Das ist ein Überfall!
-Und seid ihr nicht willig, dann gibt’s an Krawall!“
-Eine Oma dreht sich um und sagt: „Junger Mann!
-Stell’n Sie sich gefälligst hinten an!“
-
-Ref:
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
-Ba-Ba-Banküberfall …
-Das Böse ist immer und überall!
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
-Ba-Ba-Banküberfall …
-A-Ba-A-Ba-A-Banküberfall!
-
-
-Nach einer halben Stund‘ bin ich endlich an der Reih‘,
-mein Finger ist schon steif von der blöden Warterei.
-Ich sag‘: „Jetzt oder nie, her mit der Marie!“
-Der Kassier schaut mich an, und fragt: „Was haben Sie?“
-
-Ich sag‘: „An Hunger und an Durst und keinen Plärrer,
-ich bin der böse Kassenentleerer!“
-Der Kassierer sagt „Nein! Was fällt Ihnen ein?“
-„Na, gut“ sage ich, „dann zahl‘ ich halt ‚was ein!“
-
-Ref:
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
-Ba-Ba-Banküberfall …
-Das Böse ist immer und überall!
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
-Ba-Ba-Banküberfall …
-A-Bu-Bi-Ba-Bu-Bu-Ba-Bu!
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
-Ba-Ba-Banküberfall …
-Das Böse ist immer und überall!
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
-Ba-Ba-Banküberfall …
-A-Bu-Bi-Ba-Bu-Bu-Ba-Bu!
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
-Ba-Ba-Banküberfall …
-The Evil is always and everywhere!
-Ba-Ba-Bankrobbery … Ba-Ba-Bankrobbery,
-Ba-Ba-Bankrobbery, Ba-B-Bankrobbery,
-A-Bu-Bi-Ba-Bu-Bu-Ba-Bu! Bankrobbery
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
-Ba-Ba-Banküberfall …
-A-Bu-Bi-Ba-Bu-Bu-Ba-Bu!
-Ba-Ba-Banküberfall … Ba-Ba-Banküberfall … `;
-    }
-    else if (cmd.toLowerCase() === 'da hofa woas' || cmd.toLowerCase() === 'der hofer wars' || cmd.toLowerCase() === 'da hofa') {
-      output.innerHTML = ` Da Hofa - Wolfgang Ambros
-
-Schau, da liegt a Leich im Rinnsal,
-′s Bluat rinnt in' Kanal!"
-"Heast, des is makaber:
-Da liegt ja a Kadaver!"
-"Wer is denn des, kennst du den?"
-"Bei dem zerschnittnen Gsicht kann i des net sehn.
-
-Der Hofer war′s, vom Zwanzgerhaus!
-Des schaut mir so verdächtig aus!
-Der Hofer hat an Anfall kriagt
-und hat die Leich da massakriert!
-
-Da geht a Raunen durch die Leut,
-und a jeder hat sei Freud.
-Der Hofer war's, der Sündenbock!
-Der Hofer, den was kaner mog.
-
-Und der Haufen bewegt si viere
-hin zum Hofer seiner Türe.
-Da schrein die Leut: Kumm außer, Mörder!
-Aus is' heut!
-
-
-Geh, mach auf die Tür!
-Heut is′ aus mit dir!
-Weil für dei Verbrechen muß jetzt zahln!
-Geh, kumm außer da!
-Mir drahn dir d′Gurgel a!
-Du hast kane Freund, die da d'Stangen halten!
-
-Meuchelmörder, Leichenschinder!
-D′Justiz war heute g'schwinder
-als was d′glaubst!
-
-Also, Hofer, kommen's raus!"
-Und sie pumpern an die Tür
-und sie machen an Krawall alswia,
-und sie tretatn′s aa glatt ei,
-tät die Hausmeisterin net sei.
-
-Die sagt: Was is denn, meine Herrn?
-Tun S' mir doch den Hausfrieden nicht stör'n!
-Denn eines weiß ich ganz gewiß,
-daß die Leich
-der Hofer is!`;
-    }
-    else {
-      // Navigation commands
-      if (['discord', 'steam', 'github', 'itch', 'weather', 'nasa', 'news', 'hackernews'].includes(command)) {
-        const targetId = command === 'news' || command === 'hackernews' ? 'hackernews-mount' : `${command}-mount`;
-        const target = document.getElementById(targetId);
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        return;
-      }
-      switch (command) {
+    } else {
+      switch(command) {
         case 'help':
           output.innerHTML = `Available commands:
 
@@ -824,11 +638,11 @@ fish            - ASCII fish tank
 skull           - ASCII skull
 glitch          - Trigger screen glitch`;
           break;
-
+          
         case 'clear':
           history.innerHTML = '';
           return;
-
+          
         case 'status':
           output.innerHTML = `SYSTEM STATUS: OPERATIONAL
 
@@ -842,7 +656,7 @@ Total Visits: ${visitorData.totalVisits}`;
         case 'visitor':
           const firstVisitDate = new Date(visitorData.firstVisit);
           const daysSince = Math.floor((Date.now() - firstVisitDate.getTime()) / (1000 * 60 * 60 * 24));
-
+          
           output.innerHTML = `VISITOR STATISTICS
 
 Visitor ID: #${Math.random().toString(36).substr(2, 8).toUpperCase()}
@@ -854,7 +668,7 @@ Screen: ${window.screen.width}x${window.screen.height}
 Viewport: ${window.innerWidth}x${window.innerHeight}
 Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
           break;
-
+          
         case 'theme':
           if (parts[1]) {
             if (parts[1] === 'custom' && parts[2] && parts[2].match(/^#[0-9A-Fa-f]{6}$/)) {
@@ -868,7 +682,7 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
                 document.documentElement.style.removeProperty('--amber');
                 document.documentElement.style.removeProperty('--amber-soft');
                 document.documentElement.style.removeProperty('--amber-dim');
-
+                
                 document.body.className = parts[1] === 'amber' ? '' : 'theme-' + parts[1];
                 localStorage.setItem('terminal-theme', parts[1]);
                 window.updateTerrainColor(parts[1]);
@@ -882,21 +696,21 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
             output.textContent = 'Current theme: ' + (localStorage.getItem('terminal-theme') || 'amber');
           }
           break;
-
+          
         case 'restart':
           output.textContent = 'Restarting terminal...';
           history.appendChild(output);
           setTimeout(() => location.reload(), 1000);
           return;
-
+          
         case 'history':
           output.innerHTML = commandHistory.map((c, i) => `${i + 1}  ${c}`).join('\n');
           break;
-
+          
         case 'time':
           output.textContent = new Date().toLocaleString();
           break;
-
+          
         case 'uptime':
           const uptime = Math.floor(performance.now() / 1000);
           const minutes = Math.floor(uptime / 60);
@@ -921,7 +735,7 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
 
         case 'quote':
           fetch('https://zenquotes.io/api/random')
-            .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+            .then(r => { if(!r.ok) throw new Error(); return r.json(); })
             .then(q => {
               const quote = q[0];
               output.textContent = `"${quote.q}"\n\n— ${quote.a}`;
@@ -953,77 +767,12 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
           if (dreamJournal.length === 0) {
             output.textContent = 'No dreams saved yet. Use: dream [text]';
           } else {
-            output.innerHTML = dreamJournal.map((d, i) =>
+            output.innerHTML = dreamJournal.map((d, i) => 
               `${i + 1}. [${new Date(d.date).toLocaleDateString()}] ${d.text}`
             ).join('\n\n');
           }
           break;
-
-        case 'ip':
-          fetch('https://api.ipify.org?format=json')
-            .then(r => r.json())
-            .then(data => {
-              output.textContent = `Your IP Address: ${data.ip}`;
-              history.appendChild(output);
-              scrollToInput();
-            })
-            .catch(() => {
-              output.textContent = 'Failed to fetch IP address.';
-              history.appendChild(output);
-              scrollToInput();
-            });
-          return;
-
-        case 'whoami':
-          const ua = navigator.userAgent;
-          const os = ua.match(/\(([^)]+)\)/)?.[1] || 'Unknown';
-          output.innerHTML = `User: ${os}
-Platform: ${navigator.platform}
-Language: ${navigator.language}
-Cores: ${navigator.hardwareConcurrency || 'Unknown'}
-Memory: ${navigator.deviceMemory || 'Unknown'}GB`;
-          break;
-
-        case 'network':
-          const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-          const downlink = conn?.downlink ? `${conn.downlink.toFixed(2)} Mbps` : 'Unknown';
-          const rtt = conn?.rtt || 'Unknown';
-          const type = conn?.effectiveType || 'Unknown';
-          const saveData = conn?.saveData ? 'Enabled' : 'Disabled';
-
-          output.innerHTML = `NETWORK STATUS
-
-Connection:   ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}
-Type:         ${type}
-RTT:          ${rtt}ms
-Downlink:     ${downlink}
-Save Data:    ${saveData}
-Protocol:     ${window.location.protocol.replace(':', '').toUpperCase()}
-Port:         ${window.location.port || (window.location.protocol === 'https:' ? '443' : '80')}`;
-          break;
-
-        case 'opacity':
-          if (parts[1]) {
-            const val = parseInt(parts[1]);
-            if (!isNaN(val) && val >= 0 && val <= 100) {
-              terminalOpacity = val / 100;
-              document.documentElement.style.setProperty('--terminal-opacity', terminalOpacity);
-              output.textContent = `Terminal opacity set to ${val}%`;
-            } else {
-              output.className = 'cli-output cli-error';
-              output.textContent = 'Usage: opacity [0-100]';
-            }
-          } else {
-            output.textContent = `Current opacity: ${Math.round(terminalOpacity * 100)}%`;
-          }
-          break;
-
-        case 'clear-history':
-          commandHistory = [];
-          localStorage.setItem('cli-history', '[]');
-          output.textContent = 'Command history cleared.';
-          break;
-
+          
         default:
           output.className = 'cli-output cli-error';
           output.textContent = `Command not found: ${command}. Type 'help' for available commands.`;
@@ -1099,12 +848,12 @@ function activateWhale() {
   let frame = 0;
   whaleDiv.style.display = 'block';
   whaleDiv.textContent = frames[frame];
-
+  
   const interval = setInterval(() => {
     frame = (frame + 1) % frames.length;
     whaleDiv.textContent = frames[frame];
   }, 500);
-
+  
   setTimeout(() => {
     clearInterval(interval);
     whaleDiv.style.display = 'none';
