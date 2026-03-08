@@ -1,9 +1,9 @@
 // ===== DAVID UNTERBERGER TERMINAL - COMPLETE AND FIXED =====
 
 // ===== URL REDIRECT =====
-if (window.location.hostname !== 'david-unterberger-info.vercel.app' && 
-    window.location.hostname !== 'localhost' && 
-    window.location.hostname !== '127.0.0.1') {
+if (window.location.hostname !== 'david-unterberger-info.vercel.app' &&
+  window.location.hostname !== 'localhost' &&
+  window.location.hostname !== '127.0.0.1') {
   window.location.href = 'https://david-unterberger-info.vercel.app';
 }
 
@@ -123,17 +123,17 @@ function playSound(id) {
   if (audio) {
     audio.currentTime = 0;
     audio.volume = 0.1;
-    audio.play().catch(() => {});
+    audio.play().catch(() => { });
   }
 }
 
 function applyCustomTheme(color) {
   document.documentElement.style.setProperty('--amber', color);
-  const r = parseInt(color.slice(1,3), 16);
-  const g = parseInt(color.slice(3,5), 16);
-  const b = parseInt(color.slice(5,7), 16);
-  const soft = `#${Math.min(255, r+40).toString(16).padStart(2,'0')}${Math.min(255, g+40).toString(16).padStart(2,'0')}${Math.min(255, b+40).toString(16).padStart(2,'0')}`;
-  const dim = `#${Math.max(0, r-40).toString(16).padStart(2,'0')}${Math.max(0, g-40).toString(16).padStart(2,'0')}${Math.max(0, b-40).toString(16).padStart(2,'0')}`;
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  const soft = `#${Math.min(255, r + 40).toString(16).padStart(2, '0')}${Math.min(255, g + 40).toString(16).padStart(2, '0')}${Math.min(255, b + 40).toString(16).padStart(2, '0')}`;
+  const dim = `#${Math.max(0, r - 40).toString(16).padStart(2, '0')}${Math.max(0, g - 40).toString(16).padStart(2, '0')}${Math.max(0, b - 40).toString(16).padStart(2, '0')}`;
   document.documentElement.style.setProperty('--amber-soft', soft);
   document.documentElement.style.setProperty('--amber-dim', dim);
   localStorage.setItem('terminal-theme', color);
@@ -152,9 +152,9 @@ function getGreeting() {
   const month = new Date().getMonth();
   const isWeekend = day === 0 || day === 6;
   const isFirstVisit = visitorData.totalVisits === 1;
-  
+
   const greetings = [];
-  
+
   if (hour >= 5 && hour < 8) greetings.push('Early bird catches the code. Good morning, operator.');
   else if (hour >= 8 && hour < 10) greetings.push('Morning coffee and terminal access. Perfect start.');
   else if (hour >= 10 && hour < 12) greetings.push('Mid-morning productivity detected. Systems ready.');
@@ -164,12 +164,12 @@ function getGreeting() {
   else if (hour >= 20 && hour < 23) greetings.push('Night owl detected. The best code happens after dark.');
   else if (hour >= 23 || hour < 2) greetings.push('Midnight coding session initiated. True dedication.');
   else if (hour >= 2 && hour < 5) greetings.push('3 AM thoughts require terminal access. Understood.');
-  
+
   if (isWeekend && hour >= 10 && hour < 14) greetings.push('Weekend project time? This is the way.');
   if (isWeekend && hour >= 20) greetings.push('Saturday night terminal session. Respect.');
   if (month === 11 || month === 0) greetings.push('Winter coding season. Hot beverage recommended.');
   if (month >= 5 && month <= 7) greetings.push('Summer development continues. Stay hydrated, operator.');
-  
+
   if (isFirstVisit) greetings.push('First contact established. Welcome to the system.');
   if (visitorData.totalVisits === 5) greetings.push('Fifth visit logged. You seem interested in this terminal.');
   if (visitorData.totalVisits === 10) greetings.push('Visit #10. Regular access pattern detected.');
@@ -179,21 +179,20 @@ function getGreeting() {
   if (visitorData.totalVisits > 100 && visitorData.totalVisits % 50 === 0) {
     greetings.push(`Visit #${visitorData.totalVisits}. Exceptional dedication to the terminal.`);
   }
-  
+
   if (!isWeekend && hour >= 9 && hour < 17) greetings.push('Business hours terminal access. Productivity mode engaged.');
-  
+
   return greetings[Math.floor(Math.random() * greetings.length)] || 'Terminal access granted. Proceed.';
 }
 
 function typewriterLine(element, text, callback) {
   let i = 0;
-  const speed = 15;
+  const speed = 3;
   element.textContent = '> ';
-  
+
   function type() {
     if (i < text.length) {
       element.textContent += text.charAt(i);
-      playSound('key-click');
       i++;
       setTimeout(type, speed);
     } else if (callback) {
@@ -222,12 +221,12 @@ const bootMessages = [
 
 function bootSequence() {
   playSound('boot-beep');
-  
+
   const bootDiv = document.getElementById('boot-sequence');
   const mainContent = document.getElementById('main-content');
-  
+
   let lineIndex = 0;
-  
+
   function nextLine() {
     if (lineIndex >= bootMessages.length) {
       setTimeout(() => {
@@ -235,13 +234,13 @@ function bootSequence() {
         greetingBox.className = 'boot-greeting';
         greetingBox.textContent = '◆ ' + getGreeting();
         bootDiv.appendChild(greetingBox);
-        
+
         setTimeout(() => {
           const continueMsg = document.createElement('div');
           continueMsg.className = 'boot-continue';
           continueMsg.textContent = '> Press any key to continue...';
           bootDiv.appendChild(continueMsg);
-          
+
           function handleContinue(e) {
             e.preventDefault();
             document.removeEventListener('keydown', handleContinue);
@@ -251,7 +250,7 @@ function bootSequence() {
             mainContent.style.display = 'block';
             revealTerminalContent();
           }
-          
+
           document.addEventListener('keydown', handleContinue);
           document.addEventListener('touchstart', handleContinue);
           document.addEventListener('click', handleContinue);
@@ -259,17 +258,17 @@ function bootSequence() {
       }, 200);
       return;
     }
-    
+
     const line = document.createElement('div');
     line.className = 'boot-line';
     bootDiv.appendChild(line);
-    
+
     typewriterLine(line, bootMessages[lineIndex], () => {
       lineIndex++;
       setTimeout(nextLine, 10);
     });
   }
-  
+
   nextLine();
 }
 
@@ -340,11 +339,11 @@ function revealTerminalContent() {
 
   const mainContent = document.getElementById('main-content');
   mainContent.innerHTML = content;
-  
+
   window.loadReactComponents();
   initCLI();
   setupGlobalTyping();
-  
+
   const input = document.getElementById('cli-input');
   if (input) input.focus();
 }
@@ -354,13 +353,15 @@ function setupGlobalTyping() {
   document.addEventListener('keydown', (e) => {
     const input = document.getElementById('cli-input');
     if (!input) return;
-    
-    if (document.activeElement === input) return;
+
+    if (document.activeElement !== input) {
+      input.focus();
+    }
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === 'Tab' || e.key === 'Escape') return;
-    
+
     // Ctrl+Shift+6 Easter Egg
-    if (e.ctrlKey && e.shiftKey && e.key === '^') {
+    if (e.ctrlKey && e.shiftKey && e.key === '6') {
       e.preventDefault();
       const output = document.createElement('div');
       output.className = 'cli-output';
@@ -369,7 +370,7 @@ function setupGlobalTyping() {
       scrollToInput();
       return;
     }
-    
+
     input.focus();
   });
 }
@@ -439,9 +440,9 @@ function initCLI() {
       'animals', 'fish', 'skull', 'hidden', 'memory', 'network', 'fortune',
       'quiz', 'riddle', 'fact', 'challenge', 'glitch', 'ls', 'cd', 'pwd', 'cat'
     ];
-    
+
     const matches = allCommands.filter(cmd => cmd.startsWith(value));
-    
+
     if (matches.length === 1) {
       input.value = matches[0] + ' ';
       wrapper.classList.add('typing');
@@ -449,10 +450,10 @@ function initCLI() {
       const output = document.createElement('div');
       output.className = 'cli-output tab-complete';
       output.textContent = matches.join('  ');
-      
+
       const existingComplete = document.querySelector('.tab-complete');
       if (existingComplete) existingComplete.remove();
-      
+
       document.querySelector('.cli-input-line').appendChild(output);
       setTimeout(() => output.remove(), 2000);
     }
@@ -461,7 +462,7 @@ function initCLI() {
   function executeCommand(cmd) {
     const output = document.createElement('div');
     output.className = 'cli-output';
-    
+
     const echo = document.createElement('div');
     echo.textContent = '> ' + cmd;
     echo.style.color = 'var(--amber-soft)';
@@ -525,9 +526,8 @@ function initCLI() {
       output.textContent = 'Siemens Lufthaken out of stock. Try again next year.';
     } else if (command === '42') {
       output.textContent = 'The Answer to the Ultimate Question of Life, the Universe, and Everything.';
-    } else if (cmd === 'rm -rf /' || cmd === 'rm -rf /*') {
-      output.className = 'cli-output cli-error';
-      output.textContent = 'Error: This is a read-only filesystem. Nice try though.';
+    } else if (command === 'rm' && args === '-rf') {
+      output.textContent = 'Nice try.';
     } else if (command === ':wq' || command === ':wq!') {
       output.textContent = 'This isn\'t vim... or is it? 🤔';
     } else if (command === 'exit') {
@@ -572,31 +572,45 @@ Ctrl+Shift+6    - Cisco easter egg
                 ||----w |
                 ||     ||`;
     } else if (command === 'memory') {
-      const used = Math.floor(Math.random() * 60) + 20;
+      if (performance.memory) {
+        const used = (performance.memory.usedJSHeapSize / 1048576).toFixed(1);
+        const total = (performance.memory.jsHeapSizeLimit / 1048576).toFixed(1);
+
+        output.innerHTML = `MEMORY USAGE
+
+Used: ${used} MB
+Limit: ${total} MB
+Runtime: JavaScript Heap`;
+      } else {
+        output.textContent = 'Memory statistics unavailable in this browser.';
+      }
       output.innerHTML = `MEMORY USAGE
 
 Total:    ${navigator.deviceMemory || 8}GB
 Used:     ${used}%
-Free:     ${100-used}%
+Free:     ${100 - used}%
 
-[${('█'.repeat(used/2))}${('░'.repeat((100-used)/2))}]`;
+[${('█'.repeat(used / 2))}${('░'.repeat((100 - used) / 2))}]`;
     } else if (command === 'network') {
-      const latency = Math.floor(Math.random() * 50) + 10;
-      const speed = (Math.random() * 100 + 50).toFixed(1);
-      output.innerHTML = `NETWORK STATUS
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
 
-Connection:   ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}
-Latency:      ${latency}ms
-Download:     ${speed} Mbps
-Protocol:     HTTP/2
-Encryption:   TLS 1.3`;
+      if (conn) {
+        output.innerHTML = `NETWORK STATUS
+
+Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}
+Type: ${conn.effectiveType}
+Downlink: ${conn.downlink} Mbps
+RTT: ${conn.rtt} ms`;
+      } else {
+        output.textContent = 'Network statistics unavailable.';
+      }
     } else if (command === 'fortune') {
       output.textContent = fortunes[Math.floor(Math.random() * fortunes.length)];
     } else if (command === 'quiz') {
       currentQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
       prompt.textContent = '>';
       prompt.classList.add('simple');
-      output.innerHTML = `${currentQuiz.q}\n\n${currentQuiz.options.map((o, i) => `${i+1}. ${o}`).join('\n')}\n\nType your answer:`;
+      output.innerHTML = `${currentQuiz.q}\n\n${currentQuiz.options.map((o, i) => `${i + 1}. ${o}`).join('\n')}\n\nType your answer:`;
     } else if (command === 'riddle') {
       currentRiddle = riddles[Math.floor(Math.random() * riddles.length)];
       prompt.textContent = '>';
@@ -607,8 +621,12 @@ Encryption:   TLS 1.3`;
     } else if (command === 'challenge') {
       output.textContent = 'CODING CHALLENGE:\n\n' + challenges[Math.floor(Math.random() * challenges.length)];
     } else {
-      switch(command) {
+      switch (command) {
         case 'help':
+          const visitorId = localStorage.getItem('visitor-id') ||
+            Math.random().toString(36).substr(2, 8).toUpperCase();
+
+          localStorage.setItem('visitor-id', visitorId);
           output.innerHTML = `Available commands:
 
 help            - Show this help message
@@ -638,11 +656,11 @@ fish            - ASCII fish tank
 skull           - ASCII skull
 glitch          - Trigger screen glitch`;
           break;
-          
+
         case 'clear':
           history.innerHTML = '';
           return;
-          
+
         case 'status':
           output.innerHTML = `SYSTEM STATUS: OPERATIONAL
 
@@ -656,10 +674,10 @@ Total Visits: ${visitorData.totalVisits}`;
         case 'visitor':
           const firstVisitDate = new Date(visitorData.firstVisit);
           const daysSince = Math.floor((Date.now() - firstVisitDate.getTime()) / (1000 * 60 * 60 * 24));
-          
+
           output.innerHTML = `VISITOR STATISTICS
 
-Visitor ID: #${Math.random().toString(36).substr(2, 8).toUpperCase()}
+Visitor ID: #${visitorId}
 Total Visits: ${visitorData.totalVisits}
 First Visit: ${firstVisitDate.toLocaleDateString()}
 Days Active: ${daysSince}
@@ -668,7 +686,7 @@ Screen: ${window.screen.width}x${window.screen.height}
 Viewport: ${window.innerWidth}x${window.innerHeight}
 Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
           break;
-          
+
         case 'theme':
           if (parts[1]) {
             if (parts[1] === 'custom' && parts[2] && parts[2].match(/^#[0-9A-Fa-f]{6}$/)) {
@@ -682,7 +700,7 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
                 document.documentElement.style.removeProperty('--amber');
                 document.documentElement.style.removeProperty('--amber-soft');
                 document.documentElement.style.removeProperty('--amber-dim');
-                
+
                 document.body.className = parts[1] === 'amber' ? '' : 'theme-' + parts[1];
                 localStorage.setItem('terminal-theme', parts[1]);
                 window.updateTerrainColor(parts[1]);
@@ -696,21 +714,21 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
             output.textContent = 'Current theme: ' + (localStorage.getItem('terminal-theme') || 'amber');
           }
           break;
-          
+
         case 'restart':
           output.textContent = 'Restarting terminal...';
           history.appendChild(output);
           setTimeout(() => location.reload(), 1000);
           return;
-          
+
         case 'history':
           output.innerHTML = commandHistory.map((c, i) => `${i + 1}  ${c}`).join('\n');
           break;
-          
+
         case 'time':
           output.textContent = new Date().toLocaleString();
           break;
-          
+
         case 'uptime':
           const uptime = Math.floor(performance.now() / 1000);
           const minutes = Math.floor(uptime / 60);
@@ -734,11 +752,10 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
           return;
 
         case 'quote':
-          fetch('https://zenquotes.io/api/random')
-            .then(r => { if(!r.ok) throw new Error(); return r.json(); })
+          fetch('https://api.quotable.io/random')
+            .then(r => r.json())
             .then(q => {
-              const quote = q[0];
-              output.textContent = `"${quote.q}"\n\n— ${quote.a}`;
+              output.textContent = `"${q.content}"\n\n— ${q.author}`;
               history.appendChild(output);
               scrollToInput();
             })
@@ -747,7 +764,6 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
               history.appendChild(output);
               scrollToInput();
             });
-          return;
 
         case 'dream':
           if (args) {
@@ -767,12 +783,12 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
           if (dreamJournal.length === 0) {
             output.textContent = 'No dreams saved yet. Use: dream [text]';
           } else {
-            output.innerHTML = dreamJournal.map((d, i) => 
+            output.innerHTML = dreamJournal.map((d, i) =>
               `${i + 1}. [${new Date(d.date).toLocaleDateString()}] ${d.text}`
             ).join('\n\n');
           }
           break;
-          
+
         default:
           output.className = 'cli-output cli-error';
           output.textContent = `Command not found: ${command}. Type 'help' for available commands.`;
@@ -848,12 +864,12 @@ function activateWhale() {
   let frame = 0;
   whaleDiv.style.display = 'block';
   whaleDiv.textContent = frames[frame];
-  
+
   const interval = setInterval(() => {
     frame = (frame + 1) % frames.length;
     whaleDiv.textContent = frames[frame];
   }, 500);
-  
+
   setTimeout(() => {
     clearInterval(interval);
     whaleDiv.style.display = 'none';
