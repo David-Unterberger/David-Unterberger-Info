@@ -13,19 +13,25 @@ export default async function handler(req, res) {
     }
 
     const games = data.games
-      // only include public/published projects
-      .filter(g => g.published === true)
+      // only public/published games
+      .filter(g => g.published === true && g.url)
+
+      // map data for frontend
       .map(g => ({
         title: g.title,
         link: g.url,
-        image: g.cover_url || g.still_cover_url,
+        image: g.still_cover_url || g.cover_url,
         views: g.views_count || 0,
         downloads: g.downloads_count || 0,
         purchases: g.purchases_count || 0,
         tags: g.tags || []
-      }));
+      }))
 
-    games.sort((a, b) => b.views - a.views);
+      // sort by views
+      .sort((a, b) => b.views - a.views)
+
+      // keep only top 6
+      .slice(0, 6);
 
     res.setHeader(
       "Cache-Control",
