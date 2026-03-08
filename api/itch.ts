@@ -12,15 +12,18 @@ export default async function handler(req, res) {
       });
     }
 
-    const games = data.games.map(g => ({
-      title: g.title,
-      link: g.url,
-      image: g.cover_url || g.still_cover_url,
-      views: g.views_count || 0,
-      downloads: g.downloads_count || 0,
-      purchases: g.purchases_count || 0,
-      tags: g.tags || []
-    }));
+    const games = data.games
+      // only include public/published projects
+      .filter(g => g.published === true)
+      .map(g => ({
+        title: g.title,
+        link: g.url,
+        image: g.cover_url || g.still_cover_url,
+        views: g.views_count || 0,
+        downloads: g.downloads_count || 0,
+        purchases: g.purchases_count || 0,
+        tags: g.tags || []
+      }));
 
     games.sort((a, b) => b.views - a.views);
 

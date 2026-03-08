@@ -182,7 +182,7 @@ body::before {
 /* ===== CONTENT STYLES ===== */
 .ascii-name {
   color: var(--amber-soft);
-  font-size: 4px;
+  font-size: 8px;
   line-height: 1;
   margin: 10px 0 20px 0;
   letter-spacing: 0;
@@ -539,7 +539,7 @@ body.theme-magenta {
   .crt-screen { margin: 20px 10px; padding: 0; }
   .crt-glass { padding: 15px; }
   .terminal-container { padding: 20px 15px; }
-  .ascii-name { font-size: 3px; }
+  .ascii-name { font-size: 4px; }
   .grid-3 { grid-template-columns: repeat(2, 1fr); }
   .grid-2 { grid-template-columns: 1fr; }
   .weather-container { grid-template-columns: 1fr; }
