@@ -1,5 +1,11 @@
-// ===== DAVID UNTERBERGER TERMINAL - MAIN SCRIPT =====
-// All features: boot, CLI with ALL commands, global typing, tab completion, aliases, Konami code
+// ===== DAVID UNTERBERGER TERMINAL - COMPLETE AND FIXED =====
+
+// ===== URL REDIRECT =====
+if (window.location.hostname !== 'david-unterberger-info.vercel.app' && 
+    window.location.hostname !== 'localhost' && 
+    window.location.hostname !== '127.0.0.1') {
+  window.location.href = 'https://david-unterberger-info.vercel.app';
+}
 
 // ===== CONFIGURATION =====
 const savedTheme = localStorage.getItem('terminal-theme') || 'amber';
@@ -236,13 +242,19 @@ function bootSequence() {
           continueMsg.textContent = '> Press any key to continue...';
           bootDiv.appendChild(continueMsg);
           
-          function handleKeyPress(e) {
-            document.removeEventListener('keydown', handleKeyPress);
+          function handleContinue(e) {
+            e.preventDefault();
+            document.removeEventListener('keydown', handleContinue);
+            document.removeEventListener('touchstart', handleContinue);
+            document.removeEventListener('click', handleContinue);
             bootDiv.style.display = 'none';
             mainContent.style.display = 'block';
             revealTerminalContent();
           }
-          document.addEventListener('keydown', handleKeyPress);
+          
+          document.addEventListener('keydown', handleContinue);
+          document.addEventListener('touchstart', handleContinue);
+          document.addEventListener('click', handleContinue);
         }, 500);
       }, 200);
       return;
@@ -254,14 +266,14 @@ function bootSequence() {
     
     typewriterLine(line, bootMessages[lineIndex], () => {
       lineIndex++;
-      setTimeout(nextLine, 30);
+      setTimeout(nextLine, 10);
     });
   }
   
   nextLine();
 }
 
-// ===== LINE-BY-LINE CONTENT REVEAL =====
+// ===== CONTENT REVEAL =====
 function revealTerminalContent() {
   const content = `
     <div class="section-header">╔═══════════════════════════════════════[ OPERATOR PROFILE ]════════════════════════════════════════╗</div>
@@ -319,6 +331,7 @@ function revealTerminalContent() {
         <span class="cli-prompt">root@david-unterberger:~$</span>
         <div class="cli-input-wrapper">
           <input type="text" class="cli-input" id="cli-input" autocomplete="off" placeholder="..." />
+          <span class="cli-cursor"></span>
         </div>
       </div>
       <div class="section-footer">╚════════════════════════════════════════════════════════════════════════════════════════════════════╝</div>
@@ -326,33 +339,17 @@ function revealTerminalContent() {
   `;
 
   const mainContent = document.getElementById('main-content');
-  const lines = content.split('\n').filter(line => line.trim());
+  mainContent.innerHTML = content;
   
-  let index = 0;
-  function revealNextLine() {
-    if (index < lines.length) {
-      mainContent.innerHTML += lines[index] + '\n';
-      
-      const inputLine = document.querySelector('.cli-input-line');
-      if (inputLine) {
-        inputLine.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      }
-      
-      index++;
-      setTimeout(revealNextLine, 50);
-    } else {
-      window.loadReactComponents();
-      initCLI();
-      setupGlobalTyping();
-      const input = document.getElementById('cli-input');
-      if (input) input.focus();
-    }
-  }
+  window.loadReactComponents();
+  initCLI();
+  setupGlobalTyping();
   
-  revealNextLine();
+  const input = document.getElementById('cli-input');
+  if (input) input.focus();
 }
 
-// ===== GLOBAL TYPING SYSTEM =====
+// ===== GLOBAL TYPING =====
 function setupGlobalTyping() {
   document.addEventListener('keydown', (e) => {
     const input = document.getElementById('cli-input');
@@ -374,14 +371,15 @@ function setupGlobalTyping() {
     }
     
     input.focus();
-    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 }
 
 // ===== CLI SYSTEM =====
 function initCLI() {
   const input = document.getElementById('cli-input');
+  const cursor = document.querySelector('.cli-cursor');
   const wrapper = document.querySelector('.cli-input-wrapper');
+  const prompt = document.querySelector('.cli-prompt');
   const history = document.getElementById('cli-history');
   let commandHistory = JSON.parse(localStorage.getItem('cli-history') || '[]');
   let historyIndex = commandHistory.length;
@@ -488,6 +486,8 @@ function initCLI() {
         output.textContent = `Not quite. The answer was: ${currentRiddle.a}`;
       }
       currentRiddle = null;
+      prompt.textContent = 'root@david-unterberger:~$';
+      prompt.classList.remove('simple');
       history.appendChild(output);
       scrollToInput();
       return;
@@ -502,6 +502,8 @@ function initCLI() {
         output.textContent = `Wrong. The answer was: ${currentQuiz.a}`;
       }
       currentQuiz = null;
+      prompt.textContent = 'root@david-unterberger:~$';
+      prompt.classList.remove('simple');
       history.appendChild(output);
       scrollToInput();
       return;
@@ -592,9 +594,13 @@ Encryption:   TLS 1.3`;
       output.textContent = fortunes[Math.floor(Math.random() * fortunes.length)];
     } else if (command === 'quiz') {
       currentQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+      prompt.textContent = '>';
+      prompt.classList.add('simple');
       output.innerHTML = `${currentQuiz.q}\n\n${currentQuiz.options.map((o, i) => `${i+1}. ${o}`).join('\n')}\n\nType your answer:`;
     } else if (command === 'riddle') {
       currentRiddle = riddles[Math.floor(Math.random() * riddles.length)];
+      prompt.textContent = '>';
+      prompt.classList.add('simple');
       output.textContent = currentRiddle.q;
     } else if (command === 'fact') {
       output.textContent = facts[Math.floor(Math.random() * facts.length)];
@@ -630,19 +636,11 @@ cowsay [text]   - Cow says your message
 animals         - Random ASCII animal
 fish            - ASCII fish tank
 skull           - ASCII skull
-glitch          - Trigger screen glitch
-hidden          - Show hidden commands
-
-Aliases: ls→help, cd→status, pwd→visitor, cat→dreams
-Tab completion supported`;
+glitch          - Trigger screen glitch`;
           break;
           
         case 'clear':
           history.innerHTML = '';
-          setTimeout(() => {
-            const inputLine = document.querySelector('.cli-input-line');
-            inputLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 50);
           return;
           
         case 'status':
@@ -680,6 +678,11 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
             } else {
               const themes = ['amber', 'green', 'white', 'blue', 'magenta'];
               if (themes.includes(parts[1])) {
+                // Clear custom theme
+                document.documentElement.style.removeProperty('--amber');
+                document.documentElement.style.removeProperty('--amber-soft');
+                document.documentElement.style.removeProperty('--amber-dim');
+                
                 document.body.className = parts[1] === 'amber' ? '' : 'theme-' + parts[1];
                 localStorage.setItem('terminal-theme', parts[1]);
                 window.updateTerrainColor(parts[1]);
@@ -731,15 +734,16 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
           return;
 
         case 'quote':
-          fetch('https://api.quotable.io/random')
-            .then(r => r.json())
+          fetch('https://zenquotes.io/api/random')
+            .then(r => { if(!r.ok) throw new Error(); return r.json(); })
             .then(q => {
-              output.textContent = `"${q.content}"\n\n— ${q.author}`;
+              const quote = q[0];
+              output.textContent = `"${quote.q}"\n\n— ${quote.a}`;
               history.appendChild(output);
               scrollToInput();
             })
             .catch(() => {
-              output.textContent = 'Failed to fetch quote. Try again later.';
+              output.textContent = 'Quote service unavailable.';
               history.appendChild(output);
               scrollToInput();
             });
@@ -781,8 +785,10 @@ Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
 
   function scrollToInput() {
     setTimeout(() => {
-      const inputLine = document.querySelector('.cli-input-line');
-      inputLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      });
     }, 100);
   }
 }
@@ -854,7 +860,7 @@ function activateWhale() {
   }, 5000);
 }
 
-// ===== START SEQUENCE =====
+// ===== START =====
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', bootSequence);
 } else {

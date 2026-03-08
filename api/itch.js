@@ -1,74 +1,44 @@
-const chromium = require('chrome-aws-lambda');
-
-module.exports = async (req, res) => {
-  let browser = null;
+export default async function handler(req, res) {
+  const key = process.env.ITCH_API_KEY;
 
   try {
-    // Launch headless Chrome
-    browser = await chromium.puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
+    const response = await fetch(`https://itch.io/api/1/${key}/my-games`);
+    const data = await response.json();
+
+    if (!data.games) {
+      return res.status(500).json({
+        success: false,
+        games: []
+      });
+    }
+
+    const games = data.games.map(g => ({
+      title: g.title,
+      link: g.url,
+      image: g.cover_url || g.still_cover_url,
+      views: g.views_count || 0,
+      downloads: g.downloads_count || 0,
+      purchases: g.purchases_count || 0,
+      tags: g.tags || []
+    }));
+
+    games.sort((a, b) => b.views - a.views);
+
+    res.setHeader(
+      "Cache-Control",
+      "s-maxage=3600, stale-while-revalidate"
+    );
+
+    res.status(200).json({
+      success: true,
+      games
     });
 
-    const page = await browser.newPage();
-    
-    // Navigate to itch.io profile
-    await page.goto('https://davebbx.itch.io/', {
-      waitUntil: 'networkidle0',
-      timeout: 10000
-    });
-
-    // Wait for games to load
-    await page.waitForSelector('.game_cell', { timeout: 5000 });
-
-    // Extract game data
-    const games = await page.evaluate(() => {
-      const gameElements = Array.from(document.querySelectorAll('.game_cell'));
-      
-      return gameElements.slice(0, 3).map(game => {
-        const title = game.querySelector('.game_title, .title')?.textContent?.trim();
-        const image = game.querySelector('.game_thumb img, img')?.src;
-        const link = game.querySelector('a')?.href;
-        const views = game.querySelector('.view_count, .views_count')?.textContent?.trim() || 'N/A';
-        const downloads = game.querySelector('.download_count, .downloads_count')?.textContent?.trim() || 'N/A';
-        
-        return { 
-          title, 
-          image, 
-          link, 
-          views,
-          downloads
-        };
-      }).filter(g => g.title && g.image);
-    });
-
-    await browser.close();
-
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
-    res.setHeader('Content-Type', 'application/json');
-
-    res.status(200).json({ 
-      success: true, 
-      games,
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    if (browser) await browser.close();
-    
-    console.error('Itch.io scraping error:', error);
-    
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Content-Type', 'application/json');
-    
-    res.status(500).json({ 
-      success: false, 
-      error: error.message,
-      games: [],
-      fallback: true
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+      games: []
     });
   }
-};
+}

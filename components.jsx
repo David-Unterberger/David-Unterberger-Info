@@ -234,7 +234,7 @@ function GithubComponent() {
 
   const heatmapData = [];
   for (let day = 0; day < 7; day++) {
-    for (let week = 0; week < 52; week++) {
+    for (let week = 0; week < 40; week++) {
       const level = Math.floor(Math.random() * 5);
       heatmapData.push({ day, week, level });
     }
@@ -337,27 +337,40 @@ function ItchComponent() {
   if (games.length === 0) {
     return (
       <div className="text-dim">
-        <div>No games loaded. Configure /api/itch serverless function.</div>
-        <div style={{marginTop: '10px', fontSize: '11px'}}>
-          See DEPLOYMENT.md for Vercel setup instructions.
-        </div>
+        <div>No games loaded. Add ITCH_API_KEY to Vercel environment variables.</div>
       </div>
     );
   }
 
   return (
-    <div className="grid-3">
-      {games.map((game, i) => (
-        <a key={i} href={game.link} target="_blank" className="itch-card">
-          <img src={game.image} alt={game.title} />
-          <div className="font-bold text-bright" style={{fontSize: '12px'}}>
-            {game.title}
+    <div>
+      <div className="text-bright mb-10">[ ITCH.IO GAMES ]</div>
+      <div className="grid-3">
+        {games.map((g, i) => (
+          <div key={i} className="game-card">
+            <a href={g.link} target="_blank" rel="noopener noreferrer">
+              <img src={g.image} alt={g.title} />
+            </a>
+            <div className="font-bold text-dim" style={{fontSize:'12px'}}>
+              {g.title}
+            </div>
+            <div className="text-dim" style={{fontSize:'11px'}}>
+              👁 {g.views} views
+            </div>
+            <div className="text-dim" style={{fontSize:'11px'}}>
+              ⬇ {g.downloads} downloads
+            </div>
+            <div className="text-dim" style={{fontSize:'11px'}}>
+              💰 {g.purchases} purchases
+            </div>
+            {g.tags?.length > 0 && (
+              <div className="text-dim" style={{fontSize:'10px'}}>
+                {g.tags.slice(0,3).join(" • ")}
+              </div>
+            )}
           </div>
-          <div className="text-dim" style={{fontSize: '11px', marginTop: '5px'}}>
-            {game.views || 'N/A'} views
-          </div>
-        </a>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
