@@ -3,7 +3,6 @@
   --amber-soft: #ff9d4d;
   --amber-dim: #cc5e12;
   --bg: #000;
-  --terminal-opacity: 1;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -41,10 +40,13 @@ html, body {
   padding: 30px;
   background: #000;
   overflow: hidden;
+  
+  /* Spherical barrel distortion */
   border-radius: 8px;
   transform: perspective(1200px) rotateX(0deg);
 }
 
+/* Subtle vignette - no flickering */
 .crt-glass::before {
   content: "";
   position: absolute;
@@ -59,10 +61,13 @@ html, body {
   z-index: 100;
 }
 
+/* Subtle glass reflection */
 .crt-glass::after {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 25%;
   background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
   pointer-events: none;
@@ -70,11 +75,13 @@ html, body {
 }
 
 .terminal-container {
-  position: relative;
+   position: relative;
   z-index: 1;
   padding: 30px;
-  background: rgba(0, 0, 0, var(--terminal-opacity));
+  background: rgba(0, 0, 0, var(--terminal-opacity, 1));
   min-height: 400px;
+  
+  /* Phosphor glow */
   text-shadow: 
     0 0 2px currentColor,
     0 0 4px currentColor,
@@ -82,6 +89,7 @@ html, body {
     0 0 12px currentColor,
     0 0 20px currentColor,
     0 0 30px currentColor;
+  
   animation: subtleFlicker 0.15s infinite, screenPulse 3s infinite;
 }
 
@@ -95,6 +103,7 @@ html, body {
   50% { filter: brightness(1.02) contrast(1.12); }
 }
 
+/* Scanlines */
 .terminal-container::after {
   content: "";
   position: absolute;
@@ -110,9 +119,11 @@ html, body {
   z-index: 10;
 }
 
+/* Scanning beam */
 .crt-glass .scan-beam {
   position: absolute;
-  left: 0; right: 0;
+  left: 0;
+  right: 0;
   height: 5px;
   background: linear-gradient(transparent, currentColor, transparent);
   opacity: 0.5;
@@ -128,6 +139,7 @@ html, body {
   100% { top: 100%; }
 }
 
+/* Enhanced text glow */
 .text-bright, .section-header {
   text-shadow: 
     0 0 3px currentColor,
@@ -140,6 +152,7 @@ html, body {
 
 .no-glow { text-shadow: none !important; }
 
+/* Static noise - no animation to prevent flickering */
 body::before {
   content: "";
   position: fixed;
@@ -157,16 +170,16 @@ body::before {
   opacity: 0;
   pointer-events: none;
   z-index: 9999;
-  animation: glitchFlash 0.15s;
+  animation: glitchFlash 0.1s;
 }
 
 @keyframes glitchFlash {
   0%, 100% { opacity: 0; }
-  20%, 60% { opacity: 0.4; }
-  40%, 80% { opacity: 0; }
+  10%, 30%, 50% { opacity: 0.3; }
+  20%, 40% { opacity: 0; }
 }
 
-/* ===== CONTENT ===== */
+/* ===== CONTENT STYLES ===== */
 .ascii-name {
   color: var(--amber-soft);
   font-size: 4px;
@@ -234,7 +247,7 @@ body::before {
   51%, 100% { opacity: 0.3; }
 }
 
-/* ===== COMPONENTS ===== */
+/* ===== COMPONENT STYLES ===== */
 .avatar {
   width: 48px;
   height: 48px;
@@ -365,31 +378,28 @@ body::before {
   caret-color: transparent;
   padding: 0;
   margin: 0;
-  flex: 1;
-  min-width: 0;
+  width: 100%;
 }
 
 .cli-input::placeholder {
   opacity: 0;
 }
 
-/* Animated dots placeholder */
+/* Animated three dots - only show when not focused/typing */
 .cli-placeholder {
   position: absolute;
   left: 0;
-  top: 0;
   color: var(--amber);
   opacity: 0.3;
   pointer-events: none;
-  user-select: none;
 }
 
 .cli-placeholder::after {
   content: '';
-  animation: dotsAnimation 1.5s infinite;
+  animation: dots 1.5s infinite;
 }
 
-@keyframes dotsAnimation {
+@keyframes dots {
   0%, 24% { content: ''; }
   25%, 49% { content: '.'; }
   50%, 74% { content: '..'; }
@@ -397,27 +407,37 @@ body::before {
 }
 
 .cli-input:focus ~ .cli-placeholder,
-.cli-input-wrapper.has-text .cli-placeholder {
+.cli-input-wrapper.typing .cli-placeholder {
   display: none;
 }
 
-/* Block cursor */
+@keyframes dotsAnim {
+  0%, 24% { content: ''; }
+  25%, 49% { content: '.'; }
+  50%, 74% { content: '..'; }
+  75%, 100% { content: '...'; }
+}
+
+/* Block cursor - positioned after text */
 .cli-cursor {
   display: none;
   width: 10px;
   height: 1.2em;
   background: var(--amber);
+  margin-left: 0;
   animation: blink-cursor 1s infinite;
+  vertical-align: text-bottom;
   flex-shrink: 0;
-  margin-left: 2px;
+  position: absolute;
+  left: 0;
 }
 
-.cli-input:focus ~ .cli-cursor,
-.cli-input-wrapper.has-text .cli-cursor {
+.cli-input:focus ~ .cli-cursor {
   display: inline-block;
 }
 
-.cli-input-wrapper.has-text .cli-cursor {
+.cli-input-wrapper.typing .cli-cursor {
+  display: inline-block;
   animation: none;
   opacity: 0.8;
 }
@@ -447,7 +467,7 @@ body::before {
   font-size: 12px;
 }
 
-/* ===== GITHUB HEATMAP ===== */
+/* ===== GITHUB HEATMAP - 40 weeks ===== */
 .heatmap-container {
   margin: 15px 0;
   position: relative;
@@ -493,7 +513,7 @@ a {
 
 a:hover { border-bottom-color: var(--amber-soft); }
 
-/* ===== WHALE ===== */
+/* ===== WHALE ANIMATION ===== */
 #whale-animation {
   display: none;
   position: fixed;
@@ -509,7 +529,7 @@ a:hover { border-bottom-color: var(--amber-soft); }
   white-space: pre;
 }
 
-/* ===== UTILITY ===== */
+/* ===== UTILITY CLASSES ===== */
 .text-dim { opacity: 0.7; }
 .text-bright { color: var(--amber-soft); }
 .mb-10 { margin-bottom: 10px; }
