@@ -1,0 +1,121 @@
+if (cmd.toLowerCase() === 'banküberfall' || cmd.toLowerCase() === 'ba ba banküberfall') {
+      output.innerHTML = `<pre>
+Der Kühlschrank ist leer, das Sparschwein auch,
+ich habe seit Wochen kein Schnitzel mehr im Bauch.
+Der letzte Scheck ist weg, ich bin nicht liquid,
+auf der Bank krieg‘ ich sowieso keinen Kredit!
+
+Gestern enterbt mich auch noch meine Mutter
+und vor der Tür steht der Exekutor.
+Mit einem Wort: Die Lage ist fatal.
+Da hilft nur eins: ein Banküberfall!
+
+Ref:
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
+Ba-Ba-Banküberfall …
+Das Böse ist immer und überall!
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
+Ba-Ba-Banküberfall …
+Das Böse ist immer und überall!
+
+
+Auf meinem Kopf einen Strumpf von Palmers
+steh ich vor der Bank und sage: „Überfall ma’s!“
+Mit dem Finger im Mantel, statt einer Puff’n.
+Ich kann kein Blut sehen, darum muß ich bluff’n!
+
+Ich schrei‘: „Hände hoch! Das ist ein Überfall!
+Und seid ihr nicht willig, dann gibt’s an Krawall!“
+Eine Oma dreht sich um und sagt: „Junger Mann!
+Stell’n Sie sich gefälligst hinten an!“
+
+Ref:
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
+Ba-Ba-Banküberfall …
+Das Böse ist immer und überall!
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
+Ba-Ba-Banküberfall …
+A-Ba-A-Ba-A-Banküberfall!
+
+
+Nach einer halben Stund‘ bin ich endlich an der Reih‘,
+mein Finger ist schon steif von der blöden Warterei.
+Ich sag‘: „Jetzt oder nie, her mit der Marie!“
+Der Kassier schaut mich an, und fragt: „Was haben Sie?“
+
+Ich sag‘: „An Hunger und an Durst und keinen Plärrer,
+ich bin der böse Kassenentleerer!“
+Der Kassierer sagt „Nein! Was fällt Ihnen ein?“
+„Na, gut“ sage ich, „dann zahl‘ ich halt ‚was ein!“
+
+Ref:
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
+Ba-Ba-Banküberfall …
+Das Böse ist immer und überall!
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
+Ba-Ba-Banküberfall …
+A-Bu-Bi-Ba-Bu-Bu-Ba-Bu!
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
+Ba-Ba-Banküberfall …
+Das Böse ist immer und überall!
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
+Ba-Ba-Banküberfall …
+A-Bu-Bi-Ba-Bu-Bu-Ba-Bu!
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
+Ba-Ba-Banküberfall …
+The Evil is always and everywhere!
+Ba-Ba-Bankrobbery … Ba-Ba-Bankrobbery,
+Ba-Ba-Bankrobbery, Ba-B-Bankrobbery,
+A-Bu-Bi-Ba-Bu-Bu-Ba-Bu! Bankrobbery
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
+Ba-Ba-Banküberfall …
+A-Bu-Bi-Ba-Bu-Bu-Ba-Bu!
+Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …</pre>`;
+      pushAndScroll(output);
+      return;
+    }
+
+    if (['da hofa woas', 'der hofer wars', 'da hofa'].includes(cmd.toLowerCase())) {
+      output.innerHTML = `<pre>
+[Strophe 1]
+Schau, da liegt a Leich im Rinnsal, 's Bluat rinnt in Kanäu
+Hearst, des is makaber, do liegt jo a Kadaver
+Wer is 'n des, kennst du den?
+Bei den zerschnittanen Gsicht kaun i des net sehn
+
+[Refrain]
+Da Hofa woas vom Zwanzger-Haus
+Der schaut ma so verdächtig aus
+Da Hofa hat an Anfoi kriagt
+Und hot de Leich do massakriert
+
+[Strophe 2]
+Do geht a Raunen durch die Leit
+Und a jeder hot sei Freid
+Da Hofa woas, da Sündenbock
+Da Hofa, den wos kana mog
+Und da Haufen bewegt se fiere
+Hin zum Hofa seiner Türe
+Da schrein die Leit: „Kumm aussa, Mörder!“
+Aus is heit
+Geh, moch auf de Tür, heit is aus mit dir
+Weil für dei Verbrechen muasst jetzt zoihn
+Geh, kumm ausse do, mir drahn da d' Gurgel oh
+Weil du host kane Freind, de da d' Stangen hoitn
+Meichelmörder, Leitschinder, de Justiz wor heite gschwinder
+Als was d' glaubst
+Also, Hofa, kumman s' raus
+
+[Strophe 3]
+Und se pumpern an de Tür
+Und se mochn an Krawäu als wia
+Und sie tretadn se a glott ei
+Tat de Hausmasterin net sei
+De sogt: „Wos is 'n, meine Herrn?
+Tuats ma doch den Hausfrieden ned stören
+Denn eines weiß ich ganz gewiss
+Dass de Leich da Hofa is“
+</pre>`;
+      pushAndScroll(output);
+      return;
+    }

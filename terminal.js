@@ -1466,8 +1466,8 @@ function bootSequence() {
           document.addEventListener('keydown', handleContinue);
           document.addEventListener('touchstart', handleContinue);
           document.addEventListener('click', handleContinue);
-        }, 500);
-      }, 200);
+        }, 250);
+      }, 100);
       return;
     }
 
@@ -1672,78 +1672,38 @@ function initCLI() {
   }
 
   function executeCommand(cmd) {
-    // If user pressed Enter with no input, reprint full prompt like a real terminal
-    if (!cmd || !cmd.trim()) {
-      const echo = document.createElement('div');
-      echo.textContent = 'root@david-unterberger:~$';
-      echo.style.color = 'var(--amber-soft)';
-      history.appendChild(echo);
-      scrollToInput();
-      return;
-    }
-
     const output = document.createElement('div');
     output.className = 'cli-output';
 
+    // Echo the command the user typed
     const echo = document.createElement('div');
     echo.textContent = '> ' + cmd;
     echo.style.color = 'var(--amber-soft)';
     history.appendChild(echo);
 
-    const parts = cmd.trim().split(/\s+/);
+    const parts = cmd.split(' ').filter(p => p.length > 0);
+    if (parts.length === 0) {
+      // Defensive: if called with empty command, just reprint main prompt line
+      const echoEmpty = document.createElement('div');
+      echoEmpty.textContent = 'root@david-unterberger:~$';
+      echoEmpty.style.color = 'var(--amber-soft)';
+      history.appendChild(echoEmpty);
+      scrollToInput();
+      return;
+    }
+
     let command = parts[0].toLowerCase();
     const args = parts.slice(1).join(' ');
 
-    // aliases mapping exists in outer scope
-    if (aliases[command]) command = aliases[command];
-
-    // Helper: scroll + append
-    function pushAndScroll(node) {
-      history.appendChild(node);
-      scrollToInput();
+    // Check aliases
+    if (aliases[command]) {
+      command = aliases[command];
     }
 
-    // Helper: enhanced glitch (chromatic aberration + zoom)
-    function enhancedGlitch() {
-      const terminal = document.querySelector('.terminal-container');
-      const overlay = document.createElement('div');
-      overlay.className = 'glitch-overlay';
-      document.body.appendChild(overlay);
-
-      const originalTransition = terminal.style.transition || '';
-      const originalTransform = terminal.style.transform || '';
-      const originalFilter = terminal.style.filter || '';
-      const originalTextShadow = terminal.style.textShadow || '';
-
-      terminal.style.transition = 'transform 200ms ease, filter 200ms ease, text-shadow 200ms ease';
-      terminal.style.transform = 'scale(1.08) rotateX(0.5deg)';
-      terminal.style.filter = 'brightness(1.6) contrast(1.4) saturate(1.4)';
-      terminal.style.textShadow = '-3px 0 rgba(255,0,0,0.8), 3px 0 rgba(0,255,255,0.8)';
-
-      // Multiple jitter steps
-      setTimeout(() => {
-        terminal.style.transform = 'scale(0.97) skew(-2deg)';
-        terminal.style.filter = 'brightness(0.9) contrast(1.8) saturate(1.6)';
-      }, 160);
-
-      setTimeout(() => {
-        terminal.style.transform = 'scale(1.03) skew(1deg)';
-        terminal.style.textShadow = '-2px 0 rgba(255,0,0,0.7), 2px 0 rgba(0,255,255,0.7)';
-      }, 320);
-
-      setTimeout(() => {
-        terminal.style.transform = originalTransform;
-        terminal.style.filter = originalFilter;
-        terminal.style.textShadow = originalTextShadow;
-        terminal.style.transition = originalTransition;
-        overlay.remove();
-      }, 1200);
-    }
-
-    // Answer checking while inside riddle/quiz - handled in outer flow earlier,
-    // but keep here as safe-guard (these use currentRiddle/currentQuiz from outer scope).
+    // If currently answering a riddle: check answer then return
     if (currentRiddle) {
-      if (cmd.toLowerCase().includes(currentRiddle.a.toLowerCase())) {
+      const answerText = cmd.toLowerCase();
+      if (answerText.includes(currentRiddle.a.toLowerCase())) {
         output.className = 'cli-output cli-success';
         output.textContent = 'Correct! Well done.';
       } else {
@@ -1753,21 +1713,27 @@ function initCLI() {
       currentRiddle = null;
       prompt.textContent = 'root@david-unterberger:~$';
       prompt.classList.remove('simple');
-      pushAndScroll(output);
+      history.appendChild(output);
+      scrollToInput();
       return;
     }
 
+    // If currently answering a quiz: accept text or option number
     if (currentQuiz) {
       const answer = cmd.trim();
       const correctIndex = currentQuiz.options.indexOf(currentQuiz.a) + 1; // 1-based
+      const normalizedAnswer = answer.toLowerCase();
+      const isNumber = /^\d+$/.test(answer);
+      const selectedOptionText = isNumber ? (currentQuiz.options[parseInt(answer, 10) - 1] || '') : answer;
 
-      const isNumberMatch = String(answer) === String(correctIndex);
-      const isTextMatch = answer.toLowerCase() === (currentQuiz.a || '').toLowerCase();
-      const isExactOptionMatch = currentQuiz.options.some(o => o.toLowerCase() === answer.toLowerCase());
+      const isCorrect =
+        normalizedAnswer === currentQuiz.a.toLowerCase()
+        || (isNumber && parseInt(answer, 10) === correctIndex)
+        || (selectedOptionText && selectedOptionText.toLowerCase() === currentQuiz.a.toLowerCase());
 
-      if (isNumberMatch || isTextMatch || isExactOptionMatch) {
+      if (isCorrect) {
         output.className = 'cli-output cli-success';
-        output.textContent = 'Correct!';
+        output.textContent = 'Correct! 🎉';
       } else {
         output.className = 'cli-output cli-error';
         output.textContent = `Wrong. The answer was: ${currentQuiz.a}`;
@@ -1776,78 +1742,167 @@ function initCLI() {
       currentQuiz = null;
       prompt.textContent = 'root@david-unterberger:~$';
       prompt.classList.remove('simple');
-      pushAndScroll(output);
+      history.appendChild(output);
+      scrollToInput();
       return;
     }
 
-    // ---------- Hidden / Short commands ----------
+    // Hidden / special commands and fun
     if (command === 'carlos') {
       output.className = 'cli-output cli-success';
       output.textContent = 'User carlos deleted!';
-      pushAndScroll(output);
-      return;
-    }
-
-    if (command === 'admin') {
+    } else if (command === 'admin') {
       output.className = 'cli-output cli-error';
       output.textContent = 'ACCESS DENIED!';
-      pushAndScroll(output);
-      return;
-    }
-
-    if (cmd.toLowerCase() === 'markus kargl') {
+    } else if (cmd.toLowerCase() === 'markus kargl') {
       output.textContent = 'IT and Electrics-expert currently not available.';
-      pushAndScroll(output);
-      return;
-    }
-
-    if (cmd.toLowerCase() === 'ben bliem') {
+    } else if (cmd.toLowerCase() === 'ben bliem') {
       output.textContent = 'Opening Ben Bliem\'s website...';
-      pushAndScroll(output);
       setTimeout(() => window.open('https://benedecushtl.github.io/Ben-Bliem-Website/', '_blank'), 500);
-      return;
-    }
-
-    if (cmd.toLowerCase() === 'siemens lufthaken') {
+    } else if (cmd.toLowerCase() === 'siemens lufthaken') {
       output.textContent = 'Siemens Lufthaken out of stock. Try again next year.';
-      pushAndScroll(output);
-      return;
-    }
-
-    if (command === '42') {
+    } else if (command === '42') {
       output.textContent = 'The Answer to the Ultimate Question of Life, the Universe, and Everything.';
-      pushAndScroll(output);
-      return;
-    }
-
-    if (command === 'rm' && cmd.includes('-rf')) {
+    } else if (command === 'rm' && (args.startsWith('-rf') || args === '-rf' || args === '-rf/')) {
+      // Accept `rm -rf`, `rm -rf /`, `rm -rf *`, etc.
       output.className = 'cli-output cli-error';
       output.textContent = 'Error: This is a read-only filesystem. Nice try though.';
-      pushAndScroll(output);
-      return;
-    }
+    } else if (command === ':wq' || command === ':wq!') {
+      output.textContent = 'This isn\'t vim... or is it? 🤔';
+    } else if (command === 'exit' || command === 'quit') {
+      output.textContent = 'There is no escape. You\'re here forever. 😈';
+    } else if (command === 'teapot') {
+      output.textContent = 'HTTP 418: I\'m a teapot ☕\n\nShort and stout.';
+    } else if (command === 'hidden') {
+      // Hidden commands list (note: glitch removed from hidden menu per request)
+      output.innerHTML = `Hidden commands:
 
-    if (command === ':wq' || command === ':wq!') {
-      output.textContent = 'This isn\'t vim... or is it?';
-      pushAndScroll(output);
-      return;
-    }
+carlos                   - Delete user carlos
+admin                    - Attempt admin access
+markus kargl             - Check IT expert availability
+ben bliem                - Open Ben's website
+siemens lufthaken        - Check Siemens stock
+42                       - The answer to everything
+rm -rf                   - Try to delete everything (read-only)
+:wq                      - Exit vim (?)
+exit, quit               - Try to leave
+teapot                   - HTTP 418
+Ctrl+Shift+6             - Cisco easter egg (prints a message)
+↑↑↓↓←→←→BA               - Konami code
+banküberfall, ba ba banküberfall - Bank song (lyrics placeholder)
+da hofa, der hofer wars, da hofa woas - Folk song (lyrics placeholder)
+meep                     - Echo 'meep' back
+ip                       - Show your public IP address
+whoami                   - Show device / browser info
+opacity [0-100]          - Set terminal background opacity (saved)
+clear-history            - Erase stored command history`;
+    } else if (command === 'glitch') {
+      // Make glitch more dramatic and longer
+      triggerGlitch(); // keep existing overlay + style adjustments
+      // Additional chromatic/zoom effect: we modify terminal styles for longer duration
+      const terminal = document.querySelector('.terminal-container');
+      if (terminal) {
+        const prevTransition = terminal.style.transition || '';
+        const prevTransform = terminal.style.transform || '';
+        const prevFilter = terminal.style.filter || '';
+        const prevTextShadow = terminal.style.textShadow || '';
 
-    if (command === 'exit' || command === 'quit') {
-      output.textContent = 'There is no escape. You\'re here forever.';
-      pushAndScroll(output);
-      return;
-    }
+        terminal.style.transition = 'transform 300ms ease, filter 300ms ease, text-shadow 300ms ease';
+        terminal.style.transform = 'scale(1.08) rotateZ(-0.4deg)';
+        terminal.style.filter = 'brightness(1.6) contrast(1.4) saturate(1.6)';
+        terminal.style.textShadow = '-4px 0 rgba(255,0,64,0.8), 4px 0 rgba(0,200,255,0.8), 0 0 18px currentColor';
 
-    if (command === 'teapot') {
-      output.textContent = 'HTTP 418: I\'m a teapot \n\nShort and stout.';
-      pushAndScroll(output);
-      return;
-    }
+        setTimeout(() => {
+          terminal.style.transform = 'scale(0.96) rotateZ(0.6deg)';
+        }, 300);
+        setTimeout(() => {
+          terminal.style.transform = prevTransform;
+          terminal.style.filter = prevFilter;
+          terminal.style.textShadow = prevTextShadow;
+          terminal.style.transition = prevTransition;
+        }, 1400);
+      }
 
-    // Placeholder song outputs (you will paste lyrics here later)
-    if (cmd.toLowerCase() === 'banküberfall' || cmd.toLowerCase() === 'ba ba banküberfall') {
-      output.innerHTML = `<pre>
+      output.textContent = 'Reality.exe has encountered an error.';
+    } else if (command === 'animals') {
+      const animals = Object.values(asciiAnimals);
+      output.innerHTML = animals[Math.floor(Math.random() * animals.length)];
+    } else if (command === 'fish') {
+      output.innerHTML = asciiAnimals.fish;
+    } else if (command === 'skull') {
+      output.innerHTML = asciiAnimals.skull;
+    } else if (command === 'cowsay') {
+      const message = args || 'Moo!';
+      const border = '_'.repeat(message.length + 2);
+      output.innerHTML = ` ${border}
+< ${message} >
+ ${'-'.repeat(message.length + 2)}
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
+                ||----w |
+                ||     ||`;
+    } else if (command === 'memory') {
+      // Try to show real JS heap stats where available (Chromium-only)
+      if (performance && performance.memory) {
+        const usedMB = (performance.memory.usedJSHeapSize / 1048576).toFixed(1);
+        const limitMB = (performance.memory.jsHeapSizeLimit / 1048576).toFixed(1);
+        output.innerHTML = `MEMORY USAGE
+
+Used (JS heap): ${usedMB} MB
+Limit (JS heap): ${limitMB} MB
+Note: These are JavaScript heap values (browser-provided).`;
+      } else if (navigator.deviceMemory) {
+        // Device memory in GB (approx)
+        output.innerHTML = `MEMORY INFO
+
+Device memory (approx): ${navigator.deviceMemory} GB
+
+Note: precise JS heap stats unavailable in this browser.`;
+      } else {
+        output.textContent = 'Memory statistics unavailable in this browser.';
+      }
+    } else if (command === 'network') {
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (conn) {
+        const downlink = conn.downlink ? `${conn.downlink.toFixed(2)} Mbps` : 'Unknown';
+        const rtt = conn.rtt || 'Unknown';
+        const type = conn.effectiveType || 'Unknown';
+        const saveData = conn.saveData ? 'Enabled' : 'Disabled';
+
+        output.innerHTML = `NETWORK STATUS
+
+Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}
+Type: ${type}
+RTT: ${rtt} ms
+Downlink: ${downlink}
+Save-Data: ${saveData}
+Protocol: ${window.location.protocol.replace(':', '').toUpperCase()}`;
+      } else {
+        // Fall back to minimal info (no fake values)
+        output.textContent = `Network statistics unavailable in this browser. Online: ${navigator.onLine ? 'Yes' : 'No'}`;
+      }
+    } else if (command === 'fortune') {
+      output.textContent = fortunes[Math.floor(Math.random() * fortunes.length)];
+    } else if (command === 'quiz') {
+      currentQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+      prompt.textContent = '>';
+      prompt.classList.add('simple');
+      // show numbered options
+      output.innerHTML = `${currentQuiz.q}\n\n${currentQuiz.options.map((o, i) => `${i + 1}. ${o}`).join('\n')}\n\nType your answer (number or text):`;
+    } else if (command === 'riddle') {
+      currentRiddle = riddles[Math.floor(Math.random() * riddles.length)];
+      prompt.textContent = '>';
+      prompt.classList.add('simple');
+      output.textContent = currentRiddle.q;
+    } else if (command === 'fact') {
+      output.textContent = facts[Math.floor(Math.random() * facts.length)];
+    } else if (command === 'challenge') {
+      output.textContent = 'CODING CHALLENGE:\n\n' + challenges[Math.floor(Math.random() * challenges.length)];
+    } else if (command === 'meep') {
+      output.textContent = 'meep';
+      if (cmd.toLowerCase() === 'banküberfall' || cmd.toLowerCase() === 'ba ba banküberfall') {
+        output.innerHTML = `<pre>
 Der Kühlschrank ist leer, das Sparschwein auch,
 ich habe seit Wochen kein Schnitzel mehr im Bauch.
 Der letzte Scheck ist weg, ich bin nicht liquid,
@@ -1919,12 +1974,12 @@ Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …
 Ba-Ba-Banküberfall …
 A-Bu-Bi-Ba-Bu-Bu-Ba-Bu!
 Ba-Ba-Banküberfall … Ba-Ba-Banküberfall …</pre>`;
-      pushAndScroll(output);
-      return;
-    }
+        pushAndScroll(output);
+        return;
+      }
 
-    if (['da hofa woas', 'der hofer wars', 'da hofa'].includes(cmd.toLowerCase())) {
-      output.innerHTML = `<pre>
+      if (['da hofa woas', 'der hofer wars', 'da hofa'].includes(cmd.toLowerCase())) {
+        output.innerHTML = `<pre>
 [Strophe 1]
 Schau, da liegt a Leich im Rinnsal, 's Bluat rinnt in Kanäu
 Hearst, des is makaber, do liegt jo a Kadaver
@@ -1953,13 +2008,7 @@ Weil du host kane Freind, de da d' Stangen hoitn
 Meichelmörder, Leitschinder, de Justiz wor heite gschwinder
 Als was d' glaubst
 Also, Hofa, kumman s' raus
-You might also like
-us.
-Gracie Abrams
-I Love You, I’m Sorry
-Gracie Abrams
-Taste
-Sabrina Carpenter
+
 [Strophe 3]
 Und se pumpern an de Tür
 Und se mochn an Krawäu als wia
@@ -1970,384 +2019,267 @@ Tuats ma doch den Hausfrieden ned stören
 Denn eines weiß ich ganz gewiss
 Dass de Leich da Hofa is“
 </pre>`;
-      pushAndScroll(output);
-      return;
-    }
-
-    if (command === 'meep') {
-      output.textContent = 'meep';
-      pushAndScroll(output);
-      return;
-    }
-
-    // Navigation quick commands - move view to section
-    if (['discord', 'steam', 'github', 'itch', 'weather', 'nasa', 'news', 'hackernews'].includes(command)) {
-      const targetId = command === 'news' || command === 'hackernews' ? 'hackernews-mount' : `${command}-mount`;
-      const target = document.getElementById(targetId);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-
-    // ---------- Normal commands ----------
-    switch (command) {
-      case 'help': {
-        const visitorId = localStorage.getItem('visitor-id') ||
-          Math.random().toString(36).substr(2, 8).toUpperCase();
-        localStorage.setItem('visitor-id', visitorId);
-
-        output.innerHTML = `Available commands:
-
-help            - Show this help message
-clear           - Clear visible terminal output
-clear-history   - Clear stored command history
-status          - Show system status
-visitor         - Show visitor statistics
-theme [color]   - Change theme (amber/green/white/blue/magenta) or 'theme custom #hexcode'
-restart         - Restart terminal
-history         - Show command history
-time            - Show current time
-uptime          - Show session uptime
-memory          - Show memory usage (best-effort)
-network         - Show network status (best-effort)
-ip              - Show your public IP
-whoami          - Show device/platform info (best-effort)
-joke            - Get a random programming joke
-quote           - Get quote of the day
-fortune         - Get a fortune cookie
-quiz            - Programming quiz
-riddle          - Solve a riddle
-fact            - Random programming fact
-challenge       - Get a coding challenge
-dream [text]    - Save a dream to your journal
-dreams          - View all saved dreams
-cowsay [text]   - Cow says your message
-animals         - Random ASCII animal
-fish            - ASCII fish tank
-skull           - ASCII skull
-glitch          - Trigger screen glitch (visual)
-meep            - Echo 'meep'
-opacity [0-100] - Set terminal background opacity percentage`;
         pushAndScroll(output);
         return;
       }
 
-      case 'clear':
-        history.innerHTML = '';
-        return;
+    } else {
+      // Normal commands handled in a switch
+      switch (command) {
+        case 'help':
+        case '?':
+        case 'ass':
+          {
+            const visitorId = localStorage.getItem('visitor-id') ||
+              Math.random().toString(36).substr(2, 8).toUpperCase();
+            localStorage.setItem('visitor-id', visitorId);
 
-      case 'clear-history':
-        if (typeof commandHistory !== 'undefined') {
+            output.innerHTML = `Available commands:
+
+help, ?, ass     - Show this help message
+clear            - Clear on-screen command output
+clear-history    - Erase stored command history
+status           - Show system status
+visitor          - Show visitor statistics
+theme [color]    - Change theme (amber/green/white/blue/magenta)
+                  or use 'theme custom #hexcode'
+restart          - Restart terminal
+history          - Show command history (last 50)
+time             - Show current time
+uptime           - Show session uptime
+memory           - Show memory usage / info
+network          - Show network status
+ip               - Show your public IP address
+whoami           - Show device / browser info
+opacity [0-100]  - Set terminal background opacity (saved)
+joke             - Get a random programming joke
+quote            - Get quote of the day
+fortune          - Get a fortune cookie
+quiz             - Programming quiz (accepts 1/2/3 or text)
+riddle           - Solve a riddle
+fact             - Random programming fact
+challenge        - Get a coding challenge
+dream [text]     - Save a dream to your journal
+dreams           - View saved dreams
+cowsay [text]    - Cow says your message
+animals          - Random ASCII animal
+fish             - ASCII fish tank
+skull            - ASCII skull
+meep             - Echo 'meep'
+banküberfall     - Bank song (lyrics placeholder)
+da hofa          - Folk song (lyrics placeholder)
+teapot           - HTTP 418
+rm -rf           - Try to delete everything (read-only)
+:wq              - Exit vim (?)
+exit, quit       - Try to leave
+Ctrl+Shift+6     - Cisco easter egg
+↑↑↓↓←→←→BA       - Konami code`;
+          }
+          break;
+
+        case 'clear':
+          // clears on-screen CLI output only
+          history.innerHTML = '';
+          return;
+
+        case 'clear-history':
+          // clears stored command history
           commandHistory = [];
-          localStorage.setItem('cli-history', JSON.stringify([]));
-        }
-        history.innerHTML = '';
-        output.textContent = 'History erased.';
-        pushAndScroll(output);
-        return;
+          localStorage.setItem('cli-history', '[]');
+          output.textContent = 'Command history cleared.';
+          break;
 
-      case 'status': {
-        output.innerHTML = `SYSTEM STATUS: OPERATIONAL
+        case 'status':
+          output.innerHTML = `SYSTEM STATUS: OPERATIONAL
 
-Platform: ${navigator.platform || 'Unknown'}
-User Agent: ${navigator.userAgent ? navigator.userAgent.substring(0, 60) + '...' : 'Unknown'}
-Language: ${navigator.language || 'Unknown'}
+Platform: ${navigator.platform}
+User Agent: ${navigator.userAgent.substring(0, 60)}...
+Language: ${navigator.language}
 Online: ${navigator.onLine ? 'Yes' : 'No'}
-Total Visits: ${visitorData.totalVisits || 'Unknown'}`;
-        pushAndScroll(output);
-        return;
-      }
+Total Visits: ${visitorData.totalVisits}`;
+          break;
 
-      case 'visitor': {
-        const firstVisitDate = new Date(visitorData.firstVisit);
-        const daysSince = Math.floor((Date.now() - firstVisitDate.getTime()) / (1000 * 60 * 60 * 24));
-        const visitorId = localStorage.getItem('visitor-id') || Math.random().toString(36).substr(2, 8).toUpperCase();
+        case 'visitor': {
+          const firstVisitDate = new Date(visitorData.firstVisit);
+          const daysSince = Math.floor((Date.now() - firstVisitDate.getTime()) / (1000 * 60 * 60 * 24));
+          const visitorId = localStorage.getItem('visitor-id') || Math.random().toString(36).substr(2, 8).toUpperCase();
 
-        output.innerHTML = `VISITOR STATISTICS
+          output.innerHTML = `VISITOR STATISTICS
 
 Visitor ID: #${visitorId}
 Total Visits: ${visitorData.totalVisits}
 First Visit: ${firstVisitDate.toLocaleDateString()}
 Days Active: ${daysSince}
-User Agent: ${navigator.userAgent ? navigator.userAgent.substring(0, 50) + '...' : 'Unknown'}
+User Agent: ${navigator.userAgent.substring(0, 50)}...
 Screen: ${window.screen.width}x${window.screen.height}
 Viewport: ${window.innerWidth}x${window.innerHeight}
 Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`;
-        pushAndScroll(output);
-        return;
-      }
+        } break;
 
-      case 'theme': {
-        if (parts[1]) {
-          if (parts[1] === 'custom' && parts[2] && parts[2].match(/^#[0-9A-Fa-f]{6}$/)) {
-            applyCustomTheme(parts[2]);
-            window.updateTerrainColor(parts[2]);
-            output.textContent = 'Custom theme applied: ' + parts[2];
-          } else {
-            const themes = ['amber', 'green', 'white', 'blue', 'magenta'];
-            if (themes.includes(parts[1])) {
-              document.documentElement.style.removeProperty('--amber');
-              document.documentElement.style.removeProperty('--amber-soft');
-              document.documentElement.style.removeProperty('--amber-dim');
-              document.body.className = parts[1] === 'amber' ? '' : 'theme-' + parts[1];
-              localStorage.setItem('terminal-theme', parts[1]);
-              window.updateTerrainColor(parts[1]);
-              output.textContent = 'Theme changed to: ' + parts[1];
+        case 'theme':
+          if (parts[1]) {
+            if (parts[1] === 'custom' && parts[2] && parts[2].match(/^#[0-9A-Fa-f]{6}$/)) {
+              applyCustomTheme(parts[2]);
+              window.updateTerrainColor && window.updateTerrainColor(parts[2]);
+              localStorage.setItem('terminal-theme', parts[2]);
+              output.textContent = 'Custom theme applied: ' + parts[2];
             } else {
-              output.className = 'cli-output cli-error';
-              output.textContent = 'Invalid theme. Options: amber, green, white, blue, magenta\nOr use: theme custom #hexcode';
+              const themes = ['amber', 'green', 'white', 'blue', 'magenta'];
+              if (themes.includes(parts[1])) {
+                // Clear custom theme
+                document.documentElement.style.removeProperty('--amber');
+                document.documentElement.style.removeProperty('--amber-soft');
+                document.documentElement.style.removeProperty('--amber-dim');
+
+                document.body.className = parts[1] === 'amber' ? '' : 'theme-' + parts[1];
+                localStorage.setItem('terminal-theme', parts[1]);
+                window.updateTerrainColor && window.updateTerrainColor(parts[1]);
+                output.textContent = 'Theme changed to: ' + parts[1];
+              } else {
+                output.className = 'cli-output cli-error';
+                output.textContent = 'Invalid theme. Options: amber, green, white, blue, magenta\nOr use: theme custom #hexcode';
+              }
             }
+          } else {
+            output.textContent = 'Current theme: ' + (localStorage.getItem('terminal-theme') || 'amber');
           }
-        } else {
-          output.textContent = 'Current theme: ' + (localStorage.getItem('terminal-theme') || 'amber');
-        }
-        pushAndScroll(output);
-        return;
-      }
+          break;
 
-      case 'restart':
-        output.textContent = 'Restarting terminal...';
-        pushAndScroll(output);
-        setTimeout(() => location.reload(), 900);
-        return;
+        case 'restart':
+          output.textContent = 'Restarting terminal...';
+          history.appendChild(output);
+          setTimeout(() => location.reload(), 1000);
+          return;
 
-      case 'history':
-        if (Array.isArray(commandHistory)) {
-          output.innerHTML = commandHistory.map((c, i) => `${i + 1}  ${c}`).join('\n') || 'No history.';
-        } else {
-          output.textContent = 'No history.';
-        }
-        pushAndScroll(output);
-        return;
+        case 'history':
+          output.innerHTML = commandHistory.map((c, i) => `${i + 1}  ${c}`).join('\n');
+          break;
 
-      case 'time':
-        output.textContent = new Date().toLocaleString();
-        pushAndScroll(output);
-        return;
+        case 'time':
+          output.textContent = new Date().toLocaleString();
+          break;
 
-      case 'uptime': {
-        const uptime = Math.floor(performance.now() / 1000);
-        const minutes = Math.floor(uptime / 60);
-        const seconds = uptime % 60;
-        output.textContent = `Session uptime: ${minutes}m ${seconds}s`;
-        pushAndScroll(output);
-        return;
-      }
+        case 'uptime': {
+          const uptime = Math.floor(performance.now() / 1000);
+          const minutes = Math.floor(uptime / 60);
+          const seconds = uptime % 60;
+          output.textContent = `Session uptime: ${minutes}m ${seconds}s`;
+        } break;
 
-      case 'joke':
-        fetch('https://official-joke-api.appspot.com/random_joke')
-          .then(r => r.json())
-          .then(j => {
-            output.textContent = `${j.setup}\n\n${j.punchline}`;
-            pushAndScroll(output);
-          })
-          .catch(() => {
-            output.textContent = 'Failed to fetch joke. Try again later.';
-            pushAndScroll(output);
-          });
-        return;
+        case 'joke':
+          fetch('https://official-joke-api.appspot.com/random_joke')
+            .then(r => r.json())
+            .then(j => {
+              output.textContent = `${j.setup}\n\n${j.punchline}`;
+              history.appendChild(output);
+              scrollToInput();
+            })
+            .catch(() => {
+              output.textContent = 'Failed to fetch joke. Try again later.';
+              history.appendChild(output);
+              scrollToInput();
+            });
+          return;
 
-      case 'quote':
-        fetch('https://zenquotes.io/api/random')
-          .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-          .then(q => {
-            const quote = q[0];
-            output.textContent = `"${quote.q}"\n\n— ${quote.a}`;
-            pushAndScroll(output);
-          })
-          .catch(() => {
-            output.textContent = 'Quote service unavailable.';
-            pushAndScroll(output);
-          });
-        return;
+        case 'quote':
+          // Use ZenQuotes and handle errors.
+          fetch('https://zenquotes.io/api/random')
+            .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+            .then(q => {
+              const quote = q[0];
+              output.textContent = `"${quote.q}"\n\n— ${quote.a}`;
+              history.appendChild(output);
+              scrollToInput();
+            })
+            .catch(() => {
+              output.textContent = 'Quote service unavailable.';
+              history.appendChild(output);
+              scrollToInput();
+            });
+          return;
 
-      case 'dream':
-        if (args) {
-          dreamJournal.push({ date: new Date().toISOString(), text: args });
-          localStorage.setItem('dream-journal', JSON.stringify(dreamJournal));
-          output.textContent = `Dream saved. Total dreams: ${dreamJournal.length}`;
-        } else {
-          output.className = 'cli-output cli-error';
-          output.textContent = 'Usage: dream [your dream text]';
-        }
-        pushAndScroll(output);
-        return;
-
-      case 'dreams':
-        if (!dreamJournal.length) {
-          output.textContent = 'No dreams saved yet. Use: dream [text]';
-        } else {
-          output.innerHTML = dreamJournal.map((d, i) => `${i + 1}. [${new Date(d.date).toLocaleDateString()}] ${d.text}`).join('\n\n');
-        }
-        pushAndScroll(output);
-        return;
-
-      case 'ip':
-        fetch('https://api.ipify.org?format=json')
-          .then(r => r.json())
-          .then(data => {
-            output.textContent = `Your IP Address: ${data.ip}`;
-            pushAndScroll(output);
-          })
-          .catch(() => {
-            output.textContent = 'Failed to fetch IP address.';
-            pushAndScroll(output);
-          });
-        return;
-
-      case 'whoami': {
-        // Browsers cannot access machine hostname — provide best-available info
-        const platform = navigator.platform || 'Unknown';
-        const ua = navigator.userAgent || 'Unknown';
-        output.innerHTML = `DEVICE INFO
-
-Device (platform): ${platform}
-User Agent: ${ua}
-Language: ${navigator.language || 'Unknown'}
-Cores: ${navigator.hardwareConcurrency || 'Unknown'}`;
-        pushAndScroll(output);
-        return;
-      }
-
-      case 'memory': {
-        if (performance && performance.memory) {
-          const usedMB = (performance.memory.usedJSHeapSize / 1048576).toFixed(1);
-          const limitMB = (performance.memory.jsHeapSizeLimit / 1048576).toFixed(1);
-          output.innerHTML = `MEMORY USAGE
-
-Used: ${usedMB} MB
-Limit: ${limitMB} MB
-Runtime: JavaScript Heap`;
-        } else if (navigator.deviceMemory) {
-          output.innerHTML = `MEMORY (approx.)
-
-Total (device): ${navigator.deviceMemory} GB
-
-Note: Precise JS heap metrics are not available in this browser.`;
-        } else {
-          output.textContent = 'Memory statistics unavailable in this browser.';
-        }
-        pushAndScroll(output);
-        return;
-      }
-
-      case 'network': {
-        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        if (conn) {
-          const downlink = conn.downlink ? `${conn.downlink} Mbps` : 'Unknown';
-          const rtt = conn.rtt ? `${conn.rtt} ms` : 'Unknown';
-          const type = conn.effectiveType || 'Unknown';
-          const saveData = conn.saveData ? 'Enabled' : 'Disabled';
-          output.innerHTML = `NETWORK STATUS
-
-Connection: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}
-Type:       ${type}
-RTT:        ${rtt}
-Downlink:   ${downlink}
-Save-Data:  ${saveData}`;
-        } else {
-          output.textContent = 'Network statistics unavailable.';
-        }
-        pushAndScroll(output);
-        return;
-      }
-
-      case 'fortune':
-        output.textContent = fortunes[Math.floor(Math.random() * fortunes.length)];
-        pushAndScroll(output);
-        return;
-
-      case 'quiz':
-        currentQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-        prompt.textContent = '>';
-        prompt.classList.add('simple');
-        output.innerHTML = `${currentQuiz.q}\n\n${currentQuiz.options.map((o, i) => `${i + 1}. ${o}`).join('\n')}\n\nType your answer:`;
-        pushAndScroll(output);
-        return;
-
-      case 'riddle':
-        currentRiddle = riddles[Math.floor(Math.random() * riddles.length)];
-        prompt.textContent = '>';
-        prompt.classList.add('simple');
-        output.textContent = currentRiddle.q;
-        pushAndScroll(output);
-        return;
-
-      case 'fact':
-        output.textContent = facts[Math.floor(Math.random() * facts.length)];
-        pushAndScroll(output);
-        return;
-
-      case 'challenge':
-        output.textContent = 'CODING CHALLENGE:\n\n' + challenges[Math.floor(Math.random() * challenges.length)];
-        pushAndScroll(output);
-        return;
-
-      case 'animals':
-        {
-          const animals = Object.values(asciiAnimals);
-          output.innerHTML = animals[Math.floor(Math.random() * animals.length)];
-          pushAndScroll(output);
-        }
-        return;
-
-      case 'fish':
-        output.innerHTML = asciiAnimals.fish;
-        pushAndScroll(output);
-        return;
-
-      case 'skull':
-        output.innerHTML = asciiAnimals.skull;
-        pushAndScroll(output);
-        return;
-
-      case 'cowsay': {
-        const message = args || 'Moo!';
-        const border = '_'.repeat(message.length + 2);
-        output.innerHTML = ` ${border}
-< ${message} >
- ${'-'.repeat(message.length + 2)}
-        \\   ^__^
-         \\  (oo)\\_______
-            (__)\\       )\\/\\
-                ||----w |
-                ||     ||`;
-        pushAndScroll(output);
-        return;
-      }
-
-      case 'glitch':
-        enhancedGlitch();
-        output.textContent = 'Reality.exe has encountered an error.';
-        pushAndScroll(output);
-        return;
-
-      case 'opacity': {
-        if (parts[1]) {
-          const val = parseInt(parts[1]);
-          if (!isNaN(val) && val >= 0 && val <= 100) {
-            const terminalOpacity = val / 100;
-            document.documentElement.style.setProperty('--terminal-opacity', terminalOpacity);
-            localStorage.setItem('terminal-opacity', String(val));
-            output.textContent = `Terminal opacity set to ${val}%`;
+        case 'dream':
+          if (args) {
+            dreamJournal.push({
+              date: new Date().toISOString(),
+              text: args
+            });
+            localStorage.setItem('dream-journal', JSON.stringify(dreamJournal));
+            output.textContent = `Dream saved. Total dreams: ${dreamJournal.length}`;
           } else {
             output.className = 'cli-output cli-error';
-            output.textContent = 'Usage: opacity [0-100]';
+            output.textContent = 'Usage: dream [your dream text]';
           }
-        } else {
-          const stored = localStorage.getItem('terminal-opacity');
-          const display = stored ? `${stored}%` : `${Math.round((getComputedStyle(document.documentElement).getPropertyValue('--terminal-opacity') || 1) * 100)}%`;
-          output.textContent = `Current opacity: ${display}`;
-        }
-        pushAndScroll(output);
-        return;
-      }
+          break;
 
-      default:
-        output.className = 'cli-output cli-error';
-        output.textContent = `Command not found: ${command}. Type 'help' for available commands.`;
-        pushAndScroll(output);
-        return;
+        case 'dreams':
+          if (dreamJournal.length === 0) {
+            output.textContent = 'No dreams saved yet. Use: dream [text]';
+          } else {
+            output.innerHTML = dreamJournal.map((d, i) =>
+              `${i + 1}. [${new Date(d.date).toLocaleDateString()}] ${d.text}`
+            ).join('\n\n');
+          }
+          break;
+
+        case 'ip':
+          // fetch public IP
+          fetch('https://api.ipify.org?format=json')
+            .then(r => r.json())
+            .then(data => {
+              output.textContent = `Your IP Address: ${data.ip}`;
+              history.appendChild(output);
+              scrollToInput();
+            })
+            .catch(() => {
+              output.textContent = 'Failed to fetch IP address.';
+              history.appendChild(output);
+              scrollToInput();
+            });
+          return;
+
+        case 'whoami': {
+          const ua = navigator.userAgent || 'Unknown';
+          const platform = navigator.platform || 'Unknown';
+          const cores = navigator.hardwareConcurrency || 'Unknown';
+          const mem = navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'Unknown';
+          output.innerHTML = `User Agent: ${ua}
+Platform: ${platform}
+Cores: ${cores}
+Memory (approx): ${mem}
+Hostname (site): ${location.hostname}`;
+        } break;
+
+        case 'opacity':
+          if (parts[1]) {
+            const val = parseInt(parts[1], 10);
+            if (!isNaN(val) && val >= 0 && val <= 100) {
+              const terminalOpacity = val / 100;
+              document.documentElement.style.setProperty('--terminal-opacity', terminalOpacity);
+              localStorage.setItem('terminal-opacity', String(val));
+              output.textContent = `Terminal opacity set to ${val}%`;
+            } else {
+              output.className = 'cli-output cli-error';
+              output.textContent = 'Usage: opacity [0-100]';
+            }
+          } else {
+            const saved = localStorage.getItem('terminal-opacity');
+            output.textContent = `Current opacity: ${saved ? saved + '%' : '100%'}`;
+          }
+          break;
+
+        default:
+          output.className = 'cli-output cli-error';
+          output.textContent = `Command not found: ${command}. Type 'help' for available commands.`;
+      }
     }
+
+    // Append output for synchronous cases
+    // (async cases already appended inside their own .then/.catch and returned early)
+    if (!output.parentElement) {
+      history.appendChild(output);
+    }
+    scrollToInput();
   }
 
   function scrollToInput() {
