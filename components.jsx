@@ -7,6 +7,7 @@ const { useState, useEffect } = React;
 const DISCORD_ID = "780384263987920937";
 const GITHUB_USER = "David-Unterberger";
 const OPENWEATHER_KEY = "7a20d5201e0a2ef6781a2fc4ca4602c5";
+const NASA_KEY = "fES0tLsjrdYLZNwmJM1U6lQXilxpHGM63KpJpgb7";
 
 // ===== DISCORD COMPONENT =====
 function DiscordComponent() {
@@ -459,7 +460,7 @@ function NASAComponent() {
   const [apod, setApod] = useState(null);
 
   useEffect(() => {
-    fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY')
+    fetch(`https://api.nasa.gov/planetary/apod?api_key=${NASA_KEY}`)
       .then(r => r.json())
       .then(d => setApod(d))
       .catch(() => { });
