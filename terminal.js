@@ -30,30 +30,297 @@ localStorage.setItem('last-visit', visitorData.lastVisit);
 const dreamJournal = JSON.parse(localStorage.getItem('dream-journal') || '[]');
 
 // ===== DATA =====
+
 const asciiAnimals = {
-  cat: `  /\\_/\\  
- ( o.o ) 
-  > ^ <`,
-  dog: `  __
- /  \\
-/ .. \\
-\\____/
- |  |`,
-  bunny: `(\\__/)
-(='.'=)
-(")_(")`,
-  fish: `  ><>
-><((('>
-  ><>`,
-  skull: `   _____
-  /     \\
- | () () |
- |   >   |
- |  ---  |
-  \\_____/`
+  cat: `
+                   _..
+ /}_{\           /.-'
+( a a )-.___...-'/
+==._.==         ;
+     \ i _..._ /,
+     {_;/   {_//  
+`,
+
+  dog: `
+     -----------------------------/ ^^^^^^^ \
+   /                             |  | * * |  |
+  / |   )                   |  ||\__/  @  \__/
+\/   \ / /----------\______/ \ //     '-'
+      ||=|=                   ||=|=
+`,
+
+  bunny: `
+  ,
+        /|      __
+       / |   ,-~ /
+      Y :|  //  /
+      | jj /( .^
+      >-"~"-v"
+     /       Y
+    jo  o    |
+   ( ~T~     j
+    >._-' _./
+   /   "~"  |
+  Y     _,  |
+ /| ;-"~ _  l
+/ l/ ,-"~    \
+\//\/      .- \
+ Y        /    Y    
+ l       I     !
+ ]\      _\    /"\
+(" ~----( ~   Y.  )
+`,
+
+  fish: `
++-------------------------------+
+|  O                            |
+|  o        O                O  |
+|  ._        o      O         o |
+|  <_><     .      o         _. |
+|         ><>      _.      ><_> |
+|      } }       ><_>   {       |
+|     { }                }      |
+|      {                {       |
+|===============================|
+`,
+
+  // improved skull
+  skull: `
+           __.-----.._
+      _._-'           '-.
+   .-'    '- - .         \
+  /              '        '.
+ /                          \
+ |                '          |
+ |             .' /          |
+/;            /   |         /
++=,_         :   /         /
+\  \T| =_    |            /
+V\  |   ""=W \.          /
+ "|/|       V \_     __)'
+  \W'    --.,   ' _."
+  |;           /F"
+  /        _'="
+  '^-Y_Y_;-'
+`,
+
+  owl: `
+                /^----^\
+                | 0  0 |
+  Whoo!!        |  \/  |
+                /       \
+    Whoo!!     |     |;;;|
+               |     |;;;|
+               |      \;;|
+                \       \|
+ -----------------(((--(((--------
+`,
+
+  duck: `
+                        __
+                      /' ,\__
+                     |    ).-'
+                    / .--'
+                   / /
+     ,      _.=='''  \
+   .'(  _.='         |
+  {   ''  _.='       |
+   {    \`     ;    /
+    '.   ''=..'  .='
+      '=._    .='
+        '-'\\'__
+            '-._{
+`,
+
+  snail: `
+\/
+|\____
+    SK\'----'\
+ '"""""+\
+`,
+
+  turtle: `
+             ___
+          ,+'/.\'+,    ___
+        \/\_/\_/\_/\,+' * \
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       /_/'-------'\_\              
+`,
+
+  frog: `
+ ~    00    ~
+   ~ (--)  ~
+~   ( || )  ~
+    ^^~~^^
+`,
+
+  crab: `
+   __       __
+  / <'     '> \
+ (  / @   @ \  )
+  \(_ _\_/_ _)/
+(\ '-/     \-' /)
+ "===\     /==="
+  .==')___('==.
+ ' .='     '=.
+`,
+
+  mouse: `
+()(),~~,.
+ .. ___; )
+='=     (_. 
+`,
+
+  raccoon: `
+  /\ /\
+-''-   _
+  () ()\  ,'_\
+  ( . ) )/._./
+   (_)-(_).--'
+`,
+
+  bat: `
+  _..__.          .__.._
+.^"-.._ '-(\__/)-' _..-"^.
+       '-.' oo '.-'
+          '-..-'
+`,
+
+  sheep: `
+        __  _
+    .-.'  '; '-._  __  _
+   (_,         .-:'  '; '-._
+ ,'o"(        (_,           )
+(__,-'      ,'o"(            )>
+   (       (__,-'            )
+    '-'._.--._(             )
+       |||  |||'-'._.--._.-'
+                  |||  |||
+`,
+
+  hedgehog: `
+  ,)))))))_
+ ))))))))^'>
+/|,,,,,,|,\
+`,
+
+  penguin: `
+   __
+-=(o '.
+   '.-.\
+   /|  \\
+   '|  ||
+    _\_):,_
+`,
+
+  octopus: `
+                        ___
+                     .-'   ''.
+                    /         \
+                    |         ;
+                    |         |           ___.--,
+           _.._     |0) ~ (0) |    _.---''__.-( (_.
+    __.--''_.. '.__.\    '--. \_.-' ,.--''     '""'
+   ( ,.--''   ',__ /./;   ;, '.__.''    __
+   _') )  .---.__.' / |   |\   \__..--""  """--.,_
+  '---' .'.''-._.-''_./  /\ '.  \ _.-~~~''''~~~-._'-.__.'
+        | |  .' _.-' |  |  \  \  '.               '~---'
+         \ \/ .'     \  \   '. '-._)
+          \/ /        \  \    '=.__'~-.
+          / /\         ') )    / / '"".'\
+    , _.-'.'\ \        / /    ( (     / /
+     '--~'   ) )    .-'.'      '.'.  | (
+            (/'    ( ('          ) )  '-;
+             '      '-;         (-'
+`,
+
+  alien: `
+   .-""""-.   
+  /        \  
+ /_        _\ 
+// \      / \\
+|\__\    /__/|
+ \    ||    / 
+  \        /  
+   \  __  /   
+    '.__.'    
+     |  |     
+     |  |     
+`,
+
+  ghost: `
+     ___
+    /   \
+   / O O \
+  |   O   |
+, |       | ,
+ \/(     )\/
+  | )   ( |
+  |(     )|
+  ||   | |'
+  '|   | |
+   |   | |
+   |   /-'
+   |_.'
+`,
+  monke: `
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⢺⡕⠱⠞⠶⣄⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠁⢽⡷⣦⢤⣶⣦⣧⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⠞⢋⣀⢱⠸⠤⠙⣻⣿⣟⠒⢄⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡔⠋⠀⠀⠀⠀⠹⣧⡄⡆⠠⠅⣸⠀⠘⡆⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢀⠤⠎⠀⠀⠀⠀⠀⠀⠀⢙⡟⠮⡦⠖⢡⠀⠀⣿⠀
+⠀⠀⠀⢀⠄⠒⢸⠏⠁⠀⠀⡀⠀⣇⠀⠀⠀⠀⠸⡇⠀⠄⠀⡆⠀⠀⣿⠀
+⠀⠀⢠⠃⠀⠀⡋⠀⠀⠀⠀⠑⠻⣿⠀⠀⠀⠀⡇⡇⡀⠀⣠⠃⠀⠀⠏⡀
+⠀⠀⢸⡃⠀⠀⢄⠓⠀⠀⠀⠀⠀⡇⢇⠀⠀⠀⢷⠊⡠⢪⡍⢶⣀⡆⠀⡇
+⠀⠀⢸⠀⠀⠀⠈⢦⠀⠀⠀⠀⢠⡇⠈⠶⠋⠀⢾⡏⠀⢸⡇⠀⠀⠀⠀⡏
+⠀⠀⢸⡀⠀⠀⠀⢸⠣⣭⡶⣰⣸⠙⢤⣄⠀⠀⢈⡇⠀⠀⣿⠀⠀⠀⠸⢻
+⠀⠀⡞⠀⠀⠀⣀⠞⠀⠀⠈⢦⠸⣳⠀⠀⠀⠀⢻⠁⠀⠀⠸⡀⠀⠀⠀⣿
+⠀⣸⠂⠀⠈⡹⠋⠀⠀⠀⠀⢸⠀⡟⠀⠀⠀⠀⡸⠀⠀⠀⠀⢩⢀⡀⣰⡟
+⠀⡷⠀⠀⣾⠁⠀⠀⠀⠀⠀⠸⠄⣸⡦⠀⠀⠀⡇⠀⠀⠀⣤⣳⡈⡛⣩⠀
+⣴⣭⠸⠚⠚⠂⠀⠀⠀⠀⠀⠀⠀⠸⡁⠀⢠⣾⠀⠀⠀⠀⠀⠘⠏⠛⠋⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠿⠺⠾⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+`,
+  whale: `
+      __________...----..____..-'''-..___
+    ,'.                                  '''--.._
+   :                                             ''._
+   |                           --                    ''.
+   |                   -.-      -.     -   -.        '.
+   :                     __           --            .     \
+    '._____________     (  '.   -.-      --  -   .   '     \
+       '-----------------\   \_.--------..__..--.._ '. '.   :
+                          '--'     SSt             '-._ .   |
+                                                       '.'  |
+                                                         \' |
+                                                          \ |
+                                                          / \'.
+                                                         /  _\-'
+                                                        /_,'
+`,
+  dragon: `
+                         .
+                         /  , /
+                       ,/' /''
+                      /(/''   _
+                     f'/)  ,-'
+                    /    ,' itz
+                   f,/  /
+                   /"  7
+                  / ,f /
+             )   / / |J
+                7,( ;|j
+     ,       (. "'/ ('
+         '    )'-'/ l '
+   (  (    ) '   ' (_,'  )
+(     ,)  7'  /  /,  (, (
+ ,  ) (,- '-'  /  (,   -') (
+(_ ( '-_(,_,'_(_(__ )_, _'-_, _
+`
 };
 
 const fortunes = [
+
   "You will write bug-free code today... just kidding.",
   "A wild segmentation fault appears!",
   "Your code compiles on the first try. This is a dream.",
@@ -63,58 +330,856 @@ const fortunes = [
   "Your pull request will be approved... eventually.",
   "Coffee is the answer. What was the question?",
   "Merge conflicts await in your future.",
-  "You will discover a semicolon in an unexpected place."
+  "You will discover a semicolon in an unexpected place.",
+
+  "A rubber duck will solve your problem.",
+  "The compiler understands you less than you think.",
+  "A variable in your code has feelings.",
+  "You will debug something that was never broken.",
+  "An infinite loop watches you sleep.",
+  "Today is a good day to refactor... tomorrow.",
+  "Someone somewhere already solved your problem in Python.",
+  "The documentation will be both correct and useless.",
+  "You will read error logs like ancient runes.",
+  "Your keyboard knows the truth.",
+
+  "The code works. Do not touch it.",
+  "You will break something while fixing something else.",
+  "A mysterious bug will disappear when observed.",
+  "The machine spirit demands a reboot.",
+  "You will forget what this function does tomorrow.",
+  "The terminal sees everything.",
+  "Your code reviewer is silently judging you.",
+  "Someone will say: 'It works on my machine.'",
+  "The debugger will reveal uncomfortable truths.",
+  "A missing bracket hides in plain sight.",
+
+  "You will search for a bug that is actually a typo.",
+  "The next commit will fix everything. Probably.",
+  "A stray console.log will reveal the universe.",
+  "Your codebase grows... like moss.",
+  "The server hums quietly, thinking about errors.",
+  "You will open 37 browser tabs.",
+  "A forgotten TODO comment will return.",
+  "The logs know what happened.",
+  "The logs will not tell you.",
+  "Your future self will be confused.",
+
+  "A process in the background is plotting something.",
+  "The cache contains mysteries.",
+  "The cache also contains lies.",
+  "Your terminal window has seen worse.",
+  "A ghost in the machine pressed enter.",
+  "The universe runs on undocumented APIs.",
+  "Someone pushed directly to main.",
+  "A cosmic bit flipped somewhere.",
+  "You will debug a bug that fixes itself.",
+  "The system remembers.",
+
+  "The answer is probably DNS.",
+  "No, really. It's DNS.",
+  "If not DNS, it is permissions.",
+  "If not permissions, it is DNS again.",
+  "The server whispers: 'try restarting me.'",
+  "You will forget to save a file.",
+  "The build will fail five minutes before a demo.",
+  "The build will succeed when nobody is watching.",
+  "An update will break everything.",
+  "An update will fix everything.",
+
+  "The terminal approves your curiosity.",
+  "You will type a command and instantly regret it.",
+  "A hidden command waits to be discovered.",
+  "You will run `rm` carefully today.",
+  "You will run `rm` confidently tomorrow.",
+  "The filesystem is listening.",
+  "An old script still works somehow.",
+  "You will grep for meaning.",
+  "The logs contain poetry.",
+  "The logs also contain despair.",
+
+  "You will stare at code until it blinks first.",
+  "The bug is subtle and full of malice.",
+  "The compiler error message is technically correct.",
+  "The code was written by past you.",
+  "Past you was optimistic.",
+  "Future you will be confused.",
+  "The terminal wishes you luck.",
+  "The terminal knows what you did.",
+  "A commit message will say 'final fix'.",
+  "There will be three more fixes.",
+
+  "A variable named 'temp2' will appear.",
+  "A function will be called 'testFinalFinal'.",
+  "You will promise to refactor later.",
+  "Later never arrives.",
+  "A mysterious script will run perfectly.",
+  "Nobody knows why.",
+  "The bug hides behind a race condition.",
+  "The race condition hides behind timing.",
+  "Timing hides behind chaos.",
+  "Chaos hides behind JavaScript.",
+
+  "You will open the same file five times.",
+  "You will forget why you opened it.",
+  "The terminal blinks patiently.",
+  "A build system somewhere is screaming.",
+  "Your CPU is thinking very hard.",
+  "The fans spin in agreement.",
+  "A semicolon dreams of purpose.",
+  "A bracket longs to be closed.",
+  "The stack grows restless.",
+  "The heap expands slowly.",
+
+  "You will learn something useless but fascinating.",
+  "The best solution is the simplest one.",
+  "You will ignore that advice.",
+  "A tiny change will fix everything.",
+  "A large change will break everything.",
+  "The machine spirit is pleased today.",
+  "The machine spirit demands caffeine.",
+  "The server dreams of electric sheep.",
+  "Reality may be a simulation.",
+  "If so, the logs are poorly documented.",
+
+  "You will discover a new command today.",
+  "You will forget it tomorrow.",
+  "The terminal has secrets.",
+  "Curiosity will reveal them.",
+  "A hidden message might appear.",
+  "Or maybe it won't.",
+  "Either way, keep exploring.",
+  "The system hums quietly.",
+  "The cursor waits patiently.",
+  "Type something interesting.",
+  "Du wirst deine Vorhaut verlieren"
 ];
 
 const riddles = [
-  { q: "I'm a loop that never ends, unless you break or return. What am I?", a: "while(true)" },
+  { q: "I'm a loop that never ends unless you break me. What am I?", a: "while(true)" },
   { q: "I have keys but no locks, space but no room. What am I?", a: "keyboard" },
-  { q: "The more you take away, the larger I become. What am I?", a: "a hole (or memory leak)" },
-  { q: "I'm full of bugs but programmers love me. What am I?", a: "code" }
+  { q: "The more memory I leak, the larger I become. What am I?", a: "memory leak" },
+  { q: "I'm full of bugs, constantly changing, yet developers rely on me. What am I?", a: "code" },
+  { q: "I always return something, but never the same twice unless you ask nicely. What am I?", a: "random" },
+  { q: "I am written once, debugged forever. What am I?", a: "code" },
+  { q: "I copy everything you type but never judge your mistakes. What am I?", a: "terminal" },
+  { q: "I remember everything but understand nothing. What am I?", a: "computer" },
+  { q: "I can travel around the world in milliseconds but never leave the wire. What am I?", a: "packet" },
+  { q: "I answer almost every programming question, yet I'm not human. What am I?", a: "stack overflow" },
+  { q: "I grow larger the more features you add, yet somehow become slower. What am I?", a: "software" },
+  { q: "You see me in every project, promise to remove me later, but never do. What am I?", a: "todo" },
+  { q: "I start with a single command but can spawn thousands of processes. What am I?", a: "script" },
+  { q: "The more threads you create, the more chaos I bring. What am I?", a: "race condition" },
+  { q: "Developers fear me before a demo. What am I?", a: "bug" },
+  { q: "I appear only after deployment. What am I?", a: "production bug" },
+  { q: "I am invisible until something goes wrong. Then everyone looks for me. What am I?", a: "log" },
+  { q: "I exist everywhere yet nowhere in your code. Remove me and everything breaks. What am I?", a: "dependency" },
+  { q: "I help you find problems but sometimes create new ones. What am I?", a: "debugger" },
+  { q: "I repeat the same mistake thousands of times per second. What am I?", a: "computer" },
+  { q: "I promise order but often create chaos. What am I?", a: "algorithm" },
+  { q: "I live in your code but run somewhere else. What am I?", a: "server" },
+  { q: "I am both a blessing and a curse for developers. What am I?", a: "javascript" },
+  { q: "I run everywhere yet behave differently everywhere. What am I?", a: "browser" },
+  { q: "I keep secrets but only if configured correctly. What am I?", a: "environment variable" },
+  { q: "I run your code faster but make bugs harder to find. What am I?", a: "optimization" },
+  { q: "I turn human ideas into machine instructions but never complain about bad logic. What am I?", a: "compiler" },
+  { q: "I help programs talk but sometimes nobody listens. What am I?", a: "api" },
+  { q: "I store everything but remember nothing about meaning. What am I?", a: "database" },
+  { q: "I turn readable code into something only machines understand. What am I?", a: "compiler" },
+  { q: "Developers love me in theory but avoid me in practice. What am I?", a: "documentation" },
+  { q: "I am the reason your code worked yesterday but not today. What am I?", a: "update" },
+  { q: "I exist only to say 'it works on my machine.' What am I?", a: "environment" },
+  { q: "The more carefully you type me, the faster everything breaks if I'm wrong. What am I?", a: "command" },
+  { q: "I can destroy your system in milliseconds with only two characters. What am I?", a: "rm" },
+  { q: "I am invisible but control everything your program does. What am I?", a: "logic" },
+  { q: "I help you find things instantly in massive codebases. What am I?", a: "grep" },
+  { q: "I turn chaos into structure but developers still misuse me. What am I?", a: "framework" },
+  { q: "I solve problems by creating smaller problems. What am I?", a: "function" },
+  { q: "I live between your code and the machine and sometimes get blamed for both. What am I?", a: "runtime" }
 ];
 
 const facts = [
-  "The first computer bug was an actual moth found in a computer in 1947.",
-  "The first 1GB hard drive weighed over 500 pounds and cost $40,000.",
-  "The average programmer writes about 10-12 lines of code per day.",
+  "The first computer bug was literally a moth found inside a Harvard Mark II computer in 1947.",
+  "The first 1GB hard drive (IBM 3380) weighed over 500 pounds and cost around $40,000.",
+  "The average programmer writes surprisingly little code per day—often only 10–50 useful lines.",
   "There are more possible chess positions than atoms in the observable universe.",
-  "The first computer virus was created in 1983 and was called 'Elk Cloner'.",
-  "Python is named after Monty Python, not the snake.",
-  "The first website is still online: info.cern.ch"
+  "The first computer virus for personal computers was 'Elk Cloner' in 1983.",
+  "Python was named after Monty Python, not the snake.",
+  "The first website ever created is still online at info.cern.ch.",
+  "The first programmer in history was Ada Lovelace in the 1840s.",
+  "The original 'debugging' logbook entry with the moth is still preserved in a museum.",
+  "Email existed before the World Wide Web.",
+
+  "The Linux kernel started as a hobby project by Linus Torvalds in 1991.",
+  "The first domain name ever registered was symbolics.com in 1985.",
+  "The first version of Windows was released in 1985.",
+  "The C programming language was created in the early 1970s at Bell Labs.",
+  "JavaScript was created in just 10 days in 1995.",
+  "The first webcam monitored a coffee pot at Cambridge University.",
+  "Git was created by Linus Torvalds after a dispute over a proprietary version control system.",
+  "Most programming languages borrow syntax ideas from C.",
+  "The '@' symbol in email addresses was chosen because it was rarely used in names.",
+  "Unix was originally written on a PDP-7 computer.",
+
+  "The original Apple I computer was sold as a kit without a keyboard or monitor.",
+  "The famous '404' error likely came from a room number at CERN.",
+  "The first graphical web browser was called Mosaic.",
+  "Stack Overflow launched in 2008.",
+  "The first smartphone is often considered the IBM Simon from 1994.",
+  "The first video game is often credited as 'Tennis for Two' from 1958.",
+  "The first hard disk drive (1956) stored only 5 megabytes.",
+  "The Apollo 11 guidance computer had less computing power than a modern calculator.",
+  "The Space Shuttle computers had about 1 MB of memory.",
+  "Early punch cards could hold only 80 characters.",
+
+  "The first Google server was built from LEGO.",
+  "The original Google algorithm was called 'BackRub'.",
+  "The 'CAPTCHA' test was partly used to digitize books.",
+  "The first emoji appeared in Japan in 1999.",
+  "The first computer mouse was made of wood.",
+  "Unix time started on January 1st, 1970.",
+  "The Y2K bug was caused by storing years with only two digits.",
+  "QR codes were invented in 1994 for tracking car parts.",
+  "The first YouTube video was uploaded in 2005.",
+  "The first tweet was posted in 2006.",
+
+  "JavaScript and Java have almost nothing in common.",
+  "The Linux penguin mascot is named Tux.",
+  "GitHub was launched in 2008.",
+  "The world’s first computer programmer was a mathematician writing algorithms for a machine that didn’t yet exist.",
+  "The word 'robot' comes from a Czech word meaning forced labor.",
+  "The internet began as a research network called ARPANET.",
+  "The first ARPANET message crashed the system halfway through sending the word 'LOGIN'.",
+  "The first version control systems appeared in the 1970s.",
+  "Open source software powers most of the internet.",
+  "About 90% of the world’s servers run Linux.",
+
+  "The 'Hello, World!' tradition dates back to a 1978 C programming book.",
+  "The original Doom game was responsible for popularizing online multiplayer.",
+  "Programmers spend far more time reading code than writing it.",
+  "A single missing semicolon has caused massive outages.",
+  "The Mars Climate Orbiter was lost due to a unit conversion bug.",
+  "The fastest supercomputers can perform quadrillions of calculations per second.",
+  "The term 'hacker' originally meant a creative programmer, not a criminal.",
+  "Early programmers sometimes had to flip switches manually to enter code.",
+  "The first floppy disk held only about 80 KB.",
+  "The first USB standard appeared in 1996.",
+
+  "Modern browsers contain millions of lines of code.",
+  "Some programming languages are designed to be intentionally hard to use.",
+  "There are over 700 programming languages.",
+  "COBOL code still runs critical financial systems today.",
+  "The majority of the internet is invisible to search engines.",
+  "The first CAPTCHA solved by AI helped digitize millions of books.",
+  "The Unicode standard contains over 140,000 characters.",
+  "The Linux kernel has over 30 million lines of code.",
+  "NASA once accidentally deleted 45 years of spacecraft telemetry data.",
+  "A single cosmic ray can flip a bit in computer memory.",
+
+  "Computers only understand two states: on and off.",
+  "Every image, song, and program ultimately becomes binary.",
+  "The internet can route around damage by design.",
+  "Data centers often use more electricity than small towns.",
+  "The first emoji set had only 176 symbols.",
+  "Some satellites still run decades-old software.",
+  "Early computers required air conditioning because of heat.",
+  "The term 'spam' for unwanted messages comes from a Monty Python sketch.",
+  "The command line existed long before graphical interfaces.",
+  "Your terminal is older than most modern software."
+
 ];
 
 const challenges = [
-  "Write FizzBuzz in your favorite language",
-  "Reverse a string without using built-in functions",
-  "Implement a binary search algorithm",
-  "Create a function to detect palindromes",
-  "Build a simple calculator using only bitwise operations",
-  "Write a function to find the nth Fibonacci number"
+  "Write FizzBuzz in your favorite language.",
+  "Reverse a string without using built-in reverse functions.",
+  "Implement a binary search algorithm.",
+  "Create a function that detects palindromes.",
+  "Build a simple calculator using only bitwise operations.",
+  "Write a function to compute the nth Fibonacci number.",
+  "Write a program that prints numbers from 1–100 without using loops.",
+  "Generate the first 20 prime numbers.",
+  "Write a function that removes duplicate characters from a string.",
+  "Check if two strings are anagrams of each other.",
+
+  "Write a function that finds the longest word in a sentence.",
+  "Rotate an array by N positions.",
+  "Count how many vowels appear in a string.",
+  "Write a function that flattens a nested array.",
+  "Find the largest number in an array without using built-ins.",
+  "Write a function that sorts numbers without using sort().",
+  "Create a simple Caesar cipher encoder.",
+  "Decode a Caesar cipher message.",
+  "Check if a number is a power of two.",
+  "Write a program that swaps two numbers without using a temporary variable.",
+
+  "Print a pyramid pattern using only loops.",
+  "Generate a random password generator.",
+  "Create a function that counts word frequency in a text.",
+  "Write a function that converts Roman numerals to integers.",
+  "Convert integers to Roman numerals.",
+  "Write a function that determines if a year is a leap year.",
+  "Create a function that removes whitespace from a string.",
+  "Find the second largest number in an array.",
+  "Detect if an array contains duplicates.",
+  "Find the intersection of two arrays.",
+
+  "Write a program that simulates a coin flip 1000 times.",
+  "Create a simple URL parser.",
+  "Write a function that shuffles an array.",
+  "Create a function that calculates factorial recursively.",
+  "Write factorial without recursion.",
+  "Write a function that counts digits in an integer.",
+  "Convert a string to title case.",
+  "Find the most common character in a string.",
+  "Generate the Fibonacci sequence up to 1000.",
+  "Write a function that checks balanced parentheses.",
+
+  "Write a function that compresses repeated characters (aaabb → a3b2).",
+  "Build a tiny markdown-to-HTML converter.",
+  "Create a function that finds the missing number in a sequence.",
+  "Write a function that merges two sorted arrays.",
+  "Create a function that groups anagrams together.",
+  "Write a function that finds the longest palindrome in a string.",
+  "Build a command-line number guessing game.",
+  "Simulate rolling two dice 10,000 times.",
+  "Write a function that calculates the median of an array.",
+  "Generate a random maze in ASCII.",
+
+  "Create Conway’s Game of Life.",
+  "Write a simple todo list manager in the terminal.",
+  "Build a simple key-value store.",
+  "Create a function that finds prime factors of a number.",
+  "Write a function that converts binary to decimal.",
+  "Convert decimal numbers to binary without built-ins.",
+  "Write a program that counts lines in a file.",
+  "Implement a simple rate limiter.",
+  "Write a tiny URL shortener algorithm.",
+  "Create a program that detects cycles in a linked list.",
+
+  "Write a function that calculates edit distance between two strings.",
+  "Implement a stack using arrays.",
+  "Implement a queue using two stacks.",
+  "Write a basic JSON parser.",
+  "Build a simple cache with expiration.",
+  "Create a basic chatbot that responds with rules.",
+  "Generate random haikus using code.",
+  "Write a program that finds the longest increasing subsequence.",
+  "Implement quicksort from scratch.",
+  "Write a program that simulates a basic CPU scheduler."
 ];
 
 const quizzes = [
+
   {
     q: "What does HTTP stand for?",
     a: "HyperText Transfer Protocol",
-    options: ["HyperText Transfer Protocol", "High Transfer Text Protocol", "Hyper Transfer Terminal Protocol"]
+    options: [
+      "HyperText Transfer Protocol",
+      "High Transfer Text Protocol",
+      "Hyper Transfer Terminal Protocol",
+      "Hyper Terminal Text Process"
+    ]
   },
+
   {
-    q: "Which language is known as the 'mother of all languages'?",
+    q: "Which language is often called the 'mother of modern programming languages'?",
     a: "C",
-    options: ["Python", "C", "Assembly", "FORTRAN"]
+    options: [
+      "Python",
+      "C",
+      "Assembly",
+      "FORTRAN"
+    ]
   },
+
   {
     q: "What year was JavaScript created?",
     a: "1995",
-    options: ["1995", "1991", "2000", "1989"]
+    options: [
+      "1995",
+      "1991",
+      "2000",
+      "1989"
+    ]
+  },
+
+  {
+    q: "Who created Linux?",
+    a: "Linus Torvalds",
+    options: [
+      "Richard Stallman",
+      "Linus Torvalds",
+      "Dennis Ritchie",
+      "Ken Thompson"
+    ]
+  },
+
+  {
+    q: "What does CPU stand for?",
+    a: "Central Processing Unit",
+    options: [
+      "Central Processing Unit",
+      "Computer Personal Unit",
+      "Central Program Utility",
+      "Control Processing Unit"
+    ]
+  },
+
+  {
+    q: "Which company created the Git version control system?",
+    a: "Linux",
+    options: [
+      "Microsoft",
+      "Google",
+      "Linux",
+      "Apple"
+    ]
+  },
+
+  {
+    q: "Which language runs natively in web browsers?",
+    a: "JavaScript",
+    options: [
+      "JavaScript",
+      "Python",
+      "C++",
+      "Go"
+    ]
+  },
+
+  {
+    q: "What does DNS stand for?",
+    a: "Domain Name System",
+    options: [
+      "Domain Name System",
+      "Data Network Server",
+      "Digital Node System",
+      "Distributed Name Service"
+    ]
+  },
+
+  {
+    q: "Which company created the Java programming language?",
+    a: "Sun Microsystems",
+    options: [
+      "Sun Microsystems",
+      "Oracle",
+      "IBM",
+      "Microsoft"
+    ]
+  },
+
+  {
+    q: "What symbol starts a comment in most shell scripts?",
+    a: "#",
+    options: [
+      "#",
+      "//",
+      "--",
+      "/*"
+    ]
+  },
+
+  {
+    q: "Which command lists files in Linux?",
+    a: "ls",
+    options: [
+      "ls",
+      "dir",
+      "show",
+      "list"
+    ]
+  },
+
+  {
+    q: "Which protocol is used for secure web browsing?",
+    a: "HTTPS",
+    options: [
+      "HTTP",
+      "HTTPS",
+      "FTP",
+      "SSH"
+    ]
+  },
+
+  {
+    q: "Which company created the Python programming language?",
+    a: "None",
+    options: [
+      "Google",
+      "Microsoft",
+      "None",
+      "IBM"
+    ]
+  },
+
+  {
+    q: "Who created Python?",
+    a: "Guido van Rossum",
+    options: [
+      "Guido van Rossum",
+      "Linus Torvalds",
+      "Brendan Eich",
+      "James Gosling"
+    ]
+  },
+
+  {
+    q: "What does RAM stand for?",
+    a: "Random Access Memory",
+    options: [
+      "Random Access Memory",
+      "Read Access Memory",
+      "Rapid Access Machine",
+      "Runtime Allocation Memory"
+    ]
+  },
+
+  {
+    q: "What does API stand for?",
+    a: "Application Programming Interface",
+    options: [
+      "Application Programming Interface",
+      "Advanced Program Interaction",
+      "Application Process Integration",
+      "Automated Programming Input"
+    ]
+  },
+
+  {
+    q: "Which company created Windows?",
+    a: "Microsoft",
+    options: [
+      "Apple",
+      "IBM",
+      "Microsoft",
+      "Sun"
+    ]
+  },
+
+  {
+    q: "Which language was created in just 10 days?",
+    a: "JavaScript",
+    options: [
+      "Java",
+      "JavaScript",
+      "Python",
+      "Ruby"
+    ]
+  },
+
+  {
+    q: "Which operating system uses the penguin mascot Tux?",
+    a: "Linux",
+    options: [
+      "Linux",
+      "Windows",
+      "macOS",
+      "BSD"
+    ]
+  },
+
+  {
+    q: "Which command removes files in Linux?",
+    a: "rm",
+    options: [
+      "rm",
+      "delete",
+      "remove",
+      "del"
+    ]
+  },
+
+  {
+    q: "Which company created the Chrome browser?",
+    a: "Google",
+    options: [
+      "Microsoft",
+      "Google",
+      "Apple",
+      "Mozilla"
+    ]
+  },
+
+  {
+    q: "Which language is primarily used for styling web pages?",
+    a: "CSS",
+    options: [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "XML"
+    ]
+  },
+
+  {
+    q: "Which tag starts a paragraph in HTML?",
+    a: "<p>",
+    options: [
+      "<div>",
+      "<p>",
+      "<span>",
+      "<text>"
+    ]
+  },
+
+  {
+    q: "Which protocol transfers files between computers?",
+    a: "FTP",
+    options: [
+      "HTTP",
+      "FTP",
+      "SMTP",
+      "SSH"
+    ]
+  },
+
+  {
+    q: "What does GPU stand for?",
+    a: "Graphics Processing Unit",
+    options: [
+      "Graphics Processing Unit",
+      "General Program Utility",
+      "Graphical Performance Unit",
+      "Graphics Protocol Unit"
+    ]
+  },
+
+  {
+    q: "Which language is famous for 'write once, run anywhere'?",
+    a: "Java",
+    options: [
+      "C++",
+      "Java",
+      "Python",
+      "Go"
+    ]
+  },
+
+  {
+    q: "What year did the first website go online?",
+    a: "1991",
+    options: [
+      "1991",
+      "1995",
+      "1989",
+      "2000"
+    ]
+  },
+
+  {
+    q: "What does IDE stand for?",
+    a: "Integrated Development Environment",
+    options: [
+      "Integrated Development Environment",
+      "Internal Development Engine",
+      "Interactive Debug Engine",
+      "Integrated Design Environment"
+    ]
+  },
+
+  {
+    q: "Which command prints the working directory?",
+    a: "pwd",
+    options: [
+      "pwd",
+      "cwd",
+      "dir",
+      "where"
+    ]
+  },
+
+  {
+    q: "Which programming language uses indentation as syntax?",
+    a: "Python",
+    options: [
+      "Python",
+      "C",
+      "Java",
+      "PHP"
+    ]
+  },
+
+  {
+    q: "What does SSH stand for?",
+    a: "Secure Shell",
+    options: [
+      "Secure Shell",
+      "System Secure Host",
+      "Shell Server Host",
+      "Secure Server Handler"
+    ]
+  },
+
+  {
+    q: "Which company created GitHub?",
+    a: "None",
+    options: [
+      "Microsoft",
+      "Google",
+      "None",
+      "Apple"
+    ]
+  },
+
+  {
+    q: "Which language is used to query databases?",
+    a: "SQL",
+    options: [
+      "SQL",
+      "HTML",
+      "CSS",
+      "JSON"
+    ]
+  },
+
+  {
+    q: "What does JSON stand for?",
+    a: "JavaScript Object Notation",
+    options: [
+      "JavaScript Object Notation",
+      "Java Structured Object Network",
+      "JSON System Object Notation",
+      "Java Source Object Name"
+    ]
+  },
+
+  {
+    q: "Which programming language is used for iOS apps?",
+    a: "Swift",
+    options: [
+      "Swift",
+      "Kotlin",
+      "Rust",
+      "Go"
+    ]
+  },
+
+  {
+    q: "Which command clears the terminal screen?",
+    a: "clear",
+    options: [
+      "clear",
+      "cls",
+      "wipe",
+      "reset"
+    ]
+  },
+
+  {
+    q: "What does LAN stand for?",
+    a: "Local Area Network",
+    options: [
+      "Local Area Network",
+      "Large Access Network",
+      "Local Application Node",
+      "Linked Access Network"
+    ]
+  },
+
+  {
+    q: "Which company created macOS?",
+    a: "Apple",
+    options: [
+      "Apple",
+      "Microsoft",
+      "Sun",
+      "IBM"
+    ]
+  },
+
+  {
+    q: "Which data structure works LIFO?",
+    a: "Stack",
+    options: [
+      "Stack",
+      "Queue",
+      "Tree",
+      "Graph"
+    ]
+  },
+
+  {
+    q: "Which structure works FIFO?",
+    a: "Queue",
+    options: [
+      "Queue",
+      "Stack",
+      "Array",
+      "Map"
+    ]
+  },
+
+  {
+    q: "Which programming language is strongly associated with data science?",
+    a: "Python",
+    options: [
+      "Python",
+      "C++",
+      "Java",
+      "Swift"
+    ]
+  },
+
+  {
+    q: "Which language compiles to WebAssembly easily?",
+    a: "Rust",
+    options: [
+      "Rust",
+      "PHP",
+      "Ruby",
+      "Bash"
+    ]
+  },
+
+  {
+    q: "Which company originally developed Unix?",
+    a: "Bell Labs",
+    options: [
+      "Bell Labs",
+      "IBM",
+      "Microsoft",
+      "Intel"
+    ]
   }
+
 ];
 
 const aliases = {
+  // help
   'ls': 'help',
+  '?': 'help',
+  'h': 'help',
+  'info': 'help',
+  'commands': 'help',
+
+  // exit / restart
+  'quit': 'exit',
+  'logout': 'exit',
+  'bye': 'exit',
+
+  // navigation style
   'cd': 'status',
   'pwd': 'visitor',
-  'cat': 'dreams'
+
+  // reading style
+  'cat': 'dreams',
+
+  // clear terminal
+  'cls': 'clear',
+  'wipe': 'clear',
+
+  // system info
+  'about': 'status',
+  'system': 'status',
+
+  // fun shortcuts
+  'fortune-cookie': 'fortune',
+  'motivation': 'quote',
+
+  // quick utility
+  'ipconfig': 'ip',
+  'who': 'whoami'
 };
 
 // ===== UTILITY FUNCTIONS =====
@@ -148,34 +1213,186 @@ function getGreeting() {
 
   const greetings = [];
 
-  if (hour >= 5 && hour < 8) greetings.push('Early bird catches the code. Good morning, operator.');
-  else if (hour >= 8 && hour < 10) greetings.push('Morning coffee and terminal access. Perfect start.');
-  else if (hour >= 10 && hour < 12) greetings.push('Mid-morning productivity detected. Systems ready.');
-  else if (hour >= 12 && hour < 14) greetings.push('Lunch break coding session? Dedication appreciated.');
-  else if (hour >= 14 && hour < 17) greetings.push('Afternoon operations commence. All systems nominal.');
-  else if (hour >= 17 && hour < 20) greetings.push('Evening terminal access granted. Welcome back.');
-  else if (hour >= 20 && hour < 23) greetings.push('Night owl detected. The best code happens after dark.');
-  else if (hour >= 23 || hour < 2) greetings.push('Midnight coding session initiated. True dedication.');
-  else if (hour >= 2 && hour < 5) greetings.push('3 AM thoughts require terminal access. Understood.');
+  // ---- Time based greetings ----
 
-  if (isWeekend && hour >= 10 && hour < 14) greetings.push('Weekend project time? This is the way.');
-  if (isWeekend && hour >= 20) greetings.push('Saturday night terminal session. Respect.');
-  if (month === 11 || month === 0) greetings.push('Winter coding season. Hot beverage recommended.');
-  if (month >= 5 && month <= 7) greetings.push('Summer development continues. Stay hydrated, operator.');
-
-  if (isFirstVisit) greetings.push('First contact established. Welcome to the system.');
-  if (visitorData.totalVisits === 5) greetings.push('Fifth visit logged. You seem interested in this terminal.');
-  if (visitorData.totalVisits === 10) greetings.push('Visit #10. Regular access pattern detected.');
-  if (visitorData.totalVisits === 25) greetings.push('Twenty-five visits. You are now a frequent operator.');
-  if (visitorData.totalVisits === 50) greetings.push('Half-century achievement. Welcome back, regular.');
-  if (visitorData.totalVisits === 100) greetings.push('Visit #100. Legendary status achieved.');
-  if (visitorData.totalVisits > 100 && visitorData.totalVisits % 50 === 0) {
-    greetings.push(`Visit #${visitorData.totalVisits}. Exceptional dedication to the terminal.`);
+  if (hour >= 5 && hour < 8) {
+    greetings.push(
+      'You are up early. The terminal approves.',
+      'Early morning session detected. Coffee recommended.',
+      'Sunrise and a terminal. A good combination.'
+    );
   }
 
-  if (!isWeekend && hour >= 9 && hour < 17) greetings.push('Business hours terminal access. Productivity mode engaged.');
+  else if (hour >= 8 && hour < 10) {
+    greetings.push(
+      'Good morning, operator.',
+      'Morning system check complete. Terminal ready.',
+      'Fresh day, fresh commands.'
+    );
+  }
 
-  return greetings[Math.floor(Math.random() * greetings.length)] || 'Terminal access granted. Proceed.';
+  else if (hour >= 10 && hour < 12) {
+    greetings.push(
+      'Mid-morning productivity detected.',
+      'System online. What shall we build today?',
+      'Terminal ready. Let’s make something interesting.'
+    );
+  }
+
+  else if (hour >= 12 && hour < 14) {
+    greetings.push(
+      'Lunch break coding session?',
+      'Fuel level: lunch. Terminal level: operational.',
+      'A little coding between meals never hurt anyone.'
+    );
+  }
+
+  else if (hour >= 14 && hour < 17) {
+    greetings.push(
+      'Afternoon operations underway.',
+      'System stable. Creativity encouraged.',
+      'Another productive afternoon in the terminal.'
+    );
+  }
+
+  else if (hour >= 17 && hour < 20) {
+    greetings.push(
+      'Evening session initialized.',
+      'The workday ends. The interesting projects begin.',
+      'Welcome back. The terminal missed you.'
+    );
+  }
+
+  else if (hour >= 20 && hour < 23) {
+    greetings.push(
+      'Night mode activated.',
+      'Late evening coding detected.',
+      'The quiet hours are perfect for programming.'
+    );
+  }
+
+  else if (hour >= 23 || hour < 2) {
+    greetings.push(
+      'Midnight terminal access granted.',
+      'The best code sometimes happens after midnight.',
+      'Night shift detected. Stay sharp.'
+    );
+  }
+
+  else if (hour >= 2 && hour < 5) {
+    greetings.push(
+      'Very late session detected.',
+      'Either you are very dedicated… or very curious.',
+      'The terminal wonders if you should be sleeping.'
+    );
+  }
+
+  // ---- Weekend flavor ----
+
+  if (isWeekend) {
+    greetings.push(
+      'Weekend detected. Side projects encouraged.',
+      'No deadlines today. Just curiosity.',
+      'Weekend terminal access approved.'
+    );
+  }
+
+  // ---- Seasonal messages ----
+
+  if (month === 11 || month === 0) {
+    greetings.push(
+      'Winter coding season. Hot beverage recommended.',
+      'Cold outside, warm terminal inside.'
+    );
+  }
+
+  if (month >= 5 && month <= 7) {
+    greetings.push(
+      'Summer development session.',
+      'Hydration reminder: drink water, write code.'
+    );
+  }
+
+  // ---- Visit milestones ----
+
+  if (isFirstVisit) {
+    greetings.push(
+      'First contact established. Welcome.',
+      'Welcome, new operator. Type "help" to explore.',
+      'System handshake successful. Enjoy the terminal.'
+    );
+  }
+
+  if (visitorData.totalVisits === 5) {
+    greetings.push(
+      'Fifth visit logged. You seem curious.',
+      'Five visits already. Someone likes this terminal.'
+    );
+  }
+
+  if (visitorData.totalVisits === 10) {
+    greetings.push(
+      'Visit #10. You are becoming a regular.',
+      'Ten visits. The terminal remembers you.'
+    );
+  }
+
+  if (visitorData.totalVisits === 25) {
+    greetings.push(
+      'Twenty-five visits. Impressive dedication.',
+      'Quarter-century milestone reached.'
+    );
+  }
+
+  if (visitorData.totalVisits === 50) {
+    greetings.push(
+      'Visit #50. Veteran terminal operator detected.',
+      'Half-century of visits. Respect.'
+    );
+  }
+
+  if (visitorData.totalVisits === 100) {
+    greetings.push(
+      'Visit #100. Legendary status achieved.',
+      'One hundred visits. The terminal salutes you.'
+    );
+  }
+
+  if (visitorData.totalVisits > 100 && visitorData.totalVisits % 50 === 0) {
+    greetings.push(
+      `Visit #${visitorData.totalVisits}. This terminal appreciates your loyalty.`
+    );
+  }
+
+  // ---- Small rare easter eggs ----
+
+  if (Math.random() < 0.03) {
+    greetings.push(
+      'Psst... try typing "42".',
+      'The terminal whispers: try "da hofa woas".',
+      'Hidden commands do exist. Curiosity will be rewarded.'
+    );
+  }
+
+  if (Math.random() < 0.02) {
+    greetings.push(
+      'All systems nominal. Probably.',
+      'Terminal AI mood: stable.',
+      'No bugs detected. Yet.'
+    );
+  }
+
+  // ---- Default fallback ----
+
+  if (greetings.length === 0) {
+    greetings.push(
+      'Terminal access granted.',
+      'System ready.',
+      'Welcome.'
+    );
+  }
+
+  return greetings[Math.floor(Math.random() * greetings.length)];
 }
 
 function typewriterLine(element, text, callback) {
