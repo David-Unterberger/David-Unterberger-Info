@@ -32,16 +32,16 @@ const dreamJournal = JSON.parse(localStorage.getItem('dream-journal') || '[]');
 // ===== DATA =====
 
 const asciiAnimals = {
-  cat: `
+  cat: String.raw`
                    _..
  /}_{\           /.-'
-( a a )-.___...-'/
+( a a )-.___...-'/ 
 ==._.==         ;
      \ i _..._ /,
      {_;/   {_//  
 `,
 
-  dog: `
+  dog: String.raw`
      -----------------------------/ ^^^^^^^ \
    /                             |  | * * |  |
   / |   )                   |  ||\__/  @  \__/
@@ -49,7 +49,7 @@ const asciiAnimals = {
       ||=|=                   ||=|=
 `,
 
-  bunny: `
+  bunny: String.raw`
   ,
         /|      __
        / |   ,-~ /
@@ -71,7 +71,7 @@ const asciiAnimals = {
 (" ~----( ~   Y.  )
 `,
 
-  fish: `
+  fish: String.raw`
 +-------------------------------+
 |  O                            |
 |  o        O                O  |
@@ -84,8 +84,7 @@ const asciiAnimals = {
 |===============================|
 `,
 
-  // improved skull
-  skull: `
+  skull: String.raw`
            __.-----.._
       _._-'           '-.
    .-'    '- - .         \
@@ -104,7 +103,7 @@ V\  |   ""=W \.          /
   '^-Y_Y_;-'
 `,
 
-  owl: `
+  owl: String.raw`
                 /^----^\
                 | 0  0 |
   Whoo!!        |  \/  |
@@ -116,7 +115,7 @@ V\  |   ""=W \.          /
  -----------------(((--(((--------
 `,
 
-  duck: `
+  duck: String.raw`
                         __
                       /' ,\__
                      |    ).-'
@@ -125,53 +124,53 @@ V\  |   ""=W \.          /
      ,      _.=='''  \
    .'(  _.='         |
   {   ''  _.='       |
-   {    \`     ;    /
+   {    \'     ;    /
     '.   ''=..'  .='
       '=._    .='
         '-'\\'__
             '-._{
 `,
 
-  snail: `
+  snail: String.raw`
 \/
 |\____
     SK\'----'\
  '"""""+\
 `,
 
-  turtle: `
+  turtle: String.raw`
              ___
           ,+'/.\'+,    ___
         \/\_/\_/\_/\,+' * \
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-       /_/'-------'\_\              
+       /_/'-------'\_\
 `,
 
-  frog: `
+  frog: String.raw`
  ~    00    ~
    ~ (--)  ~
 ~   ( || )  ~
     ^^~~^^
 `,
 
-  crab: `
+  crab: String.raw`
    __       __
   / <'     '> \
  (  / @   @ \  )
-  \(_ _\_/_ _)/
+  \(_ _\_/_ _)/ 
 (\ '-/     \-' /)
  "===\     /==="
   .==')___('==.
  ' .='     '=.
 `,
 
-  mouse: `
+  mouse: String.raw`
 ()(),~~,.
  .. ___; )
 ='=     (_. 
 `,
 
-  raccoon: `
+  raccoon: String.raw`
   /\ /\
 -''-   _
   () ()\  ,'_\
@@ -179,14 +178,14 @@ V\  |   ""=W \.          /
    (_)-(_).--'
 `,
 
-  bat: `
+  bat: String.raw`
   _..__.          .__.._
 .^"-.._ '-(\__/)-' _..-"^.
        '-.' oo '.-'
           '-..-'
 `,
 
-  sheep: `
+  sheep: String.raw`
         __  _
     .-.'  '; '-._  __  _
    (_,         .-:'  '; '-._
@@ -198,22 +197,22 @@ V\  |   ""=W \.          /
                   |||  |||
 `,
 
-  hedgehog: `
+  hedgehog: String.raw`
   ,)))))))_
  ))))))))^'>
 /|,,,,,,|,\
 `,
 
-  penguin: `
+  penguin: String.raw`
    __
 -=(o '.
-   '.-.\
+   '.-.\ 
    /|  \\
    '|  ||
     _\_):,_
 `,
 
-  octopus: `
+  octopus: String.raw`
                         ___
                      .-'   ''.
                     /         \
@@ -234,7 +233,7 @@ V\  |   ""=W \.          /
              '      '-;         (-'
 `,
 
-  alien: `
+  alien: String.raw`
    .-""""-.   
   /        \  
  /_        _\ 
@@ -248,7 +247,7 @@ V\  |   ""=W \.          /
      |  |     
 `,
 
-  ghost: `
+  ghost: String.raw`
      ___
     /   \
    / O O \
@@ -261,9 +260,10 @@ V\  |   ""=W \.          /
   '|   | |
    |   | |
    |   /-'
-   |_.'
+   |_.' 
 `,
-  monke: `
+
+  monke: String.raw`
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⢺⡕⠱⠞⠶⣄⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠁⢽⡷⣦⢤⣶⣦⣧⠀⠀⠀⠀
@@ -281,7 +281,8 @@ V\  |   ""=W \.          /
 ⣴⣭⠸⠚⠚⠂⠀⠀⠀⠀⠀⠀⠀⠸⡁⠀⢠⣾⠀⠀⠀⠀⠀⠘⠏⠛⠋⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠿⠺⠾⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 `,
-  whale: `
+
+  whale: String.raw`
       __________...----..____..-'''-..___
     ,'.                                  '''--.._
    :                                             ''._
@@ -290,7 +291,7 @@ V\  |   ""=W \.          /
    :                     __           --            .     \
     '._____________     (  '.   -.-      --  -   .   '     \
        '-----------------\   \_.--------..__..--.._ '. '.   :
-                          '--'     SSt             '-._ .   |
+                          '--'                     '-._ .   |
                                                        '.'  |
                                                          \' |
                                                           \ |
@@ -298,13 +299,14 @@ V\  |   ""=W \.          /
                                                          /  _\-'
                                                         /_,'
 `,
-  dragon: `
+
+  dragon: String.raw`
                          .
                          /  , /
                        ,/' /''
                       /(/''   _
                      f'/)  ,-'
-                    /    ,' itz
+                    /    ,'
                    f,/  /
                    /"  7
                   / ,f /
@@ -1765,7 +1767,7 @@ function initCLI() {
 
       if (isNumberMatch || isTextMatch || isExactOptionMatch) {
         output.className = 'cli-output cli-success';
-        output.textContent = 'Correct! 🎉';
+        output.textContent = 'Correct!';
       } else {
         output.className = 'cli-output cli-error';
         output.textContent = `Wrong. The answer was: ${currentQuiz.a}`;
@@ -1826,19 +1828,19 @@ function initCLI() {
     }
 
     if (command === ':wq' || command === ':wq!') {
-      output.textContent = 'This isn\'t vim... or is it? 🤔';
+      output.textContent = 'This isn\'t vim... or is it?';
       pushAndScroll(output);
       return;
     }
 
     if (command === 'exit' || command === 'quit') {
-      output.textContent = 'There is no escape. You\'re here forever. 😈';
+      output.textContent = 'There is no escape. You\'re here forever.';
       pushAndScroll(output);
       return;
     }
 
     if (command === 'teapot') {
-      output.textContent = 'HTTP 418: I\'m a teapot ☕\n\nShort and stout.';
+      output.textContent = 'HTTP 418: I\'m a teapot \n\nShort and stout.';
       pushAndScroll(output);
       return;
     }
